@@ -17,6 +17,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     
+    - name: Debug Flutter Setup
+      run: |
+        echo "Channel: stable"
+        flutter doctor -v
+    
+    
     - name: Test connection
       run: curl "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json"
 
