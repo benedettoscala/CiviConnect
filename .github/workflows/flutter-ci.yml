@@ -29,6 +29,12 @@ jobs:
         flutter-version: '3.24'
         channel: 'stable'
 
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v2
+      with:
+        api-levels: 31
+        build-tools: 31.0.0
+
     - name: Install dependencies
       working-directory: src  # Specifica la cartella src
       run: flutter pub get
