@@ -96,14 +96,29 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   }
 
-  void _sendData(String email, String password) {
+  void _sendData(String email, String password) async {
     final formState = _formKey.currentState;
+    bool validUser;
     if (formState == null || !formState.saveAndValidate()) {
       return;
     }
 
     UserManagementController controller = UserManagementController();
-    controller.login(context, email: email, password: password);
+    validUser = await controller.login(context, email: email, password: password);
+    if (!validUser) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+
+          showCloseIcon: true,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: const Text('Invalid email or password'),
+        ),
+      );
+    }
   }
 
 }
