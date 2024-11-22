@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginUtenteGUI extends StatefulWidget {
   const LoginUtenteGUI({super.key});
@@ -32,6 +33,13 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
         alignment: Alignment.center,
         child: Column(
           children: [
+            ClipRRect(
+                borderRadius:BorderRadius.circular(125.0),
+                child:
+                SvgPicture.asset('images/logo_blu.svg', fit: BoxFit.none, height: 250, width: 250, semanticsLabel: 'Logo CiviConnect',
+                  placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(backgroundColor: Colors.blue),
+                )
+            ),
             FormBuilder(
               autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
