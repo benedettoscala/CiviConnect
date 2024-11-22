@@ -1,3 +1,4 @@
+import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -12,19 +13,15 @@ class LoginUtenteGUI extends StatefulWidget {
 }
 
 class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
-  late String email;
-  late String password;
+  String email = '';
+  String password = '';
+  final _formKey = GlobalKey<FormBuilderState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body:
@@ -41,6 +38,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                 )
             ),
             FormBuilder(
+              key: _formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -94,8 +92,12 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   }
 
-  _sendData(String? email, String? password) {
-    print('Dati: $email - $password');
+  _sendData(String email, String password) {
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.saveAndValidate()) return;
+
+    UserManagementController controller = UserManagementController();
+    controller.login(context, email: email, password: password);
   }
 
 
