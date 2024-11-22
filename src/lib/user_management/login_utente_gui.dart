@@ -4,8 +4,12 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+/// A stateful widget to wrap the login form.
 class LoginUtenteGUI extends StatefulWidget {
+
+  /// Constructs a new instance of [LoginUtenteGUI].
   const LoginUtenteGUI({super.key});
+  /// The title of the login page.
   final String title = 'Login';
 
   @override
@@ -33,8 +37,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
             ClipRRect(
                 borderRadius:BorderRadius.circular(125.0),
                 child:
-                SvgPicture.asset('images/logo_blu.svg', fit: BoxFit.none, height: 250, width: 250, semanticsLabel: 'Logo CiviConnect',
-                  placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(backgroundColor: Colors.blue),
+                SvgPicture.asset('assets/images/logo_blu.svg', fit: BoxFit.none, height: 250, width: 250, semanticsLabel: 'Logo CiviConnect',
+                  placeholderBuilder: (context) => const CircularProgressIndicator(backgroundColor: Colors.blue),
                 )
             ),
             FormBuilder(
@@ -94,7 +98,9 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   void _sendData(String email, String password) {
     final formState = _formKey.currentState;
-    if (formState == null || !formState.saveAndValidate()) return;
+    if (formState == null || !formState.saveAndValidate()) {
+      return;
+    }
 
     UserManagementController controller = UserManagementController();
     controller.login(context, email: email, password: password);
@@ -105,49 +111,33 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
 class _LoginFormWidget extends Container {
   _LoginFormWidget({
-  this.alignment,
-  this.padding,
-  this.color,
-  this.decoration,
-  this.foregroundDecoration,
-  this.width,
-  this.height,
-  this.constraints,
-  this.margin,
-  this.transform,
-  this.transformAlignment,
-  this.child,
-  this.clipBehavior = Clip.none,
-    
-}) : super (
-  alignment: alignment,
-  padding: padding,
-  color: color,
-  decoration: decoration,
-  foregroundDecoration: foregroundDecoration,
-  margin: margin,
-  transform: transform,
-  transformAlignment: transformAlignment,
-  child: child,
-  clipBehavior: clipBehavior,
-  constraints: constraints,
-  width: width,
-  height: height,
-);
-  
-  
-  final EdgeInsetsGeometry? padding;
-  final Color? color;
-  final Decoration? decoration;
-  final Decoration? foregroundDecoration;
-  final BoxConstraints? constraints;
-  final EdgeInsetsGeometry? margin;
-  final Matrix4? transform;
-  final AlignmentGeometry? transformAlignment;
-  final Widget? child;
-  final Clip clipBehavior;
-  final double? width;
-  final double? height;
-  final AlignmentGeometry? alignment;
-  
+  AlignmentGeometry? alignment,
+  EdgeInsetsGeometry? padding,
+  Color? color,
+  Decoration? decoration,
+  Decoration? foregroundDecoration,
+  double? width,
+  double? height,
+  BoxConstraints? constraints,
+  EdgeInsetsGeometry? margin,
+  Matrix4? transform,
+  AlignmentGeometry? transformAlignment,
+  Widget? child,
+  Clip clipBehavior = Clip.none,
+
+}) : super(
+    alignment: alignment,
+    padding: padding,
+    color: color,
+    decoration: decoration,
+    foregroundDecoration: foregroundDecoration,
+    width: width,
+    height: height,
+    constraints: constraints,
+    margin: margin,
+    transform: transform,
+    transformAlignment: transformAlignment,
+    child: child,
+    clipBehavior: clipBehavior,
+  );
 }
