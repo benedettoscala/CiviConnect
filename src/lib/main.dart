@@ -1,3 +1,4 @@
+import 'package:civiconnect/user_management/login_utente_gui.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -114,6 +115,16 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            //add a button to the column to send to another page: TEST
+            ElevatedButton(
+              child: const Text('Open Login Test'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginUtenteGUI()),
+                );
+              },
+            ),
             const Text(
               'You have pushed the button this many times:',
             ),
