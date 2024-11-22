@@ -1,3 +1,4 @@
+import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 
 class UserManagementDAO {
