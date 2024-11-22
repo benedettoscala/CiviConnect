@@ -1,4 +1,4 @@
-package com.example.civiconnect
+package it.unisa.civiconnect
 
 import io.flutter.embedding.android.FlutterActivity
 
