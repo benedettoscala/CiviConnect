@@ -1,4 +1,3 @@
-import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 
 class UserManagementDAO {
@@ -8,15 +7,25 @@ class UserManagementDAO {
 
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
-  Future<void> signInWithEmailAndPassword({required String email, required String password}) async {
-    await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+  Future<bool> signInWithEmailAndPassword(
+      {required String email, required String password}) async {
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+    } catch (e) {
+      return false;
+    }
+
+    return true;
   }
 
-  Future<void> createUserWithEmailAndPassword({required String email, required String password}) async {
-    await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<void> createUserWithEmailAndPassword(
+      {required String email, required String password}) async {
+    await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email, password: password);
   }
 
-  Future<void> singOut() async {
+  Future<void> logOut() async {
     await _firebaseAuth.signOut();
   }
 }

@@ -7,7 +7,7 @@ import '../testing_page.dart';
 /// Controller class responsible for managing user-related operations.
 ///
 /// This class encapsulates the logic for user login, user creation,
-/// and credential validation. It provides methods to interact with the 
+/// and credential validation. It provides methods to interact with the
 /// user DAO and handles navigation to other pages.
 class UserManagementController {
   /// Instance of the user wrapper, containing user-specific information
@@ -29,10 +29,11 @@ class UserManagementController {
   /// - [context]: The current context of the Flutter application.
   /// - [email]: The user's email address.
   /// - [password]: The user's password.
-  void login(BuildContext context, {required String email, required String password}) {
+  Future<bool> login(BuildContext context,
+      {required String email, required String password}) {
     user = UserWrapper.fromLogin(email: email, password: password);
 
-    validateAuth(context);
+    return _validateAuth(context);
   }
 
   /// Method to validate user credentials and complete authentication.
@@ -42,14 +43,19 @@ class UserManagementController {
   ///
   /// Parameters:
   /// - [context]: The current context of the Flutter application.
-  void validateAuth(BuildContext context) {
+  Future<bool> _validateAuth(BuildContext context) async {
     UserManagementDAO userDao = UserManagementDAO();
 
-    userDao.createUserWithEmailAndPassword(email: user.email, password: user.password!);
+    final bool result = await userDao.signInWithEmailAndPassword(
+        email: user.email, password: user.password!);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => TestingPage(user: user)),
-    );
+    if (result) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => TestingPage(user: user)),
+      );
+    }
+
+    return result;
   }
 }
