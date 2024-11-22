@@ -25,7 +25,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
         title: Text(widget.title),
       ),
       body:
-      Container(
+      _LoginFormWidget(
         padding: const EdgeInsets.all(20),
         alignment: Alignment.center,
         child: Column(
@@ -92,7 +92,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   }
 
-  _sendData(String email, String password) {
+  void _sendData(String email, String password) {
     final formState = _formKey.currentState;
     if (formState == null || !formState.saveAndValidate()) return;
 
@@ -100,5 +100,54 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     controller.login(context, email: email, password: password);
   }
 
+}
 
+
+class _LoginFormWidget extends Container {
+  _LoginFormWidget({
+  this.alignment,
+  this.padding,
+  this.color,
+  this.decoration,
+  this.foregroundDecoration,
+  this.width,
+  this.height,
+  this.constraints,
+  this.margin,
+  this.transform,
+  this.transformAlignment,
+  this.child,
+  this.clipBehavior = Clip.none,
+    
+}) : super (
+  alignment: alignment,
+  padding: padding,
+  color: color,
+  decoration: decoration,
+  foregroundDecoration: foregroundDecoration,
+  margin: margin,
+  transform: transform,
+  transformAlignment: transformAlignment,
+  child: child,
+  clipBehavior: clipBehavior,
+  constraints: constraints,
+  width: width,
+  height: height,
+);
+  
+  
+  final EdgeInsetsGeometry? padding;
+  final Color? color;
+  final Decoration? decoration;
+  final Decoration? foregroundDecoration;
+  final BoxConstraints? constraints;
+  final EdgeInsetsGeometry? margin;
+  final Matrix4? transform;
+  final AlignmentGeometry? transformAlignment;
+  final Widget? child;
+  final Clip clipBehavior;
+  final double? width;
+  final double? height;
+  final AlignmentGeometry? alignment;
+  
 }
