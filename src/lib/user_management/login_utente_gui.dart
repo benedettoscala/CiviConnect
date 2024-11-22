@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -23,6 +26,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   @override
   Widget build(BuildContext context) {
+    String logoPath = kIsWeb || !Platform.isAndroid ? 'images/logo_blu.svg' : 'assets/images/logo_blu.svg';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -37,7 +42,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
             ClipRRect(
                 borderRadius:BorderRadius.circular(125.0),
                 child:
-                SvgPicture.asset('assets/images/logo_blu.svg', fit: BoxFit.none, height: 250, width: 250, semanticsLabel: 'Logo CiviConnect',
+                SvgPicture.asset(logoPath, fit: BoxFit.none, height: 250, width: 250, semanticsLabel: 'Logo CiviConnect',
                   placeholderBuilder: (context) => const CircularProgressIndicator(backgroundColor: Colors.blue),
                 )
             ),
@@ -96,6 +101,9 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   }
 
+  /// Method to send the login data to the controller.
+  /// This method validates the form and sends the email and password to the controller.
+  /// If the user is not valid, a snackbar is displayed.
   void _sendData(String email, String password) async {
     final formState = _formKey.currentState;
     bool validUser;
@@ -105,6 +113,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
     UserManagementController controller = UserManagementController();
     validUser = await controller.login(context, email: email, password: password);
+
     if (!validUser) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -123,7 +132,11 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
 }
 
-
+/// A widget to display the login form.
+/// This widget is a container that holds the login form.
+/// It can be customized with parameters such as padding, color, and alignment.
+/// It's a wrapper around the Container widget to provide a more specific name
+/// complying to Documentation standards.
 class _LoginFormWidget extends Container {
   // Parameters could be used later for customization
   // ignore_for_file: unused_element
