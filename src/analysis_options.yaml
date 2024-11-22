@@ -1,35 +1,26 @@
-include: package:flutter_lints/flutter.yaml
+include: package:lints/recommended.yaml
 
 linter:
   rules:
-    # Miglioramento della Manutenibilità
-    avoid_print: true                    # Evita l'uso di print() nel codice di produzione
-    avoid_redundant_argument_values: true # Evita argomenti ridondanti per mantenere il codice pulito
-    avoid_void_async: true                # Evita funzioni async con un tipo di ritorno void
+    # Style
+    always_declare_return_types: true
+    always_put_control_body_on_new_line: true
+    always_put_required_named_parameters_first: true
+    avoid_print: true
+    prefer_single_quotes: true
 
-    # Ottimizzazione delle Prestazioni
-    prefer_const_constructors: true       # Preferisci costruttori const ove possibile
-    prefer_const_literals_to_create_immutables: true # Usa const per liste e mappe immutabili
-    avoid_unnecessary_containers: true    # Evita container inutili per mantenere la UI più semplice
+    # Naming Conventions
+    camel_case_types: true
 
-    # Buone Pratiche di Programmazione
-    curly_braces_in_flow_control_structures: true # Usa le parentesi graffe per le strutture di controllo
-    avoid_returning_null_for_future: true # Evita di restituire null in funzioni Future
-    no_leading_underscores_for_local_identifiers: true # Evita underscore per identificatori locali
+    # Documentation
+    slash_for_doc_comments: true
 
-    # Leggibilità e Consistenza
-    always_put_required_named_parameters_first: true # I parametri required vanno prima dei named parameters
-    use_key_in_widget_constructors: true     # Usa il parametro key nei widget custom
-    prefer_final_in_for_each: true           # Usa final nelle variabili nei loop for-each
-    prefer_single_quotes: true               # Preferisci apici singoli per le stringhe, ove possibile
+    # Best Practices
+    annotate_overrides: true
+    avoid_types_on_closure_parameters: true
+    public_member_api_docs: true
 
-    # Sicurezza
-    null_closures: true                      # Evita chiusure nullabili
-    unnecessary_null_aware_assignments: true # Evita assegnazioni null-aware non necessarie
-
-    # Altre Regole Utli
-    avoid_positional_boolean_parameters: true # Evita booleani posizionali, usa invece parametri named
-    prefer_typing_uninitialized_variables: true # Inizializza tutte le variabili con un tipo definito
-    annotate_overrides: true                # Aggiungi l'annotazione @override dove necessario
-    prefer_is_empty: true                   # Usa isEmpty invece di controllare la lunghezza della lista
-    prefer_spread_collections: true         # Usa gli spread operators nelle collezioni ove applicabile
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
