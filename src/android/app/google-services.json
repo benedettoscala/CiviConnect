@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "966074492991",
+    "project_id": "civiconnect-13aeb",
+    "storage_bucket": "civiconnect-13aeb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966074492991:android:fa8089007b0cdefe82f08a",
+        "android_client_info": {
+          "package_name": "it.unisa.civiconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc4Kb5kYGc1gL6QORfcMhah2aYls4w9rk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
