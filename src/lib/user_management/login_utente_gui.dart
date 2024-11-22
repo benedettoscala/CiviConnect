@@ -125,34 +125,24 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
 
 class _LoginFormWidget extends Container {
+  // Parameters could be used later for customization
+  // ignore_for_file: unused_element
   _LoginFormWidget({
-  AlignmentGeometry? alignment,
-  EdgeInsetsGeometry? padding,
-  Color? color,
-  Decoration? decoration,
-  Decoration? foregroundDecoration,
-  double? width,
-  double? height,
-  BoxConstraints? constraints,
-  EdgeInsetsGeometry? margin,
-  Matrix4? transform,
-  AlignmentGeometry? transformAlignment,
-  Widget? child,
-  Clip clipBehavior = Clip.none,
+    super.alignment,
+    super.padding,
+    super.color,
+    super.decoration,
+    super.foregroundDecoration,
+    super.width,
+    super.height,
+    super.constraints,
+    super.margin,
+    super.transform,
+    super.transformAlignment,
+    super.child,
+    super.clipBehavior = Clip.none,
+  });
 
-}) : super(
-    alignment: alignment,
-    padding: padding,
-    color: color,
-    decoration: decoration,
-    foregroundDecoration: foregroundDecoration,
-    width: width,
-    height: height,
-    constraints: constraints,
-    margin: margin,
-    transform: transform,
-    transformAlignment: transformAlignment,
-    child: child,
-    clipBehavior: clipBehavior,
-  );
+
+
 }
