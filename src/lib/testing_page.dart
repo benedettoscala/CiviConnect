@@ -1,9 +1,12 @@
 import 'package:civiconnect/user_management/user_wrapper.dart';
 import 'package:flutter/material.dart';
 
+/// UI page for testing login functionality.
 class TestingPage extends StatelessWidget {
-  const TestingPage({required this.user, super.key});
-  final UserWrapper user;
+  final UserWrapper _user;
+
+  /// Constructs a new instance of [TestingPage].
+  const TestingPage({required user, super.key}) : _user = user;
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +14,7 @@ class TestingPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Testing Page'),
       ),
-      body: Text(user.email),
+      body: Text(_user.email),
     );
   }
 }
