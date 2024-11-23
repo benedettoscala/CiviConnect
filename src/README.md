@@ -1,6 +1,8 @@
-# civiconnect
+# CiviConnect
 
-A new Flutter project.
+Mobile Application built with Flutter Dart with the purpose of inform municipalities about problems reported by citizens.
+
+Produced for the Software Engineering and Software Project Management courses of Computer Science at University of Salerno.
 
 ## Getting Started
 
