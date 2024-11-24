@@ -6,16 +6,19 @@ import 'package:flutter/material.dart';
 /// Each status has a [name] to display as a string and a [value] used for sorting or comparisons.
 enum StatusReport implements Comparable<StatusReport> {
   /// The report is waiting for admin approval.
-  waitForVerify(name: 'In verifica', value: 0),
+  underReview(name: 'In verifica', value: 0),
 
   /// The report has been approved by an admin.
   accepted(name: 'Accettata', value: 1),
 
   /// The report is being worked on to resolve the issue.
-  workingFor(name: 'In lavorazione', value: 2),
+  inProgress(name: 'In lavorazione', value: 2),
 
   /// The report has been completed.
-  completed(name: 'Completata', value: 3);
+  completed(name: 'Completata', value: 3),
+
+  ///The report has been rejected.
+  rejected(name: 'Rifiutata', value: -1);
 
   /// A human-readable name for the status.
   final String _name;
