@@ -1,9 +1,139 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+
+    // ----- FUNCTIONS -----
+
+    // --- User Validation Functions ----
+
+    // Returns true if User is logged and request uid is the same as userId
+    function isSameUserFromId(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Returns true if request id is logged and Admin
+    function isValidAdmin() {
+      let admins = get(/databases/$(database)/documents/private/admin).data.uids;
+      return request.auth != null && request.auth.uid in admins;
+    }
+
+    // Returns true if user is a Citizen
+    function isCitizen() {
+      return request.auth != null && exists(/databases/$(database)/documents/citizen/$(request.auth.uid));
+    }
+
+    // Returns true if user is a Municipality
+    function isMunicipality() {
+      return request.auth != null && exists(/databases/$(database)/documents/municipality/$(request.auth.uid));
+    }
+
+    // ---- Utility: Internal Report Validation Functions ------
+    function isSameAuthor() {
+      return request.resource.data.authorFirstName == resource.data.authorFirstName &&
+             request.resource.data.authorLastName == resource.data.authorLastName &&
+             request.resource.data.uid == resource.data.uid;
+    }
+
+    // Returns true if status and priority from request are equal to stored
+    function isSameStatusAndPriority() {
+      return request.resource.data.status == resource.data.status &&
+             request.resource.data.priority == resource.data.priority;
+    }
+
+    // Returns true if city from request is equal to stored
+    function isSameCity() {
+      return request.resource.data.city == resource.data.city;
+    }
+
+    // Returns true if reportDate from request is equal to stored
+    function isSameReportDate() {
+      return request.resource.data.reportDate == resource.data.reportDate;
+    }
+
+    // Returns true if title, description, photo, category from request are equal to stored
+    function isSameReportContent() {
+      return request.resource.data.title == resource.data.title &&
+             request.resource.data.description == resource.data.description &&
+             request.resource.data.photo == resource.data.photo &&
+             request.resource.data.category == resource.data.category;
+    }
+
+    // Returns true if address from request is equal to stored
+    function isSameReportAddress() {
+      return request.resource.data.address == resource.data.address;
+    }
+
+    // -------- Report Validation Functions ---------
+
+    // Returns true if not updatable fields from Citizen request are equal to stored ones
+    function isAllowedReportUpdateCitizen() {
+      return isSameStatusAndPriority() &&
+             isSameCity() &&
+             isSameReportDate() &&
+             isSameAuthor() &&
+             request.resource.data.endDate == resource.data.endDate;
+             //TODO -- Check for Photo Path
+    }
+
+    // Returns true if not updatable fields from Municipality request are equal to stored ones
+    function isAllowedReportUpdateMunicipality() {
+      return isSameAuthor() &&
+             isSameCity() &&
+             isSameReportDate() &&
+             isSameReportContent() &&
+             isSameReportAddress();
+    }
+
+    // Returns true if stored data report is "Under Review" (In Verifica)
+    function isReportUnderReview() {
+      return resource.data.status == "In Verifica";
+    }
+
+    // ----------- RULES FOR DOCUMENTS ------------
+    // Note: Valid for single document requests not Queries!!!
+    // (as for firebase.rules internal mechanism)
+
+
+    // Rules for Private -- Don't allow reads or writes
+    match /private/{admin} {
       allow read, write: if false;
+    }
+
+    // Rules for Citizens Data
+    match /citizen/{citizenId} {
+      // A citizen user can only read and write his data
+      allow read, write: if isSameUserFromId(citizenId);
+    }
+
+    // Rules for Municipalities
+    match /municipality/{munId} {
+      // A municipality user can only read his data
+      allow read: if isSameUserFromId(munId) || isValidAdmin();
+      // Only Admin can change municipality data
+      allow create, write: if isValidAdmin();
+    }
+
+    // Rules for Single Reports (NOT Queries!!)
+    match /reports/{idReport} {
+      // Allow read from citizen or municipality (only same city):
+      allow read: if isCitizen() ||
+          (isMunicipality() &&
+           get(/databases/$(database)/documents/municipality/$(request.auth.uid)).data.municipalityName ==
+           request.resource.data.city);
+
+      // Only citizen can create a report -- TODO: Input Validation
+      allow create: if isCitizen() &&
+          // Check if citizen city is the same as report city
+          get(/databases/$(database)/documents/citizen/$(request.auth.uid)).data.city == request.resource.data.city;
+
+      // Only author can update/delete report and only if status is under review
+      allow update, delete: if isSameUserFromId(resource.data.uid) &&
+                            isReportUnderReview() &&
+                            isAllowedReportUpdateCitizen();
+
+      // Only municipality can update field of its competence
+      allow update, delete: if isMunicipality() &&
+                            isAllowedReportUpdateMunicipality();
     }
   }
 }

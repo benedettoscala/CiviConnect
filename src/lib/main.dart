@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:civiconnect/home_page.dart';
+import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/login_utente_gui.dart';
 import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
@@ -29,6 +30,7 @@ class FirstPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeManager().customTheme,
       home: const _FirstPage(),
     );
   }
@@ -78,9 +80,13 @@ class _FirstPageState extends State<_FirstPage> {
                             ),
                           ),
                           const SizedBox(height: 50),
-                          Text('Benvenuto in CiviConnect'),
                           Text(
-                              'Inizia ad utilizzare la nostra applicazione per connetterti con la tua città'),
+                            'Benvenuto in CiviConnect',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          Text(
+                              'Inizia ad utilizzare la nostra applicazione per connetterti con la tua città',
+                              style: Theme.of(context).textTheme.bodySmall),
                         ],
                       ),
                     ),
