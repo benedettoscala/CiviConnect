@@ -1,11 +1,15 @@
 import 'dart:io';
 
 import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+
+import '../home_page.dart';
+import '../main.dart';
 
 /// A stateful widget to wrap the login form.
 class LoginUtenteGUI extends StatefulWidget {
@@ -116,7 +120,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     }
 
     UserManagementController controller =
-        UserManagementController(redirectPage: TestingPage());
+        UserManagementController(redirectPage: HomePage());
     validUser =
         await controller.login(context, email: email, password: password);
 
@@ -172,7 +176,17 @@ class TestingPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Logged'),
       ),
-      body: null,
+      body: Container(
+        child: ElevatedButton(
+            onPressed: () {
+              UserManagementDAO().logOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => FirstPage()),
+              );
+            },
+            child: Text('Logout')),
+      ),
     );
   }
 }

@@ -1,6 +1,14 @@
+import 'dart:io';
+
+import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/user_management/login_utente_gui.dart';
-import 'package:flutter/material.dart';
+import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -10,138 +18,102 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+  runApp(const FirstPage());
 }
 
 /// This is the main application widget.
-class MyApp extends StatelessWidget {
+class FirstPage extends StatelessWidget {
   /// This is the main application widget.
-  const MyApp({super.key});
+  const FirstPage({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const _MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const _FirstPage(),
     );
   }
 }
 
-class _MyHomePage extends StatefulWidget {
-  const _MyHomePage({required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class _FirstPage extends StatefulWidget {
+  const _FirstPage();
 
   @override
-  State<_MyHomePage> createState() => _MyHomePageState();
+  State<_FirstPage> createState() => _FirstPageState();
 }
 
-class _MyHomePageState extends State<_MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
+class _FirstPageState extends State<_FirstPage> {
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return 
-    Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            //add a button to the column to send to another page: TEST
-            ElevatedButton(
-              child: const Text('Open Login Test'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginUtenteGUI()),
-                );
-              },
+    String logoPath = kIsWeb || !Platform.isAndroid
+        ? 'images/logo_blu.svg'
+        : 'assets/images/logo_blu.svg';
+
+    // If the user have already logged in, redirect to the other default page.
+    return Scaffold(
+      body: UserManagementDAO().currentUser != null
+          ? HomePage()
+          : Container(
+              margin: EdgeInsets.only(bottom: 50),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).size.height / 4),
+                      padding: EdgeInsets.only(left: 50, right: 50),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(125.0),
+                            child: SvgPicture.asset(
+                              logoPath,
+                              fit: BoxFit.none,
+                              height: 250,
+                              width: 250,
+                              semanticsLabel: 'Logo CiviConnect',
+                              placeholderBuilder: (context) =>
+                                  const CircularProgressIndicator(
+                                      backgroundColor: Colors.blue),
+                            ),
+                          ),
+                          const SizedBox(height: 50),
+                          Text('Benvenuto in CiviConnect'),
+                          Text(
+                              'Inizia ad utilizzare la nostra applicazione per connetterti con la tua città'),
+                        ],
+                      ),
+                    ),
+                    Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginUtenteGUI()),
+                              );
+                            },
+                            child: Text('Login'))),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      RegistrazioneUtenteGui()),
+                            );
+                          },
+                          child: Text('Registrazione')),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
