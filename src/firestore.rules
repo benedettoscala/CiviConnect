@@ -1,3 +1,5 @@
+// MAX 256KB
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -28,6 +30,8 @@ service cloud.firestore {
     }
 
     // ---- Utility: Internal Report Validation Functions ------
+
+    //Returns true if author from request is equal to stored (firstName, lastName, uid)
     function isSameAuthor() {
       return request.resource.data.authorFirstName == resource.data.authorFirstName &&
              request.resource.data.authorLastName == resource.data.authorLastName &&
@@ -91,7 +95,7 @@ service cloud.firestore {
 
     // ----------- RULES FOR DOCUMENTS ------------
     // Note: Valid for single document requests not Queries!!!
-    // (as for firebase.rules internal mechanism)
+    // (as for firebase.rules internal mechanism) see Manual for more info
 
 
     // Rules for Private -- Don't allow reads or writes
@@ -102,7 +106,9 @@ service cloud.firestore {
     // Rules for Citizens Data
     match /citizen/{citizenId} {
       // A citizen user can only read and write his data
-      allow read, write: if isSameUserFromId(citizenId);
+      allow read, update, delete: if isSameUserFromId(citizenId);
+      // TODO: Add create citizen data on registration
+      allow create: if false;
     }
 
     // Rules for Municipalities
