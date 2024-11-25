@@ -2,8 +2,6 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_wrapper.dart';
 import 'package:flutter/material.dart';
 
-import '../testing_page.dart';
-
 /// Controller class responsible for managing user-related operations.
 ///
 /// This class encapsulates the logic for user login, user creation,
@@ -14,10 +12,13 @@ class UserManagementController {
   /// such as email and password.
   late final UserWrapper user;
 
+  /// Redirect page to navigate to after successful login.
+  final Widget redirectPage;
+
   /// Constructor for the `UserManagementController` class.
   ///
-  /// This constructor does not require any parameters at initialization.
-  UserManagementController();
+  /// This constructor require a `redirectPage` parameter, which is the page.
+  UserManagementController({required this.redirectPage});
 
   /// Method to handle user login.
   ///
@@ -39,7 +40,7 @@ class UserManagementController {
   /// Method to validate user credentials and complete authentication.
   ///
   /// This method uses the `UserManagementDAO` to create a user with the provided
-  /// email and password, then navigates to the `TestingPage`.
+  /// email and password, then navigates to the [redirectPage].
   ///
   /// Parameters:
   /// - [context]: The current context of the Flutter application.
@@ -52,7 +53,7 @@ class UserManagementController {
     if (result) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => TestingPage(user: user)),
+        MaterialPageRoute(builder: (context) => redirectPage),
       );
     }
 
