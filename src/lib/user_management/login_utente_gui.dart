@@ -1,15 +1,12 @@
-import 'dart:io';
-
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../home_page.dart';
 import '../main.dart';
+import '../widgets/logo_widget.dart';
 
 /// A stateful widget to wrap the login form.
 class LoginUtenteGUI extends StatefulWidget {
@@ -30,10 +27,6 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   @override
   Widget build(BuildContext context) {
-    String logoPath = kIsWeb || !Platform.isAndroid
-        ? 'images/logo_blu.svg'
-        : 'assets/images/logo_blu.svg';
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -44,18 +37,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
         alignment: Alignment.center,
         child: Column(
           children: [
-            ClipRRect(
-                borderRadius: BorderRadius.circular(125.0),
-                child: SvgPicture.asset(
-                  logoPath,
-                  fit: BoxFit.none,
-                  height: 250,
-                  width: 250,
-                  semanticsLabel: 'Logo CiviConnect',
-                  placeholderBuilder: (context) =>
-                      const CircularProgressIndicator(
-                          backgroundColor: Colors.blue),
-                )),
+            const LogoWidget(),
             FormBuilder(
               key: _formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,

@@ -1,14 +1,11 @@
-import 'dart:io';
-
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/login_utente_gui.dart';
 import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:civiconnect/widgets/logo_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'firebase_options.dart';
 
@@ -46,10 +43,6 @@ class _FirstPage extends StatefulWidget {
 class _FirstPageState extends State<_FirstPage> {
   @override
   Widget build(BuildContext context) {
-    String logoPath = kIsWeb || !Platform.isAndroid
-        ? 'images/logo_blu.svg'
-        : 'assets/images/logo_blu.svg';
-
     // If the user have already logged in, redirect to the other default page.
     return Scaffold(
       body: UserManagementDAO().currentUser != null
@@ -66,19 +59,7 @@ class _FirstPageState extends State<_FirstPage> {
                       padding: EdgeInsets.only(left: 50, right: 50),
                       child: Column(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(125.0),
-                            child: SvgPicture.asset(
-                              logoPath,
-                              fit: BoxFit.none,
-                              height: 250,
-                              width: 250,
-                              semanticsLabel: 'Logo CiviConnect',
-                              placeholderBuilder: (context) =>
-                                  const CircularProgressIndicator(
-                                      backgroundColor: Colors.blue),
-                            ),
-                          ),
+                          const LogoWidget(),
                           const SizedBox(height: 50),
                           Text(
                             'Benvenuto in CiviConnect',
