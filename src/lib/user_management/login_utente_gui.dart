@@ -1,3 +1,4 @@
+import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
@@ -28,34 +29,42 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      backgroundColor: ThemeManager().seedColor,
       body: _LoginFormWidget(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
         alignment: Alignment.center,
         child: Column(
           children: [
+            // Logo
             const LogoWidget(),
+            // Form
             FormBuilder(
               key: _formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text('Benvenuto',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 30,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   FormBuilderTextField(
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.email(),
                       FormBuilderValidators.required(),
                     ]),
                     name: 'email',
-                    decoration: const InputDecoration(labelText: 'Email'),
+                    decoration: _inputDecoration(context, 'Email'),
                     onChanged: (value) {
                       setState(() {
                         email = value!;
                       });
                     },
                   ),
+                  const SizedBox(height: 20),
                   FormBuilderTextField(
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.password(
@@ -64,7 +73,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     ]),
                     obscureText: true,
                     name: 'password',
-                    decoration: const InputDecoration(labelText: 'Password'),
+                    decoration: _inputDecoration(context, 'Password'),
                     onChanged: (value) {
                       setState(() {
                         password = value!;
@@ -75,12 +84,31 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(20),
               child: ElevatedButton(
                 style: Theme.of(context).elevatedButtonTheme.style,
                 onPressed: () => _sendData(email, password),
                 child: const Text(
                   'Login',
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            TextButton(
+                onPressed: (){}, //TODO: Implement password recovery
+                child: Text(
+                  'Password dimenticata?',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+            ),
+            TextButton( //TODO: Implement registration
+              onPressed: () {},
+              child: Text(
+                'Non hai un account? Registrati',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ),
@@ -99,12 +127,14 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     if (formState == null || !formState.saveAndValidate()) {
       return;
     }
-
+    // Sends the email and password to the controller.
     UserManagementController controller =
         UserManagementController(redirectPage: HomePage());
+
     validUser =
         await controller.login(context, email: email, password: password);
 
+    // If the user is not valid, a snackbar is displayed.
     if (!validUser) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -120,6 +150,27 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     }
   }
 }
+
+/// A method to create the input decoration for the text form fields.
+/// This method creates a new instance of InputDecoration with the provided
+/// labelText and returns it.
+/// The decoration is filled with the color scheme of the current theme.
+InputDecoration _inputDecoration(BuildContext context, String? labelText) {
+  return InputDecoration(
+    labelText: labelText,
+    filled: true,
+    fillColor: Theme.of(context).colorScheme.onPrimary,
+    labelStyle:
+      TextStyle(
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.onPrimary,
+      ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
+  );
+}
+
 
 /// A widget to display the login form.
 /// This widget is a container that holds the login form.
