@@ -43,6 +43,7 @@ dependencies:
   form_builder_validators: ^11.0.0
   flutter_svg: ^2.0.15
   hugeicons: ^0.0.7
+  cloud_firestore: ^5.5.0
 
 dev_dependencies:
   flutter_test:
