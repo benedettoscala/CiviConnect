@@ -91,7 +91,12 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                           });
                         },
                       ),
-                      const SizedBox(height: 60),
+                      SizedBox(
+                          height: 60,
+                          child: Divider(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                      ),
                       FormBuilderTextField(
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
@@ -219,7 +224,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               ]),
                               name: 'number',
                               decoration:
-                                  _inputDecoration(context, 'Numero civico').copyWith(
+                                  _inputDecoration(context, 'Civico').copyWith(
                                     errorStyle: TextStyle(color: Colors.redAccent),
                                   ),
                               onChanged: (value) {
