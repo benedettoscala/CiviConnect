@@ -1,24 +1,64 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+import 'package:flutter/foundation.dart';
+
+/// An enumeration of user types.
+///
+/// This is used to define and manage different roles within the application.
+enum UserType implements Comparable<UserType> {
+  /// Super Administrator (highest privileges).
+  admin(value: 0, name: 'Super Administrator'),
+
+  /// Municipality Administrator.
+  municipality(value: 1, name: 'Municipality Administrator'),
+
+  /// Regular user (citizen).
+  citizen(value: 2, name: 'Regular user'),
+
+  /// Unidentified or unauthorized user.
+  unknown(value: -1, name: 'Unknown');
+
+  /// Constructs a `UserType` with the given [value] and [name].
+  const UserType({required this.value, required this.name});
+
+  /// The integer value associated with this enum.
+  final int value;
+
+  /// The display name of this user type.
+  final String name;
+
+  @override
+  int compareTo(UserType other) {
+    return value - other.value;
+  }
+}
 
 /// A Data Access Object (DAO) for managing user authentication
-/// using Firebase Authentication.
+/// and role determination using Firebase Authentication and Firestore.
 class UserManagementDAO {
-  // Private instance of FirebaseAuth used to interact with authentication services.
+  /// Instance of FirebaseAuth used for user authentication.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  /// Instance of FirebaseFirestore used for database operations.
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   /// Returns the currently authenticated user, or `null` if no user is logged in.
   User? get currentUser => _firebaseAuth.currentUser;
 
-  /// A stream that provides updates to the authentication state.
+  /// A stream providing updates to the authentication state.
   ///
-  /// Emits the current user whenever there is a change, such as a login, logout,
+  /// Emits the current user whenever there is a login, logout,
   /// or token refresh. Emits `null` if the user logs out.
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
-  /// Signs in a user with the provided email and password.
+  /// Signs in a user using email and password.
   ///
-  /// Throws no exceptions. Returns `true` if the sign-in succeeds,
-  /// or `false` if an error occurs.
+  /// This method attempts to authenticate a user with the given credentials.
+  /// Returns `true` if authentication succeeds, or `false` otherwise.
+  ///
+  /// - [email]: The user's email address.
+  /// - [password]: The user's password.
+  /// - Returns: `true` if login is successful, `false` otherwise.
   ///
   /// Example:
   /// ```dart
@@ -42,8 +82,11 @@ class UserManagementDAO {
 
   /// Creates a new user with the provided email and password.
   ///
-  /// Throws an exception if the account creation fails. Ensure to handle
-  /// errors such as email already in use or invalid password format.
+  /// This method registers a new user in Firebase Authentication.
+  /// Throws an exception if account creation fails (e.g., email already in use).
+  ///
+  /// - [email]: The email address for the new account.
+  /// - [password]: The password for the new account.
   ///
   /// Example:
   /// ```dart
@@ -67,8 +110,10 @@ class UserManagementDAO {
 
   /// Logs out the currently authenticated user.
   ///
-  /// Throws an exception if the logout operation fails. After a successful
-  /// logout, `authStateChanges` will emit `null`.
+  /// This method ends the current user session. After a successful logout,
+  /// the `authStateChanges` stream will emit `null`.
+  ///
+  /// Throws an exception if the logout operation fails.
   ///
   /// Example:
   /// ```dart
@@ -77,5 +122,68 @@ class UserManagementDAO {
   /// ```
   Future<void> logOut() async {
     await _firebaseAuth.signOut();
+  }
+
+  /// Determines the user type based on Firestore records.
+  ///
+  /// This method evaluates the current user's UID against Firestore records
+  /// to classify the user as `admin`, `municipality`, `citizen`, or `unknown`.
+  ///
+  /// - Returns: A `UserType` enum representing the user's role.
+  ///
+  /// Example:
+  /// ```dart
+  /// UserType userType = await userManagementDAO.determineUserType();
+  /// print("User type: ${userType.name}");
+  /// ```
+  Future<UserType> determineUserType() async {
+    User? currentUser = _firebaseAuth.currentUser;
+
+    if (currentUser == null) {
+      return UserType.unknown;
+    }
+
+    String uid = currentUser.uid;
+
+    try {
+      DocumentSnapshot adminDoc =
+      await _firebaseFirestore.doc('/private/admin').get();
+      if (adminDoc.exists) {
+        List<dynamic> adminUIDs = adminDoc['uids'] as List<dynamic>;
+        if (adminUIDs.contains(uid)) {
+          return UserType.admin;
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Maybe municipality user?');
+      }
+    }
+
+    try {
+      DocumentSnapshot municipalityDoc =
+      await _firebaseFirestore.doc('/municipality/$uid').get();
+      if (municipalityDoc.exists) {
+        return UserType.municipality;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Maybe citizen user?');
+      }
+    }
+
+    try {
+      DocumentSnapshot citizenDoc =
+      await _firebaseFirestore.doc('/citizen/$uid').get();
+      if (citizenDoc.exists) {
+        return UserType.citizen;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Unknown user');
+      }
+    }
+
+    return UserType.unknown;
   }
 }
