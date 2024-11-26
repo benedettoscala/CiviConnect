@@ -11,7 +11,7 @@ class ThemeManager {
   factory ThemeManager() => _instance;
 
   /// The seed color used for the theme.
-  final Color seedColor = const Color.fromRGBO(0, 69, 118, 1);
+  static final Color seedColor = const Color.fromRGBO(0, 69, 118, 1);
 
   /// The custom theme for the application.
   final ThemeData customTheme = ThemeData(
