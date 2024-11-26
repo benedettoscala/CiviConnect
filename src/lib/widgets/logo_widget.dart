@@ -17,14 +17,17 @@ class LogoWidget extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(125.0),
-      child: SvgPicture.asset(
-        logoPath,
-        fit: BoxFit.none,
-        height: 250,
-        width: 250,
-        semanticsLabel: 'Logo CiviConnect',
-        placeholderBuilder: (context) =>
-            const CircularProgressIndicator(backgroundColor: Colors.blue),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: Container(
+        child: SvgPicture.asset(
+          logoPath,
+          fit: BoxFit.cover,
+          height: 200,
+          width: 200,
+          semanticsLabel: 'Logo CiviConnect',
+          placeholderBuilder: (context) =>
+              const CircularProgressIndicator(backgroundColor: Colors.blue),
+        ),
       ),
     );
   }
