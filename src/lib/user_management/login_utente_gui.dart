@@ -56,13 +56,14 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                   ),
                   const SizedBox(height: 20),
                   FormBuilderTextField(
+                    
                     validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.max(255),
+                      FormBuilderValidators.maxLength(255),
                       FormBuilderValidators.email(),
                       FormBuilderValidators.required(),
                     ]),
                     name: 'email',
-                    textInputAction: TextInputAction.continueAction,
+                    //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
                     maxLength: 255,
                     keyboardType:  TextInputType.emailAddress,
                     decoration: _inputDecoration(context, labelText: 'Email'),
