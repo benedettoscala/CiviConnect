@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+//import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// A Data Access Object (DAO) for managing user authentication
 /// using Firebase Authentication.
 class UserManagementDAO {
   // Private instance of FirebaseAuth used to interact with authentication services.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final db = FirebaseFirestore.instance;
 
   /// Returns the currently authenticated user, or `null` if no user is logged in.
   User? get currentUser => _firebaseAuth.currentUser;
@@ -57,12 +60,27 @@ class UserManagementDAO {
   ///   print("Error creating user: $e");
   /// }
   /// ```
-  Future<void> createUserWithEmailAndPassword({
+  Future<bool> createUserWithEmailAndPassword({
     required String email,
     required String password,
+    required Map<String, dynamic>
+        additionalData, // Data aggiuntivi dell'utente.
   }) async {
-    await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email, password: password);
+    try {
+      // Crea l'utente con Firebase Authentication.
+      UserCredential userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Ottieni l'UID dell'utente appena creato.
+      String uid = userCredential.user!.uid;
+
+      // Salva i dati aggiuntivi su Firestore.
+      await db.collection('citizen').doc(uid).set({...additionalData});
+    } catch (e) {
+      // Rilancia l'eccezione per una gestione a livello superiore.
+      throw Exception('Error creating user: $e');
+    }
+    return true;
   }
 
   /// Logs out the currently authenticated user.

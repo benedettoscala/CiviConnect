@@ -11,7 +11,7 @@ class UserWrapper {
   final String? _password;
   final String? _name;
   final String? _surname;
-  final String? _address;
+  final Map<String,String>? _address;
   final String? _city;
   final String? _cap;
 
@@ -26,7 +26,7 @@ class UserWrapper {
     String? password,
     String? name,
     String? surname,
-    String? address,
+    Map<String, String>? address,
     String? city,
     String? cap,
   })  : _user = user,
@@ -96,7 +96,7 @@ class UserWrapper {
     required String password,
     required String name,
     required String surname,
-    required String address,
+    required Map<String, String> address,
     required String city,
     required String cap,
   }) {
@@ -162,7 +162,7 @@ class UserWrapper {
   /// Returns the address of the user.
   ///
   /// Returns `null` if the address was not provided during initialization.
-  String? get address => _address;
+  Map<String, String>? get address => _address;
 
   /// Returns the city of the user.
   ///

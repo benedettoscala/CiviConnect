@@ -37,6 +37,81 @@ class UserManagementController {
     return _validateAuth(context);
   }
 
+/// Method to handle user registration.
+///
+/// This method initializes a `UserWrapper` instance using the provided email,
+/// password, username, name, surname, address, city, and cap, then calls the
+/// `_validateAuth` method to complete the authentication process.
+///
+/// Parameters:
+/// - [context]: The current context of the Flutter application.
+/// - [email]: The user's email address.
+/// - [password]: The user's password.
+/// - [username]: The user's username.
+/// - [name]: The user's name.
+/// - [surname]: The user's surname.
+/// - [address]: The user's address.
+/// - [city]: The user's city.
+/// - [cap]: The user's CAP.
+///
+/// Returns:
+/// - A `Future<bool>` that resolves to `true` if the registration is successful.
+///   Otherwise, it resolves to `false`.
+///
+/// Example:
+/// ```dart
+/// bool isRegistered = await controller.register(
+///   context,
+///   email: 'example@example.com',
+///   password: 'securePassword',
+///   username: 'username123',
+///   name: 'John',
+///   surname: 'Doe',
+///   address: '123 Main St',
+///   city: 'Metropolis',
+///   cap: '12345',
+/// );
+/// ```
+  Future<bool> register(BuildContext context,
+    {required String email, required String password, required String username, required String name, required String surname, required Map<String, String> address, required String city, required String cap}) {
+  user = UserWrapper.fromRegistration(
+    email: email,
+    password: password,
+    username: username,
+    name: name,
+    surname: surname,
+    address: address,
+    city: city,
+    cap: cap,
+  );
+
+  return _validateRegistration(context);
+  }
+
+  Future<bool> _validateRegistration(BuildContext context) async {
+    UserManagementDAO userDao = UserManagementDAO();
+    final bool result= await userDao.createUserWithEmailAndPassword(
+          email: user.email,
+          password: user.password!,
+          additionalData: {
+            'firstName': user.name,
+            'lastName': user.surname,
+            'address': user.address,
+            'city': user.city,
+            'cap': user.cap
+          });
+
+
+    if (result) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => redirectPage),
+      );
+    }
+
+    return result;
+  }
+
   /// Method to validate user credentials and complete authentication.
   ///
   /// This method uses the `UserManagementDAO` to create a user with the provided
@@ -59,4 +134,6 @@ class UserManagementController {
 
     return result;
   }
+
+  //MI MANCA MARTINA :(
 }
