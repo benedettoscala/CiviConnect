@@ -4,7 +4,8 @@ import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../home_page.dart';
 //import '../main.dart';
 import '../widgets/logo_widget.dart';
@@ -78,7 +79,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       FormBuilderTextField(
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.password(
-                              minLength: 6, maxLength: 4096),
+                              minLength: 8, maxLength: 4096),
                           FormBuilderValidators.required(),
                         ]),
                         obscureText: true,
@@ -285,6 +286,23 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
     if (formState == null || !formState.saveAndValidate()) {
       return;
     }
+
+    bool isMatching =await isCapMatchingCityAPI(cap, city);
+    if (!isMatching) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          showCloseIcon: true,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: const Text('Il CAP inserito non rispecchia la città'),
+        ),
+      );
+      return;
+    }
+
     // Sends the email and password to the controller.
     UserManagementController controller =
         UserManagementController(redirectPage: HomePage());
@@ -328,6 +346,43 @@ InputDecoration _inputDecoration(BuildContext context, String? labelText) {
       borderRadius: BorderRadius.circular(20),
     ),
   );
+}
+
+/// Checks if the provided CAP matches the city using an external API.
+///
+/// This method sends a request to the Zippopotam.us API to verify if the
+/// provided CAP (postal code) corresponds to the given city. It returns
+/// `true` if the city matches the CAP, otherwise `false`.
+///
+/// Parameters:
+/// - [cap]: The postal code to be checked.
+/// - [city]: The city name to be verified against the postal code.
+///
+/// Returns:
+/// - A `Future<bool>` that resolves to `true` if the city matches the CAP,
+///   otherwise `false`.
+///
+/// Example:
+/// ```dart
+/// bool isMatching = await isCapMatchingCityAPI('00100', 'Rome');
+/// if (isMatching) {
+///   print('The CAP matches the city.');
+/// } else {
+///   print('The CAP does not match the city.');
+/// }
+/// ```
+Future<bool> isCapMatchingCityAPI(String cap, String city) async {
+  final url = Uri.parse('http://api.zippopotam.us/IT/$cap');
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    String cityFromAPI = data['places'][0]['place name'];
+    return cityFromAPI.toLowerCase() == city.toLowerCase();
+  } else {
+    print('Errore API: ${response.statusCode}');
+    return false;
+  }
 }
 
 /// A widget to display the login form.
