@@ -42,6 +42,10 @@ class UserManagementDAO {
   /// Instance of FirebaseFirestore used for database operations.
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
+  /// The user type of the currently authenticated user.
+  /// This variable is used as cache.
+  late final UserType? _userType;
+
   /// Returns the currently authenticated user, or `null` if no user is logged in.
   User? get currentUser => _firebaseAuth.currentUser;
 
@@ -50,6 +54,9 @@ class UserManagementDAO {
   /// Emits the current user whenever there is a login, logout,
   /// or token refresh. Emits `null` if the user logs out.
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+
+  /// Returns the user type of the currently authenticated user.
+  UserType get getUserType => _userType!;
 
   /// Signs in a user using email and password.
   ///
@@ -130,6 +137,7 @@ class UserManagementDAO {
   /// to classify the user as `admin`, `municipality`, `citizen`, or `unknown`.
   ///
   /// - Returns: A `UserType` enum representing the user's role.
+  /// - This method caches the user type for future calls.
   ///
   /// Example:
   /// ```dart
@@ -143,15 +151,20 @@ class UserManagementDAO {
       return UserType.unknown;
     }
 
+    if (_userType != null) {
+      return _userType;
+    }
+
     String uid = currentUser.uid;
 
     try {
       DocumentSnapshot adminDoc =
-      await _firebaseFirestore.doc('/private/admin').get();
+          await _firebaseFirestore.doc('/private/admin').get();
       if (adminDoc.exists) {
         List<dynamic> adminUIDs = adminDoc['uids'] as List<dynamic>;
         if (adminUIDs.contains(uid)) {
-          return UserType.admin;
+          _userType = UserType.admin;
+          return _userType!;
         }
       }
     } catch (e) {
@@ -162,9 +175,10 @@ class UserManagementDAO {
 
     try {
       DocumentSnapshot municipalityDoc =
-      await _firebaseFirestore.doc('/municipality/$uid').get();
+          await _firebaseFirestore.doc('/municipality/$uid').get();
       if (municipalityDoc.exists) {
-        return UserType.municipality;
+        _userType = UserType.municipality;
+        return _userType!;
       }
     } catch (e) {
       if (kDebugMode) {
@@ -174,9 +188,10 @@ class UserManagementDAO {
 
     try {
       DocumentSnapshot citizenDoc =
-      await _firebaseFirestore.doc('/citizen/$uid').get();
+          await _firebaseFirestore.doc('/citizen/$uid').get();
       if (citizenDoc.exists) {
-        return UserType.citizen;
+        _userType = UserType.citizen;
+        return _userType!;
       }
     } catch (e) {
       if (kDebugMode) {
@@ -184,6 +199,6 @@ class UserManagementDAO {
       }
     }
 
-    return UserType.unknown;
+    return _userType!;
   }
 }
