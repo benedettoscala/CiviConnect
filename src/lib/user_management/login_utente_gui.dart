@@ -35,9 +35,9 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
         alignment: Alignment.center,
         child: Column(
           children: [
-            // Logo
+            /// Logo
             const LogoWidget(),
-            // Form
+            /// Form
             FormBuilder(
               key: _formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -93,25 +93,11 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                 ),
               ),
             ),
-            const SizedBox(height: 40),
-            TextButton(
-                onPressed: (){}, //TODO: Implement password recovery
-                child: Text(
-                  'Password dimenticata?',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
-            ),
-            TextButton( //TODO: Implement registration
-              onPressed: () {},
-              child: Text(
-                'Non hai un account? Registrati',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
+
+            const SizedBox(height: 10),
+
+            /// Bottom buttons
+            _BottomLoginRedirectButtons(),
           ],
         ),
       ),
@@ -160,17 +146,17 @@ InputDecoration _inputDecoration(BuildContext context, String? labelText) {
     labelText: labelText,
     filled: true,
     fillColor: Theme.of(context).colorScheme.onPrimary,
-    labelStyle:
-      TextStyle(
-        color: Theme.of(context).colorScheme.onPrimaryContainer,
-        backgroundColor: Theme.of(context).colorScheme.onPrimary,
-      ),
+    labelStyle: TextStyle(
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
+    ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(20),
     ),
   );
 }
 
+// ----------------------------- PRIVATE CLASSES --------------------------------
 
 /// A widget to display the login form.
 /// This widget is a container that holds the login form.
@@ -197,6 +183,74 @@ class _LoginFormWidget extends Container {
   });
 }
 
+
+/// A widget to display the bottom buttons for the login page.
+/// It contains two buttons: one for password recovery and one for registration.
+/// The buttons are styled with the color scheme of the current theme.
+/// The buttons are aligned at the bottom of the screen.
+class _BottomLoginRedirectButtons extends StatelessWidget {
+  const _BottomLoginRedirectButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                onPressed: (){}, //TODO: Implement password recovery
+                child: Text(
+                  'Password dimenticata?',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    shadows: const [
+                      Shadow(
+                        color: Colors.black,
+                        blurRadius: 2,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegistrazioneUtenteGui()),
+                  );
+                },
+                child: Text(
+                  'Non hai un account? Registrati',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    shadows: const [
+                      Shadow(
+                        color: Colors.black,
+                        blurRadius: 2,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+// ----------------------------- TESTING PAGE --------------------------------
+
+
 /// UI page for testing login functionality.
 class TestingPage extends StatelessWidget {
   /// Constructs a new instance of [TestingPage].
@@ -209,15 +263,28 @@ class TestingPage extends StatelessWidget {
         title: const Text('Logged'),
       ),
       body: Container(
-        child: ElevatedButton(
-            onPressed: () {
-              UserManagementDAO().logOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => FirstPage()),
-              );
-            },
-            child: Text('Logout')),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                UserManagementDAO().logOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => FirstPage()),
+                );
+              },
+              child: Text('Logout'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                UserManagementDAO().determineUserType().then((value) {
+                  print('\n\n\n[Testing] Type of user: ${value.name}');
+                });
+              },
+              child: Text('Test if I\' m admin'),
+            ),
+          ],
+        ),
       ),
     );
   }
