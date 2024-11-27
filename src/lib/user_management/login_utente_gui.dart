@@ -56,7 +56,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                   ),
                   const SizedBox(height: 20),
                   FormBuilderTextField(
-                    
+                    textAlignVertical: TextAlignVertical.center,
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.maxLength(255),
                       FormBuilderValidators.email(),
@@ -216,10 +216,12 @@ InputDecoration _inputDecoration(BuildContext context, {String? labelText, VoidC
         },
       ),
     ),
+    ///Other Decoration properties
+    contentPadding: const EdgeInsets.fromLTRB(20, 5, 20, 20), //TODO: Check padding - Working on default size;
     labelText: labelText,
     filled: true,
     fillColor: Theme.of(context).colorScheme.onPrimary,
-    floatingLabelBehavior: FloatingLabelBehavior.auto,
+    floatingLabelBehavior: FloatingLabelBehavior.never,
     errorBorder: UnderlineInputBorder(
       borderRadius: BorderRadius.circular(20),
       borderSide: BorderSide(
@@ -232,13 +234,18 @@ InputDecoration _inputDecoration(BuildContext context, {String? labelText, VoidC
     color: Theme.of(context).colorScheme.onPrimaryContainer,
         backgroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
-    floatingLabelStyle: TextStyle(
-      height: 1.0,
+    /*floatingLabelStyle: TextStyle(
+      height: 12.0,
       color: Theme.of(context).colorScheme.onPrimaryContainer,
-    ),
+    ),*/
     border: UnderlineInputBorder(
       borderRadius: BorderRadius.circular(20),
       borderSide: BorderSide.none
+    ),
+    errorMaxLines: 2,
+    errorStyle: TextStyle(
+      color: Theme.of(context).colorScheme.error,
+      //backgroundColor: Theme.of(context).colorScheme.onPrimary,
     ),
   );
 }
