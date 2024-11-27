@@ -56,11 +56,15 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                   const SizedBox(height: 20),
                   FormBuilderTextField(
                     validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.max(255),
                       FormBuilderValidators.email(),
                       FormBuilderValidators.required(),
                     ]),
                     name: 'email',
-                    decoration: _inputDecoration(context, 'Email'),
+                    textInputAction: TextInputAction.continueAction,
+                    maxLength: 255,
+                    keyboardType:  TextInputType.emailAddress,
+                    decoration: _inputDecoration(context, labelText: 'Email'),
                     onChanged: (value) {
                       setState(() {
                         email = value!;
@@ -75,10 +79,11 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     focusNode: focusNode,
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.password(
-                          minLength: 6, maxLength: 4096),
+                          minLength: 6, maxLength: 255),
                       FormBuilderValidators.required(),
                     ]),
-                    obscureText: true,
+                    obscureText: obscureText,
+                    maxLength: 255,
                     name: 'password',
                     decoration:
                     _inputDecoration(
