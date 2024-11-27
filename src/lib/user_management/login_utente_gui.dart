@@ -4,6 +4,7 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../home_page.dart';
 import '../main.dart';
@@ -24,6 +25,8 @@ class LoginUtenteGUI extends StatefulWidget {
 class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
   String email = '';
   String password = '';
+  bool obscureText = true;
+  FocusNode focusNode = FocusNode();
   final _formKey = GlobalKey<FormBuilderState>();
 
   @override
@@ -63,9 +66,13 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                         email = value!;
                       });
                     },
+                    onSubmitted: (value) {
+                      focusNode.nextFocus();
+                    },
                   ),
                   const SizedBox(height: 20),
                   FormBuilderTextField(
+                    focusNode: focusNode,
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.password(
                           minLength: 6, maxLength: 4096),
@@ -73,11 +80,23 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     ]),
                     obscureText: true,
                     name: 'password',
-                    decoration: _inputDecoration(context, 'Password'),
+                    decoration:
+                    _inputDecoration(
+                        context,
+                        labelText: 'Password',
+                        obscureText: obscureText,
+                        onObscure: () {
+                          setState(() {
+                            obscureText = !obscureText;
+                          });
+                        }),
                     onChanged: (value) {
                       setState(() {
                         password = value!;
                       });
+                    },
+                    onSubmitted: (value) {
+                      _sendData(email, password);
                     },
                   ),
                 ],
@@ -102,6 +121,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
         ),
       ),
     );
+
   }
 
   /// Method to send the login data to the controller.
@@ -135,14 +155,54 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
       );
     }
   }
+
+
 }
+
+
+// ----------------------------- PRIVATE METHODS --------------------------------
 
 /// A method to create the input decoration for the text form fields.
 /// This method creates a new instance of InputDecoration with the provided
 /// labelText and returns it.
-/// The decoration is filled with the color scheme of the current theme.
-InputDecoration _inputDecoration(BuildContext context, String? labelText) {
+///
+/// The decoration is filled with the color scheme of the current theme onPrimary.
+///
+/// The icon is displayed only if the `onObscure` callback parameter is not null.
+/// The icon changes based on the `obscureText` parameter.
+/// The `onObscure` parameter is a callback that is called when the icon is pressed.
+///
+InputDecoration _inputDecoration(BuildContext context, {String? labelText, VoidCallback? onObscure,
+                        bool obscureText = false}) {
   return InputDecoration(
+    /// The icon is displayed only if the onObscure callback parameter is not null.
+    /// The icon changes based on the obscureText parameter.
+    /// The onObscure callback is called when the icon is pressed.
+    suffixIcon: (onObscure == null) ? null :
+    Padding(
+      padding: const EdgeInsets.only(right: 5.0),
+      child: IconButton(
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(Theme.of(context).shadowColor.withAlpha(20)),
+          animationDuration: const Duration(milliseconds: 200),
+          elevation: WidgetStatePropertyAll(2),
+        ),
+        tooltip: 'Mostra/Nascondi password',
+        icon: obscureText ? HugeIcon(
+          icon: HugeIcons.strokeRoundedViewOff,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        )
+            :
+        HugeIcon(
+            icon: HugeIcons.strokeRoundedView,
+            color: Theme.of(context).colorScheme.onPrimaryContainer
+        ),
+        color: Theme.of(context).colorScheme.onPrimary,
+        onPressed: () {
+          onObscure.call();
+        },
+      ),
+    ),
     labelText: labelText,
     filled: true,
     fillColor: Theme.of(context).colorScheme.onPrimary,
