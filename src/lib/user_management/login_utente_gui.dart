@@ -108,9 +108,15 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(40),
               child: ElevatedButton(
-                style: Theme.of(context).elevatedButtonTheme.style,
+                style: ElevatedButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
                 onPressed: () => _sendData(email, password),
                 child: const Text(
                   'Login',
@@ -211,12 +217,26 @@ InputDecoration _inputDecoration(BuildContext context, {String? labelText, VoidC
     labelText: labelText,
     filled: true,
     fillColor: Theme.of(context).colorScheme.onPrimary,
-    labelStyle: TextStyle(
-      color: Theme.of(context).colorScheme.onPrimaryContainer,
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
-    ),
-    border: OutlineInputBorder(
+    floatingLabelBehavior: FloatingLabelBehavior.auto,
+    errorBorder: UnderlineInputBorder(
       borderRadius: BorderRadius.circular(20),
+      borderSide: BorderSide(
+        width: 3,
+        color: Theme.of(context).colorScheme.error,
+      ),
+    ),
+    labelStyle:
+    TextStyle(
+    color: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.onPrimary,
+      ),
+    floatingLabelStyle: TextStyle(
+      height: 1.0,
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
+    ),
+    border: UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: BorderSide.none
     ),
   );
 }
