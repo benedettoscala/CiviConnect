@@ -28,7 +28,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   String cap = '';
   Map<String, String> address = {
     'number': '',
-    'road': '',
     'street': '',
   };
   final _formKey = GlobalKey<FormBuilderState>();
@@ -92,10 +91,10 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         },
                       ),
                       SizedBox(
-                          height: 60,
-                          child: Divider(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
+                        height: 60,
+                        child: Divider(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                       FormBuilderTextField(
                         validator: FormBuilderValidators.compose([
@@ -108,7 +107,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               errorText:
                                   'Il nome non può superare i 255 caratteri'),
                         ]),
-                        obscureText: true,
                         name: 'firstName',
                         decoration: _inputDecoration(context, 'Nome').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
@@ -132,7 +130,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                   'Il cognome non può superare i 255 caratteri'),
                         ]),
                         name: 'lastName',
-                        decoration: _inputDecoration(context, 'Cognome').copyWith(
+                        decoration:
+                            _inputDecoration(context, 'Cognome').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
                         ),
                         onChanged: (value) {
@@ -153,7 +152,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               errorText:
                                   'La città non può superare i 255 caratteri'),
                         ]),
-                        obscureText: true,
                         name: 'City',
                         decoration: _inputDecoration(context, 'Città').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
@@ -177,7 +175,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         decoration: _inputDecoration(context, 'CAP').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
                         ),
-                        onChanged: (value) {
+                        onChanged: (value) async {
                           setState(() {
                             cap = value!;
                           });
@@ -196,13 +194,14 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                     errorText:
                                         'La via non può superare i 255 caratteri'),
                               ]),
-                              name: 'road',
-                              decoration: _inputDecoration(context, 'Via').copyWith(
+                              name: 'street',
+                              decoration:
+                                  _inputDecoration(context, 'Via').copyWith(
                                 errorStyle: TextStyle(color: Colors.redAccent),
                               ),
                               onChanged: (value) {
                                 setState(() {
-                                  address['road'] = value!;
+                                  address['street'] = value!;
                                 });
                               },
                             ),
@@ -225,8 +224,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               name: 'number',
                               decoration:
                                   _inputDecoration(context, 'Civico').copyWith(
-                                    errorStyle: TextStyle(color: Colors.redAccent),
-                                  ),
+                                errorStyle: TextStyle(color: Colors.redAccent),
+                              ),
                               onChanged: (value) {
                                 setState(() {
                                   address['number'] = value!;
@@ -243,7 +242,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
                     style: Theme.of(context).elevatedButtonTheme.style,
-                    onPressed: () => _sendData(email, password),
+                    onPressed: () => _sendData(email, password, firstName,
+                        lastName, city, cap, address),
                     child: const Text(
                       'Registrati',
                     ),
@@ -272,7 +272,14 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   /// Method to send the login data to the controller.
   /// This method validates the form and sends the email and password to the controller.
   /// If the user is not valid, a snackbar is displayed.
-  void _sendData(String email, String password) async {
+  void _sendData(
+      String email,
+      String password,
+      String firstName,
+      String lastName,
+      String city,
+      String cap,
+      Map<String, String> indirizzo) async {
     final formState = _formKey.currentState;
     bool validUser;
     if (formState == null || !formState.saveAndValidate()) {
@@ -282,9 +289,15 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
     UserManagementController controller =
         UserManagementController(redirectPage: HomePage());
 
-    validUser =
-        await controller.login(context, email: email, password: password);
-
+    validUser = await controller.register(context,
+        email: email,
+        password: password,
+        username: firstName,
+        name: firstName,
+        surname: lastName,
+        address: indirizzo,
+        city: city,
+        cap: cap);
     // If the user is not valid, a snackbar is displayed.
     if (!validUser) {
       ScaffoldMessenger.of(context).showSnackBar(

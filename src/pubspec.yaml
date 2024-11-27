@@ -38,11 +38,14 @@ dependencies:
   firebase_core: ^3.8.0
   firebase_ui_auth: ^1.16.0
   firebase_auth: any
+  cloud_firestore: ^5.0.0
 
   flutter_form_builder: ^9.5.0
   form_builder_validators: ^11.0.0
   flutter_svg: ^2.0.15
   hugeicons: ^0.0.7
+  http: ^1.2.2
+
 
 dev_dependencies:
   flutter_test:
