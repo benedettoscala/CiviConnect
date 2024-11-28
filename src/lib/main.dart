@@ -55,6 +55,7 @@ class _FirstPageState extends State<_FirstPage> {
   Widget build(BuildContext context) {
     // If the user have already logged in, redirect to the other default page.
     return Scaffold(
+      backgroundColor: ThemeManager().seedColor,
       body: UserManagementDAO().currentUser != null
           ? HomePage()
           : Container(
@@ -73,11 +74,19 @@ class _FirstPageState extends State<_FirstPage> {
                           const SizedBox(height: 50),
                           Text(
                             'Benvenuto in CiviConnect',
-                            style: Theme.of(context).textTheme.bodyLarge,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
                           ),
                           Text(
-                              'Inizia ad utilizzare la nostra applicazione per connetterti con la tua città',
-                              style: Theme.of(context).textTheme.bodySmall),
+                            'Inizia ad utilizzare la nostra applicazione per connetterti con la tua città',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
