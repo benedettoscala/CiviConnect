@@ -21,10 +21,7 @@ abstract class GenericUser {
 
   /// Returns the unique UID of the user.
   String get uid => user.uid;
-
-
 }
-
 
 /* ------------------- ADMIN ------------------------ */
 
@@ -39,9 +36,7 @@ class Admin extends GenericUser {
   Admin({required super.user});
 }
 
-
 /* -------------------- MUNICIPALITY -------------------- */
-
 
 /// Class representing a Municipality.
 ///
@@ -64,7 +59,6 @@ class Municipality extends GenericUser {
     this.province,
   });
 }
-
 
 /* ------------------- CITIZEN --------------------- */
 
@@ -106,29 +100,38 @@ class Citizen extends GenericUser {
 
   /// Validates the provided address map.
   ///
-  /// This method checks if the provided address map contains only valid keys
-  /// (`street` and `number`). If any invalid key is found, an `ArgumentError`
-  /// is thrown. The method returns a new map containing only the valid keys.
+  /// This method ensures that the provided address map contains only the valid keys
+  /// specified in the `_addressKeys` list (`street` and `number`). If the map contains
+  /// additional keys, missing keys, or is null, the method returns `null`. If the map
+  /// is valid, it returns the original map without modification.
   ///
-  /// \param address The address map to validate.
+  /// This validation is useful to ensure that the address data adheres to a predefined structure.
   ///
-  /// \return A new map containing only the valid keys, or `null` if the input is `null`.
+  /// Example:
+  /// ```dart
+  /// Map<String, String>? validAddress = {'street': 'Main St', 'number': '123'};
+  /// Map<String, String>? invalidAddress = {'street': 'Main St', 'city': 'Springfield'};
   ///
-  /// \throws ArgumentError if the address map contains invalid keys.
-  static Map<String, String>? _validateAddress(Map<String, String>? address){
+  /// print(Citizen._validateAddress(validAddress)); // {street: Main St, number: 123}
+  /// print(Citizen._validateAddress(invalidAddress)); // null
+  /// print(Citizen._validateAddress(null)); // null
+  /// ```
+  ///
+  /// \param address The address map to validate, which can be null.
+  ///
+  /// \return The original map if valid, or `null` if the input is invalid.
+  ///
+  /// \throws No exceptions are thrown by this method.
+  static Map<String, String>? _validateAddress(Map<String, String>? address) {
     if (address == null) {
       return null;
     }
 
-    /// Keys Validation: Only `street` and `number` are valid keys
-    final Map<String, String> validatedAddress = {};
-    for (var key in address.keys) {
-      if (!_addressKeys.contains(key)) {
-        throw ArgumentError('Invalid address key: $key');
-      }
-      validatedAddress[key] = address[key]!;
+    if (address.keys.toSet().containsAll(_addressKeys.toSet()) &&
+        address.keys.length == _addressKeys.length) {
+      return address;
     }
-    return validatedAddress;
-  }
 
+    return null;
+  }
 }
