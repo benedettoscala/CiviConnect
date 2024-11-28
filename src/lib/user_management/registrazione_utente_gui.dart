@@ -287,7 +287,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
       return;
     }
 
-    bool isMatching =await isCapMatchingCityAPI(cap, city);
+    bool isMatching = await isCapMatchingCityAPI(cap, city);
+    print(isMatching);
     if (!isMatching) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -377,8 +378,10 @@ Future<bool> isCapMatchingCityAPI(String cap, String city) async {
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
-    String cityFromAPI = data['places'][0]['place name'];
-    return cityFromAPI.toLowerCase() == city.toLowerCase();
+    List<dynamic> places = data['places'];
+    bool isMatching = places.any(
+        (place) => place['place name'].toLowerCase() == city.toLowerCase());
+    return isMatching;
   } else {
     print('Errore API: ${response.statusCode}');
     return false;
