@@ -44,7 +44,7 @@ class TextFieldInputDecoration extends InputDecoration {
         super.errorText,
         super.floatingLabelAlignment,
         super.isCollapsed,
-        super.isDense,
+        //super.isDense,
         super.prefixIcon,
         super.prefixIconConstraints,
         super.prefix,
@@ -70,8 +70,8 @@ class TextFieldInputDecoration extends InputDecoration {
         super.constraints,
       })
       : super(
-
-    contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+    isDense: true,
+    contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
     filled: true,
     fillColor: Theme
         .of(context)
