@@ -3,6 +3,7 @@ import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -60,6 +61,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                   ),
                   const SizedBox(height: 20),
                   FormBuilderTextField(
+                    cursorErrorColor: Theme.of(context).colorScheme.error,
                     textAlignVertical: TextAlignVertical.center,
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.maxLength(255),
@@ -70,7 +72,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
                     maxLength: 255,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: _inputDecoration(context, labelText: 'Email'),
+                    decoration: TextFieldInputDecoration(context, labelText: 'Email'),
                     onChanged: (value) {
                       setState(() {
                         email = value!;
@@ -82,6 +84,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                   ),
                   const SizedBox(height: 20),
                   FormBuilderTextField(
+                    cursorErrorColor: Theme.of(context).colorScheme.error,
                     focusNode: focusNode,
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.password(
@@ -91,7 +94,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     obscureText: obscureText,
                     maxLength: 255,
                     name: 'password',
-                    decoration: _inputDecoration(context,
+                    decoration: TextFieldInputDecoration(context,
                         labelText: 'Password',
                         obscureText: obscureText, onObscure: () {
                       setState(() {
@@ -110,6 +113,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                 ],
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(40),
               child: ElevatedButton(
@@ -173,80 +177,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
 // ----------------------------- PRIVATE METHODS --------------------------------
 
-/// A method to create the input decoration for the text form fields.
-/// This method creates a new instance of InputDecoration with the provided
-/// labelText and returns it.
-///
-/// The decoration is filled with the color scheme of the current theme onPrimary.
-///
-/// The icon is displayed only if the `onObscure` callback parameter is not null.
-/// The icon changes based on the `obscureText` parameter.
-/// The `onObscure` parameter is a callback that is called when the icon is pressed.
-///
-InputDecoration _inputDecoration(BuildContext context,
-    {String? labelText, VoidCallback? onObscure, bool obscureText = false}) {
-  return InputDecoration(
-    /// The icon is displayed only if the onObscure callback parameter is not null.
-    /// The icon changes based on the obscureText parameter.
-    /// The onObscure callback is called when the icon is pressed.
-    suffixIcon: (onObscure == null)
-        ? null
-        : Padding(
-            padding: const EdgeInsets.only(right: 5.0),
-            child: IconButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(
-                    Theme.of(context).shadowColor.withAlpha(20)),
-                animationDuration: const Duration(milliseconds: 200),
-                elevation: WidgetStatePropertyAll(2),
-              ),
-              tooltip: 'Mostra/Nascondi password',
-              icon: obscureText
-                  ? HugeIcon(
-                      icon: HugeIcons.strokeRoundedViewOff,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    )
-                  : HugeIcon(
-                      icon: HugeIcons.strokeRoundedView,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer),
-              color: Theme.of(context).colorScheme.onPrimary,
-              onPressed: () {
-                onObscure.call();
-              },
-            ),
-          ),
 
-    ///Other Decoration properties
-    contentPadding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
-    //TODO: Check padding - Working on default size;
-    labelText: labelText,
-    filled: true,
-    fillColor: Theme.of(context).colorScheme.onPrimary,
-    floatingLabelBehavior: FloatingLabelBehavior.never,
-    errorBorder: UnderlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
-      borderSide: BorderSide(
-        width: 3,
-        color: Theme.of(context).colorScheme.error,
-      ),
-    ),
-    labelStyle: TextStyle(
-      color: Theme.of(context).colorScheme.onPrimaryContainer,
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
-    ),
-    /*floatingLabelStyle: TextStyle(
-      height: 12.0,
-      color: Theme.of(context).colorScheme.onPrimaryContainer,
-    ),*/
-    border: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-    errorMaxLines: 2,
-    errorStyle: TextStyle(
-      color: Theme.of(context).colorScheme.error,
-      //backgroundColor: Theme.of(context).colorScheme.onPrimary,
-    ),
-  );
-}
 
 // ----------------------------- PRIVATE CLASSES --------------------------------
 
