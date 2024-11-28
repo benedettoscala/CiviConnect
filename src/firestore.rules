@@ -100,7 +100,8 @@ service cloud.firestore {
 
     // Rules for Private -- Don't allow reads or writes
     match /private/{admin} {
-      allow read, write: if false;
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     // Rules for Citizens Data
