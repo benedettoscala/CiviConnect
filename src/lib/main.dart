@@ -35,8 +35,7 @@ class FirstPage extends StatelessWidget {
         Locale('it'),
       ],
       localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
+        ...GlobalMaterialLocalizations.delegates,
         FormBuilderLocalizations.delegate,
       ],
     );
