@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../home_page.dart';
 import '../main.dart';
@@ -38,105 +37,116 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     return Scaffold(
       backgroundColor: ThemeManager().seedColor,
       body: _LoginFormWidget(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+        margin: const EdgeInsets.only(bottom: 50),
         alignment: Alignment.center,
-        child: Column(
-          children: [
-            /// Logo
-            const LogoWidget(),
-
-            /// Form
-            FormBuilder(
-              key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Benvenuto',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 30,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              /// Logo
+              Container(
+                margin: const EdgeInsets.only(
+                    bottom: 10),
+                padding: const EdgeInsets.only(left: 50, right: 50),
+                child: Column(
+                  children: [
+                    const LogoWidget(),
+                    /// Form
+                    FormBuilder(
+                      key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text(
+                            textAlign: TextAlign.center,
+                            'Benvenuto',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          FormBuilderTextField(
+                            cursorErrorColor: Theme.of(context).colorScheme.error,
+                            textAlignVertical: TextAlignVertical.center,
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.maxLength(255),
+                              FormBuilderValidators.email(),
+                              FormBuilderValidators.required(),
+                            ]),
+                            name: 'email',
+                            //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
+                            maxLength: 255,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: TextFieldInputDecoration(context, labelText: 'Email'),
+                            onChanged: (value) {
+                              setState(() {
+                                email = value!;
+                              });
+                            },
+                            onSubmitted: (value) {
+                              focusNode.nextFocus();
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          FormBuilderTextField(
+                            cursorErrorColor: Theme.of(context).colorScheme.error,
+                            focusNode: focusNode,
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.password(
+                                  minLength: 6, maxLength: 255),
+                              FormBuilderValidators.required(),
+                            ]),
+                            obscureText: obscureText,
+                            maxLength: 255,
+                            name: 'password',
+                            decoration: TextFieldInputDecoration(context,
+                                labelText: 'Password',
+                                obscureText: obscureText, onObscure: () {
+                                  setState(() {
+                                    obscureText = !obscureText;
+                                  });
+                                }),
+                            onChanged: (value) {
+                              setState(() {
+                                password = value!;
+                              });
+                            },
+                            onSubmitted: (value) {
+                              _sendData(email, password);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  FormBuilderTextField(
-                    cursorErrorColor: Theme.of(context).colorScheme.error,
-                    textAlignVertical: TextAlignVertical.center,
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.maxLength(255),
-                      FormBuilderValidators.email(),
-                      FormBuilderValidators.required(),
-                    ]),
-                    name: 'email',
-                    //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
-                    maxLength: 255,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: TextFieldInputDecoration(context, labelText: 'Email'),
-                    onChanged: (value) {
-                      setState(() {
-                        email = value!;
-                      });
-                    },
-                    onSubmitted: (value) {
-                      focusNode.nextFocus();
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  FormBuilderTextField(
-                    cursorErrorColor: Theme.of(context).colorScheme.error,
-                    focusNode: focusNode,
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.password(
-                          minLength: 6, maxLength: 255),
-                      FormBuilderValidators.required(),
-                    ]),
-                    obscureText: obscureText,
-                    maxLength: 255,
-                    name: 'password',
-                    decoration: TextFieldInputDecoration(context,
-                        labelText: 'Password',
-                        obscureText: obscureText, onObscure: () {
-                      setState(() {
-                        obscureText = !obscureText;
-                      });
-                    }),
-                    onChanged: (value) {
-                      setState(() {
-                        password = value!;
-                      });
-                    },
-                    onSubmitted: (value) {
-                      _sendData(email, password);
-                    },
-                  ),
-                ],
-              ),
-            ),
 
-            Padding(
-              padding: const EdgeInsets.all(40),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.labelLarge,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                onPressed: () => _sendData(email, password),
-                child: const Text(
-                  'Login',
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          textStyle: Theme.of(context).textTheme.labelLarge,
+                          padding:
+                          const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        onPressed: () => _sendData(email, password),
+                        child: const Text(
+                          'Login',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 10),
-
-            /// Bottom buttons
-            _BottomLoginRedirectButtons(),
-          ],
+              /// Bottom buttons
+              _BottomLoginRedirectButtons(),
+            ],
+          ),
         ),
       ),
     );
@@ -175,9 +185,6 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
   }
 }
 
-// ----------------------------- PRIVATE METHODS --------------------------------
-
-
 
 // ----------------------------- PRIVATE CLASSES --------------------------------
 
@@ -215,54 +222,52 @@ class _BottomLoginRedirectButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextButton(
-                onPressed: () {}, //TODO: Implement password recovery
-                child: Text(
-                  'Password dimenticata?',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    shadows: const [
-                      Shadow(
-                        color: Colors.black,
-                        blurRadius: 2,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextButton(
+              onPressed: () {}, //TODO: Implement password recovery
+              child: Text(
+                'Password dimenticata?',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  shadows: const [
+                    Shadow(
+                      color: Colors.black,
+                      blurRadius: 2,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => RegistrazioneUtenteGui()),
-                  );
-                },
-                child: Text(
-                  'Non hai un account? Registrati',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    shadows: const [
-                      Shadow(
-                        color: Colors.black,
-                        blurRadius: 2,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => RegistrazioneUtenteGui()),
+                );
+              },
+              child: Text(
+                'Non hai un account? Registrati',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  shadows: const [
+                    Shadow(
+                      color: Colors.black,
+                      blurRadius: 2,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
