@@ -1,7 +1,9 @@
+import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -41,6 +43,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
           children: [
             /// Logo
             const LogoWidget(),
+
             /// Form
             FormBuilder(
               key: _formKey,
@@ -48,7 +51,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Benvenuto',
+                  Text(
+                    'Benvenuto',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 30,
@@ -65,7 +69,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     name: 'email',
                     //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
                     maxLength: 255,
-                    keyboardType:  TextInputType.emailAddress,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: _inputDecoration(context, labelText: 'Email'),
                     onChanged: (value) {
                       setState(() {
@@ -87,16 +91,13 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     obscureText: obscureText,
                     maxLength: 255,
                     name: 'password',
-                    decoration:
-                    _inputDecoration(
-                        context,
+                    decoration: _inputDecoration(context,
                         labelText: 'Password',
-                        obscureText: obscureText,
-                        onObscure: () {
-                          setState(() {
-                            obscureText = !obscureText;
-                          });
-                        }),
+                        obscureText: obscureText, onObscure: () {
+                      setState(() {
+                        obscureText = !obscureText;
+                      });
+                    }),
                     onChanged: (value) {
                       setState(() {
                         password = value!;
@@ -114,7 +115,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   textStyle: Theme.of(context).textTheme.labelLarge,
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -134,7 +136,6 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
         ),
       ),
     );
-
   }
 
   /// Method to send the login data to the controller.
@@ -168,10 +169,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
       );
     }
   }
-
-
 }
-
 
 // ----------------------------- PRIVATE METHODS --------------------------------
 
@@ -185,39 +183,42 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 /// The icon changes based on the `obscureText` parameter.
 /// The `onObscure` parameter is a callback that is called when the icon is pressed.
 ///
-InputDecoration _inputDecoration(BuildContext context, {String? labelText, VoidCallback? onObscure,
-                        bool obscureText = false}) {
+InputDecoration _inputDecoration(BuildContext context,
+    {String? labelText, VoidCallback? onObscure, bool obscureText = false}) {
   return InputDecoration(
     /// The icon is displayed only if the onObscure callback parameter is not null.
     /// The icon changes based on the obscureText parameter.
     /// The onObscure callback is called when the icon is pressed.
-    suffixIcon: (onObscure == null) ? null :
-    Padding(
-      padding: const EdgeInsets.only(right: 5.0),
-      child: IconButton(
-        style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(Theme.of(context).shadowColor.withAlpha(20)),
-          animationDuration: const Duration(milliseconds: 200),
-          elevation: WidgetStatePropertyAll(2),
-        ),
-        tooltip: 'Mostra/Nascondi password',
-        icon: obscureText ? HugeIcon(
-          icon: HugeIcons.strokeRoundedViewOff,
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        )
-            :
-        HugeIcon(
-            icon: HugeIcons.strokeRoundedView,
-            color: Theme.of(context).colorScheme.onPrimaryContainer
-        ),
-        color: Theme.of(context).colorScheme.onPrimary,
-        onPressed: () {
-          onObscure.call();
-        },
-      ),
-    ),
+    suffixIcon: (onObscure == null)
+        ? null
+        : Padding(
+            padding: const EdgeInsets.only(right: 5.0),
+            child: IconButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                    Theme.of(context).shadowColor.withAlpha(20)),
+                animationDuration: const Duration(milliseconds: 200),
+                elevation: WidgetStatePropertyAll(2),
+              ),
+              tooltip: 'Mostra/Nascondi password',
+              icon: obscureText
+                  ? HugeIcon(
+                      icon: HugeIcons.strokeRoundedViewOff,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    )
+                  : HugeIcon(
+                      icon: HugeIcons.strokeRoundedView,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer),
+              color: Theme.of(context).colorScheme.onPrimary,
+              onPressed: () {
+                onObscure.call();
+              },
+            ),
+          ),
+
     ///Other Decoration properties
-    contentPadding: const EdgeInsets.fromLTRB(20, 5, 20, 20), //TODO: Check padding - Working on default size;
+    contentPadding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
+    //TODO: Check padding - Working on default size;
     labelText: labelText,
     filled: true,
     fillColor: Theme.of(context).colorScheme.onPrimary,
@@ -229,19 +230,16 @@ InputDecoration _inputDecoration(BuildContext context, {String? labelText, VoidC
         color: Theme.of(context).colorScheme.error,
       ),
     ),
-    labelStyle:
-    TextStyle(
-    color: Theme.of(context).colorScheme.onPrimaryContainer,
-        backgroundColor: Theme.of(context).colorScheme.onPrimary,
-      ),
+    labelStyle: TextStyle(
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
+    ),
     /*floatingLabelStyle: TextStyle(
       height: 12.0,
       color: Theme.of(context).colorScheme.onPrimaryContainer,
     ),*/
     border: UnderlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
-      borderSide: BorderSide.none
-    ),
+        borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
     errorMaxLines: 2,
     errorStyle: TextStyle(
       color: Theme.of(context).colorScheme.error,
@@ -277,7 +275,6 @@ class _LoginFormWidget extends Container {
   });
 }
 
-
 /// A widget to display the bottom buttons for the login page.
 /// It contains two buttons: one for password recovery and one for registration.
 /// The buttons are styled with the color scheme of the current theme.
@@ -296,7 +293,7 @@ class _BottomLoginRedirectButtons extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextButton(
-                onPressed: (){}, //TODO: Implement password recovery
+                onPressed: () {}, //TODO: Implement password recovery
                 child: Text(
                   'Password dimenticata?',
                   style: TextStyle(
@@ -315,7 +312,8 @@ class _BottomLoginRedirectButtons extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => RegistrazioneUtenteGui()),
+                    MaterialPageRoute(
+                        builder: (context) => RegistrazioneUtenteGui()),
                   );
                 },
                 child: Text(
@@ -340,10 +338,7 @@ class _BottomLoginRedirectButtons extends StatelessWidget {
   }
 }
 
-
-
 // ----------------------------- TESTING PAGE --------------------------------
-
 
 /// UI page for testing login functionality.
 class TestingPage extends StatelessWidget {
@@ -371,9 +366,33 @@ class TestingPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                UserManagementDAO().determineUserType().then((value) {
-                  print('\n\n\n[Testing] Type of user: ${value.name}');
-                });
+                UserManagementDAO umDAO = UserManagementDAO();
+
+                umDAO.determineUserType().then(
+                  (value) {
+                    if (kDebugMode) {
+                      print(value!.name);
+
+                      switch (umDAO.getUser) {
+                        case Citizen _:
+                          Citizen c = umDAO.getUser as Citizen;
+                          print('Citizen ${c.firstName!}');
+                          break;
+                        case Municipality _:
+                          Municipality m = umDAO.getUser as Municipality;
+                          print('Municipality Admin ${m.province!}');
+                          break;
+                        case Admin _:
+                          Admin a = umDAO.getUser as Admin;
+                          print('Super Admin ${a.email!}');
+                          break;
+                        default:
+                          print('Unknown');
+                          break;
+                      }
+                    }
+                  },
+                );
               },
               child: Text('Test if I\' m admin'),
             ),

@@ -1,5 +1,4 @@
 import 'package:civiconnect/user_management/user_management_dao.dart';
-import 'package:civiconnect/user_management/user_wrapper.dart';
 import 'package:flutter/material.dart';
 
 /// Controller class responsible for managing user-related operations.
@@ -8,10 +7,6 @@ import 'package:flutter/material.dart';
 /// and credential validation. It provides methods to interact with the
 /// user DAO and handles navigation to other pages.
 class UserManagementController {
-  /// Instance of the user wrapper, containing user-specific information
-  /// such as email and password.
-  late final UserWrapper user;
-
   /// Redirect page to navigate to after successful login.
   final Widget redirectPage;
 
@@ -21,10 +16,7 @@ class UserManagementController {
   UserManagementController({required this.redirectPage});
 
   /// Method to handle user login.
-  ///
-  /// This method initializes a `UserWrapper` instance using the provided email
-  /// and password, and then calls the `validateAuth` method to complete the
-  /// authentication process.
+  /// This will be redirect route after successful login.
   ///
   /// Parameters:
   /// - [context]: The current context of the Flutter application.
@@ -32,9 +24,7 @@ class UserManagementController {
   /// - [password]: The user's password.
   Future<bool> login(BuildContext context,
       {required String email, required String password}) {
-    user = UserWrapper.fromLogin(email: email, password: password);
-
-    return _validateAuth(context);
+    return _validateAuth(context, email, password);
   }
 
   /// Method to validate user credentials and complete authentication.
@@ -44,11 +34,11 @@ class UserManagementController {
   ///
   /// Parameters:
   /// - [context]: The current context of the Flutter application.
-  Future<bool> _validateAuth(BuildContext context) async {
+  Future<bool> _validateAuth(BuildContext context, email, password) async {
     UserManagementDAO userDao = UserManagementDAO();
 
     final bool result = await userDao.signInWithEmailAndPassword(
-        email: user.email, password: user.password!);
+        email: email, password: password);
 
     if (result) {
       Navigator.pushReplacement(

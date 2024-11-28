@@ -1,3 +1,4 @@
+import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:flutter/foundation.dart';
@@ -44,10 +45,16 @@ class UserManagementDAO {
 
   /// The user type of the currently authenticated user.
   /// This variable is used as cache.
-  late final UserType? _userType;
+  UserType? _userType;
+
+  /// The currently authenticated user information.
+  GenericUser? _user;
 
   /// Returns the currently authenticated user, or `null` if no user is logged in.
   User? get currentUser => _firebaseAuth.currentUser;
+
+  /// Get all information about the currently authenticated user.
+  GenericUser? get getUser => _user;
 
   /// A stream providing updates to the authentication state.
   ///
@@ -144,7 +151,7 @@ class UserManagementDAO {
   /// UserType userType = await userManagementDAO.determineUserType();
   /// print("User type: ${userType.name}");
   /// ```
-  Future<UserType> determineUserType() async {
+  Future<UserType?> determineUserType() async {
     User? currentUser = _firebaseAuth.currentUser;
 
     if (currentUser == null) {
@@ -164,6 +171,7 @@ class UserManagementDAO {
         List<dynamic> adminUIDs = adminDoc['uids'] as List<dynamic>;
         if (adminUIDs.contains(uid)) {
           _userType = UserType.admin;
+          _user = Admin(user: currentUser);
           return _userType!;
         }
       }
@@ -177,6 +185,11 @@ class UserManagementDAO {
       DocumentSnapshot municipalityDoc =
           await _firebaseFirestore.doc('/municipality/$uid').get();
       if (municipalityDoc.exists) {
+        _user = Municipality(
+          user: currentUser,
+          municipalityName: municipalityDoc['municipalityName'],
+          province: municipalityDoc['province'],
+        );
         _userType = UserType.municipality;
         return _userType!;
       }
@@ -190,6 +203,17 @@ class UserManagementDAO {
       DocumentSnapshot citizenDoc =
           await _firebaseFirestore.doc('/citizen/$uid').get();
       if (citizenDoc.exists) {
+        _user = Citizen(
+          user: currentUser,
+          firstName: citizenDoc['firstName'],
+          lastName: citizenDoc['lastName'],
+          city: citizenDoc['city'],
+          address: {
+            'street': citizenDoc['address']['street'],
+            'number': citizenDoc['address']['number'],
+          },
+          cap: citizenDoc['CAP'],
+        );
         _userType = UserType.citizen;
         return _userType!;
       }
