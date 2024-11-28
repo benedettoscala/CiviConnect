@@ -357,9 +357,10 @@ class TestingPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 UserManagementDAO().logOut();
-                Navigator.pushReplacement(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => FirstPage()),
+                  (route) => false,
                 );
               },
               child: Text('Logout'),

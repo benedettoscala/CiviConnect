@@ -41,10 +41,10 @@ class UserManagementController {
         email: email, password: password);
 
     if (result) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => redirectPage),
-      );
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => redirectPage),
+          (route) => false);
     }
 
     return result;
