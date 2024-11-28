@@ -303,25 +303,18 @@ class TestingPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                UserManagementDAO umDAO = UserManagementDAO();
-
-                umDAO.determineUserType().then(
+                UserManagementDAO().determineUserType().then(
                   (value) {
                     if (kDebugMode) {
-                      print(value!.name);
-
-                      switch (umDAO.getUser) {
-                        case Citizen _:
-                          Citizen c = umDAO.getUser as Citizen;
-                          print('Citizen ${c.firstName!}');
+                      switch (value) {
+                        case Citizen citizen:
+                          print('Citizen ${citizen.firstName!}');
                           break;
-                        case Municipality _:
-                          Municipality m = umDAO.getUser as Municipality;
-                          print('Municipality Admin ${m.province!}');
+                        case Municipality municipality:
+                          print('Municipality Admin ${municipality.province!}');
                           break;
-                        case Admin _:
-                          Admin a = umDAO.getUser as Admin;
-                          print('Super Admin ${a.email!}');
+                        case Admin admin:
+                          print('Super Admin ${admin.email!}');
                           break;
                         default:
                           print('Unknown');

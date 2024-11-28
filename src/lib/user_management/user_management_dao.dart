@@ -3,37 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:flutter/foundation.dart';
 
-/// An enumeration of user types.
-///
-/// This is used to define and manage different roles within the application.
-enum UserType implements Comparable<UserType> {
-  /// Super Administrator (highest privileges).
-  admin(value: 0, name: 'Super Administrator'),
-
-  /// Municipality Administrator.
-  municipality(value: 1, name: 'Municipality Administrator'),
-
-  /// Regular user (citizen).
-  citizen(value: 2, name: 'Regular user'),
-
-  /// Unidentified or unauthorized user.
-  unknown(value: -1, name: 'Unknown');
-
-  /// Constructs a `UserType` with the given [value] and [name].
-  const UserType({required this.value, required this.name});
-
-  /// The integer value associated with this enum.
-  final int value;
-
-  /// The display name of this user type.
-  final String name;
-
-  @override
-  int compareTo(UserType other) {
-    return value - other.value;
-  }
-}
-
 /// A Data Access Object (DAO) for managing user authentication
 /// and role determination using Firebase Authentication and Firestore.
 class UserManagementDAO {
@@ -42,10 +11,6 @@ class UserManagementDAO {
 
   /// Instance of FirebaseFirestore used for database operations.
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-
-  /// The user type of the currently authenticated user.
-  /// This variable is used as cache.
-  UserType? _userType;
 
   /// The currently authenticated user information.
   GenericUser? _user;
@@ -61,9 +26,6 @@ class UserManagementDAO {
   /// Emits the current user whenever there is a login, logout,
   /// or token refresh. Emits `null` if the user logs out.
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
-
-  /// Returns the user type of the currently authenticated user.
-  UserType get getUserType => _userType!;
 
   /// Signs in a user using email and password.
   ///
@@ -138,41 +100,85 @@ class UserManagementDAO {
     await _firebaseAuth.signOut();
   }
 
-  /// Determines the user type based on Firestore records.
+  /// Determines the user type by evaluating the current user's UID against Firestore records.
   ///
-  /// This method evaluates the current user's UID against Firestore records
-  /// to classify the user as `admin`, `municipality`, `citizen`, or `unknown`.
+  /// This method retrieves the Firebase-authenticated user's UID and queries Firestore
+  /// to classify the user as one of the following types:
+  /// - `Admin`: If the user's UID is listed in the `/private/admin` document.
+  /// - `Municipality`: If there is a matching document for the user's UID in the `/municipality` collection.
+  /// - `Citizen`: If there is a matching document for the user's UID in the `/citizen` collection.
+  /// - `Unknown`: If the user does not match any of the above roles.
   ///
-  /// - Returns: A `UserType` enum representing the user's role.
-  /// - This method caches the user type for future calls.
+  /// **Caching**:
+  /// The user type is cached in memory (`_user`) for subsequent calls to optimize performance.
   ///
-  /// Example:
+  /// **Firestore Structure**:
+  /// - Admins: The `/private/admin` document contains a `uids` field, which is a list of admin UIDs.
+  /// - Municipalities: Each municipality has a document in the `/municipality` collection, keyed by UID.
+  ///   The document contains fields such as:
+  ///     - `municipalityName`
+  ///     - `province`
+  /// - Citizens: Each citizen has a document in the `/citizen` collection, keyed by UID.
+  ///   The document contains fields such as:
+  ///     - `firstName`
+  ///     - `lastName`
+  ///     - `city`
+  ///     - `address` (a map with `street` and `number`)
+  ///     - `CAP`
+  ///
+  /// **Returns**:
+  /// A `Future<GenericUser?>` that resolves to an instance of one of the user types (`Admin`, `Municipality`, or `Citizen`),
+  /// or `null` if the user does not exist or their type cannot be determined.
+  ///
+  /// **Example**:
   /// ```dart
-  /// UserType userType = await userManagementDAO.determineUserType();
-  /// print("User type: ${userType.name}");
+  /// GenericUser? user = await userManagementDAO.determineUserType();
+  /// if (user is Admin) {
+  ///   print("User is an Admin");
+  /// } else if (user is Municipality) {
+  ///   print("User is a Municipality");
+  /// } else if (user is Citizen) {
+  ///   print("User is a Citizen");
+  /// } else {
+  ///   print("User type could not be determined");
+  /// }
   /// ```
-  Future<UserType?> determineUserType() async {
+  ///
+  /// **Error Handling**:
+  /// - If Firestore queries fail (e.g., due to network issues or missing documents), the method logs the error
+  ///   in debug mode and proceeds to check other user types.
+  ///
+  /// **Implementation**:
+  /// The method follows these steps:
+  /// 1. Checks if the current user is authenticated. If not, returns `null`.
+  /// 2. Checks the cached user type (`_user`) to avoid redundant Firestore queries.
+  /// 3. Queries Firestore in the following order:
+  ///    - Admin (`/private/admin`)
+  ///    - Municipality (`/municipality/{uid}`)
+  ///    - Citizen (`/citizen/{uid}`)
+  /// 4. Returns the user type if a match is found; otherwise, returns `null`.
+  ///
+  Future<GenericUser?> determineUserType() async {
     User? currentUser = _firebaseAuth.currentUser;
 
     if (currentUser == null) {
-      return UserType.unknown;
+      return null;
     }
 
-    if (_userType != null) {
-      return _userType;
+    if (_user != null) {
+      return _user;
     }
 
     String uid = currentUser.uid;
 
     try {
       DocumentSnapshot adminDoc =
-          await _firebaseFirestore.doc('/private/admin').get();
+      await _firebaseFirestore.doc('/private/admin').get();
       if (adminDoc.exists) {
         List<dynamic> adminUIDs = adminDoc['uids'] as List<dynamic>;
         if (adminUIDs.contains(uid)) {
-          _userType = UserType.admin;
           _user = Admin(user: currentUser);
-          return _userType!;
+          return _user!;
         }
       }
     } catch (e) {
@@ -183,15 +189,14 @@ class UserManagementDAO {
 
     try {
       DocumentSnapshot municipalityDoc =
-          await _firebaseFirestore.doc('/municipality/$uid').get();
+      await _firebaseFirestore.doc('/municipality/$uid').get();
       if (municipalityDoc.exists) {
         _user = Municipality(
           user: currentUser,
           municipalityName: municipalityDoc['municipalityName'],
           province: municipalityDoc['province'],
         );
-        _userType = UserType.municipality;
-        return _userType!;
+        return _user!;
       }
     } catch (e) {
       if (kDebugMode) {
@@ -201,7 +206,7 @@ class UserManagementDAO {
 
     try {
       DocumentSnapshot citizenDoc =
-          await _firebaseFirestore.doc('/citizen/$uid').get();
+      await _firebaseFirestore.doc('/citizen/$uid').get();
       if (citizenDoc.exists) {
         _user = Citizen(
           user: currentUser,
@@ -214,8 +219,7 @@ class UserManagementDAO {
           },
           cap: citizenDoc['CAP'],
         );
-        _userType = UserType.citizen;
-        return _userType!;
+        return _user!;
       }
     } catch (e) {
       if (kDebugMode) {
@@ -223,6 +227,6 @@ class UserManagementDAO {
       }
     }
 
-    return _userType!;
+    return null;
   }
 }
