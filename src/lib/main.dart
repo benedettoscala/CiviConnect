@@ -69,7 +69,10 @@ class _FirstPageState extends State<_FirstPage> {
                       padding: EdgeInsets.only(left: 50, right: 50),
                       child: Column(
                         children: [
-                          const LogoWidget(),
+                          Hero(
+                            child: const LogoWidget(),
+                            tag: 'logo_from_home',
+                          ),
                           const SizedBox(height: 50),
                           Text(
                             'Benvenuto in CiviConnect',
@@ -90,17 +93,21 @@ class _FirstPageState extends State<_FirstPage> {
                       ),
                     ),
                     Container(
-                        margin: EdgeInsets.only(bottom: 20),
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginUtenteGUI()),
-                              );
-                            },
-                            child: Text('Login'))),
+                      margin: EdgeInsets.only(bottom: 20),
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              _transitionAnimationLogin(
+                                  (context) => LoginUtenteGUI()),
+                            );
+                            /*MaterialPageRoute(
+                          builder: (context) => LoginUtenteGUI()),
+                      );*/
+                          },
+                          child: Text('Login')),
+                    ),
                     Container(
                       margin: EdgeInsets.only(bottom: 20),
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -121,4 +128,30 @@ class _FirstPageState extends State<_FirstPage> {
             ),
     );
   }
+}
+
+/// Add a transition animation to the login page.
+/// This is a custom transition animation that slides the page from the bottom to the top.
+PageRouteBuilder _transitionAnimationLogin(
+    Widget Function(BuildContext context) function) {
+  return PageRouteBuilder(
+      transitionDuration: Duration(milliseconds: 800),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          function(context),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // You can change the begin and end values to customize the animation.
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.easeInOut;
+
+        /// This is the animation that slides the page from the bottom to the top.
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      });
 }

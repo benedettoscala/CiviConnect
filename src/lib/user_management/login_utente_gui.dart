@@ -46,12 +46,15 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
             children: [
               /// Logo
               Container(
-                margin: const EdgeInsets.only(
-                    bottom: 10),
+                margin: const EdgeInsets.only(bottom: 20),
                 padding: const EdgeInsets.only(left: 50, right: 50),
                 child: Column(
                   children: [
-                    const LogoWidget(),
+                    Hero(
+                      child: const LogoWidget(),
+                      tag: 'logo_from_home',
+                    ),
+
                     /// Form
                     FormBuilder(
                       key: _formKey,
@@ -61,7 +64,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                         children: [
                           const Text(
                             textAlign: TextAlign.center,
-                            'Benvenuto',
+                            'Accedi',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 25,
@@ -69,7 +72,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                           ),
                           const SizedBox(height: 20),
                           FormBuilderTextField(
-                            cursorErrorColor: Theme.of(context).colorScheme.error,
+                            cursorErrorColor:
+                                Theme.of(context).colorScheme.error,
                             textAlignVertical: TextAlignVertical.center,
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.maxLength(255),
@@ -80,7 +84,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                             //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
                             maxLength: 255,
                             keyboardType: TextInputType.emailAddress,
-                            decoration: TextFieldInputDecoration(context, labelText: 'Email'),
+                            decoration: TextFieldInputDecoration(context,
+                                labelText: 'Email'),
                             onChanged: (value) {
                               setState(() {
                                 email = value!;
@@ -92,7 +97,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                           ),
                           const SizedBox(height: 10),
                           FormBuilderTextField(
-                            cursorErrorColor: Theme.of(context).colorScheme.error,
+                            cursorErrorColor:
+                                Theme.of(context).colorScheme.error,
                             focusNode: focusNode,
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.password(
@@ -105,10 +111,10 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                             decoration: TextFieldInputDecoration(context,
                                 labelText: 'Password',
                                 obscureText: obscureText, onObscure: () {
-                                  setState(() {
-                                    obscureText = !obscureText;
-                                  });
-                                }),
+                              setState(() {
+                                obscureText = !obscureText;
+                              });
+                            }),
                             onChanged: (value) {
                               setState(() {
                                 password = value!;
@@ -121,14 +127,13 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                         ],
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           textStyle: Theme.of(context).textTheme.labelLarge,
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 22, vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -184,7 +189,6 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     }
   }
 }
-
 
 // ----------------------------- PRIVATE CLASSES --------------------------------
 
