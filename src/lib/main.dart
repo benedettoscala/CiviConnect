@@ -144,9 +144,10 @@ PageRouteBuilder _transitionAnimationLogin(
         var end = Offset.zero;
         var curve = Curves.easeInOut;
 
-        /// This is the animation that slides the page from the bottom to the top.
+        // Tween is a linear interpolation between two values.
         var tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        // Drive animation changes the value of the animation using interpolated values of the tween.
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
