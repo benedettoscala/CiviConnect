@@ -30,7 +30,7 @@ abstract class GenericUser {
 /// Extends [GenericUser] to provide a representation of a user
 /// with global administrator privileges.
 class Admin extends GenericUser {
-  /// Constructor to create a [Admin] instance.
+  /// Constructor to create an [Admin] instance.
   ///
   /// Requires a Firebase [User] as a parameter.
   Admin({required super.user});
@@ -38,10 +38,10 @@ class Admin extends GenericUser {
 
 /* -------------------- MUNICIPALITY -------------------- */
 
-/// Class representing a Municipality.
+/// Class representing a Municipality user.
 ///
 /// Extends [GenericUser] to add specific properties
-/// such as the municipality name, and province.
+/// such as the municipality name and province.
 class Municipality extends GenericUser {
   /// The name of the municipality associated with this user.
   final String? municipalityName;
@@ -51,8 +51,8 @@ class Municipality extends GenericUser {
 
   /// Constructor to create a [Municipality] instance.
   ///
-  /// Requires a Firebase [User] as a parameter, with optional [password],
-  /// [municipality], and [province] fields.
+  /// Requires a Firebase [User] as a parameter, with optional
+  /// fields for [municipalityName] and [province].
   Municipality({
     required super.user,
     this.municipalityName,
@@ -62,10 +62,10 @@ class Municipality extends GenericUser {
 
 /* ------------------- CITIZEN --------------------- */
 
-/// Class representing a Citizen.
+/// Class representing a Citizen user.
 ///
 /// Extends [GenericUser] to add specific properties
-/// such as the first name, last name, address, and other personal details.
+/// such as the first name, last name, address, city, and postal code.
 class Citizen extends GenericUser {
   static const _addressKeys = ['street', 'number'];
 
@@ -75,7 +75,13 @@ class Citizen extends GenericUser {
   /// The last name of the citizen.
   final String? lastName;
 
-  /// The address of the citizen.
+  /// The address of the citizen, represented as a map
+  /// containing `street` and `number` keys.
+  ///
+  /// Example:
+  /// ```dart
+  /// {'street': 'Main St', 'number': '123'}
+  /// ```
   final Map<String, String>? address;
 
   /// The city of residence of the citizen.
@@ -87,8 +93,10 @@ class Citizen extends GenericUser {
   /// Constructor to create a [Citizen] instance.
   ///
   /// Requires a Firebase [User] as a parameter, with optional
-  /// personal information such as [username], [password], [name],
-  /// [surname], [address], [city], and [cap].
+  /// fields for [firstName], [lastName], [address], [city], and [cap].
+  ///
+  /// The [address] parameter is validated to ensure it contains the required
+  /// keys (`street` and `number`). If invalid, it is set to `null`.
   Citizen({
     required super.user,
     this.firstName,
@@ -100,12 +108,8 @@ class Citizen extends GenericUser {
 
   /// Validates the provided address map.
   ///
-  /// This method ensures that the provided address map contains only the valid keys
-  /// specified in the `_addressKeys` list (`street` and `number`). If the map contains
-  /// additional keys, missing keys, or is null, the method returns `null`. If the map
-  /// is valid, it returns the original map without modification.
-  ///
-  /// This validation is useful to ensure that the address data adheres to a predefined structure.
+  /// Ensures the map contains only the required keys: `street` and `number`.
+  /// If the map is valid, it returns the original map; otherwise, it returns `null`.
   ///
   /// Example:
   /// ```dart
@@ -119,9 +123,7 @@ class Citizen extends GenericUser {
   ///
   /// \param address The address map to validate, which can be null.
   ///
-  /// \return The original map if valid, or `null` if the input is invalid.
-  ///
-  /// \throws No exceptions are thrown by this method.
+  /// \return The original map if valid, or `null` if invalid.
   static Map<String, String>? _validateAddress(Map<String, String>? address) {
     if (address == null) {
       return null;
