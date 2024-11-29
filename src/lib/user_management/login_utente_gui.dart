@@ -31,127 +31,137 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
   bool obscureText = true;
   FocusNode focusNode = FocusNode();
   final _formKey = GlobalKey<FormBuilderState>();
+  final _passKey = GlobalKey<FormBuilderFieldState>();
+  final _emailKey = GlobalKey<FormBuilderFieldState>();
 
   @override
   Widget build(BuildContext context) {
     double padding = MediaQuery.of(context).size.width / 15;
-    return Scaffold(
-      backgroundColor: ThemeManager().seedColor,
-      body: _LoginFormWidget(
-        padding: EdgeInsets.symmetric(horizontal: padding),
-        margin: const EdgeInsets.only(bottom: 50),
-        alignment: Alignment.center,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              /// Logo
-              Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                padding: EdgeInsets.only(left: padding, right: padding),
-                child: Column(
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: ThemeManager().seedColor,
+        body: _LoginFormWidget(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          margin: const EdgeInsets.only(bottom: 50),
+          alignment: Alignment.center,
+          child: Center(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Hero(
-                      child: LogoWidget(),
-                      tag: 'logo_from_home',
-                    ),
-
-                    /// Form
-                    FormBuilder(
-                      key: _formKey,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                    /// Logo
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: EdgeInsets.only(left:padding, right: padding),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          const Text(
-                            textAlign: TextAlign.center,
-                            'Accedi',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 25,
+                          Hero(
+                            child: const LogoWidget(),
+                            tag: 'logo_from_home',
+                          ),
+
+                          /// Form
+                          FormBuilder(
+                            key: _formKey,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  textAlign: TextAlign.center,
+                                  'Accedi',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                FormBuilderTextField(
+                                  key: _emailKey,
+                                  cursorErrorColor:
+                                      Theme.of(context).colorScheme.error,
+                                  textAlignVertical: TextAlignVertical.center,
+                                  validator: FormBuilderValidators.compose([
+                                    FormBuilderValidators.maxLength(255),
+                                    FormBuilderValidators.email(),
+                                    FormBuilderValidators.required(),
+                                  ]),
+                                  name: 'email',
+                                  //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
+                                  maxLength: 255,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: TextFieldInputDecoration(context,
+                                      labelText: 'Email'),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      email = value!;
+                                    });
+                                  },
+                                  onSubmitted: (value) {
+                                    focusNode.nextFocus();
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                FormBuilderTextField(
+                                  key: _passKey,
+                                  cursorErrorColor:
+                                      Theme.of(context).colorScheme.error,
+                                  focusNode: focusNode,
+                                  validator: FormBuilderValidators.compose([
+                                    FormBuilderValidators.password(
+                                        minLength: 6, maxLength: 255),
+                                    FormBuilderValidators.required(),
+                                  ]),
+                                  obscureText: obscureText,
+                                  maxLength: 255,
+                                  name: 'password',
+                                  decoration: TextFieldInputDecoration(context,
+                                      labelText: 'Password',
+                                      obscureText: obscureText, onObscure: () {
+                                    setState(() {
+                                      obscureText = !obscureText;
+                                    });
+                                  }),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      password = value!;
+                                    });
+                                  },
+                                  onSubmitted: (value) {
+                                    _sendData(email, password);
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          FormBuilderTextField(
-                            cursorErrorColor:
-                                Theme.of(context).colorScheme.error,
-                            textAlignVertical: TextAlignVertical.center,
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.maxLength(255),
-                              FormBuilderValidators.email(),
-                              FormBuilderValidators.required(),
-                            ]),
-                            name: 'email',
-                            //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
-                            maxLength: 255,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: TextFieldInputDecoration(context,
-                                labelText: 'Email'),
-                            onChanged: (value) {
-                              setState(() {
-                                email = value!;
-                              });
-                            },
-                            onSubmitted: (value) {
-                              focusNode.nextFocus();
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          FormBuilderTextField(
-                            cursorErrorColor:
-                                Theme.of(context).colorScheme.error,
-                            focusNode: focusNode,
-                            validator: FormBuilderValidators.compose([
-                              FormBuilderValidators.password(
-                                  minLength: 6, maxLength: 255),
-                              FormBuilderValidators.required(),
-                            ]),
-                            obscureText: obscureText,
-                            maxLength: 255,
-                            name: 'password',
-                            decoration: TextFieldInputDecoration(context,
-                                labelText: 'Password',
-                                obscureText: obscureText, onObscure: () {
-                              setState(() {
-                                obscureText = !obscureText;
-                              });
-                            }),
-                            onChanged: (value) {
-                              setState(() {
-                                password = value!;
-                              });
-                            },
-                            onSubmitted: (value) {
-                              _sendData(email, password);
-                            },
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                textStyle: Theme.of(context).textTheme.labelLarge,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              onPressed: () => _sendData(email, password),
+                              child: const Text(
+                                'Login',
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          textStyle: Theme.of(context).textTheme.labelLarge,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        onPressed: () => _sendData(email, password),
-                        child: const Text(
-                          'Login',
-                        ),
-                      ),
-                    ),
+                    /// Bottom buttons
+                    _BottomLoginRedirectButtons(),
                   ],
                 ),
-              ),
-
-              /// Bottom buttons
-              const _BottomLoginRedirectButtons(),
-            ],
+              ],
+            ),
           ),
         ),
       ),
