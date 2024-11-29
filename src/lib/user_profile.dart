@@ -3,20 +3,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class UserProfile extends StatelessWidget {
+/// A stateful widget to display the user profile.
+class UserProfile extends StatefulWidget {
   UserProfile({super.key});
+
+  @override
+  _UserProfileState createState() => _UserProfileState();
+}
+
+class _UserProfileState extends State<UserProfile> {
+  bool isEditing = false;
+  Map<String, dynamic> userData = {};
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeManager().customTheme;
     final user = FirebaseAuth.instance.currentUser;
     String uid = user!.uid;
-    /* test
-    if (user == null) {
-      print("L'utente non è autenticato");
-    } else {
-      print('Utente autenticato: ${user.email}');
-    }*/
 
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +42,7 @@ class UserProfile extends StatelessWidget {
               ),
             );
           } else {
-            final userData = snapshot.data!.data() as Map<String, dynamic>;
+            userData = snapshot.data!.data() as Map<String, dynamic>;
 
             return SingleChildScrollView(
               child: Padding(
@@ -50,17 +53,33 @@ class UserProfile extends StatelessWidget {
                     const SizedBox(height: 0),
                     _buildProfileHeader(theme, user, userData),
                     const SizedBox(height: 30),
-                    Text(
-                      'Dati Personali',
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Dati Personali',
+                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: Icon(isEditing ? Icons.save : Icons.edit),
+                          onPressed: () {
+                            setState(() {
+                              isEditing = !isEditing;
+                              if (!isEditing) {
+                                /// Save the updated userData to Firestore
+                              }
+                            });
+                          },
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     ..._buildPersonalData(userData, theme),
                     const SizedBox(height: 20),
                     const Divider(
-                      thickness: 1, // Spessore della linea
-                      height: 10,   // Altezza della linea e spazio intorno
-                      color: Color.fromRGBO(0, 69, 118, 1), // Colore della linea
+                      thickness: 1,
+                      height: 10,
+                      color: Color.fromRGBO(0, 69, 118, 1),
                     ),
                     const SizedBox(height: 20),
                     Text(
@@ -95,23 +114,14 @@ class UserProfile extends StatelessWidget {
     );
   }
 
-  // Widget per l'header con immagine e benvenuto
-  Widget _buildProfileHeader(
-      ThemeData theme, User user, Map<String, dynamic> userData) {
+  Widget _buildProfileHeader(ThemeData theme, User user, Map<String, dynamic> userData) {
     return Center(
       child: Column(
         children: [
           CircleAvatar(
             radius: 80,
-            backgroundImage: user.photoURL != null
-                ? NetworkImage(user.photoURL!)
-                : null,
-            child: user.photoURL == null
-                ? Icon(
-              Icons.person,
-              size: 80,
-            )
-                : null,
+            backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
           ),
           const SizedBox(height: 5),
           Text(
@@ -123,7 +133,6 @@ class UserProfile extends StatelessWidget {
     );
   }
 
-  // Funzione per costruire i dati personali
   List<Widget> _buildPersonalData(Map<String, dynamic> userData, ThemeData theme) {
     final List<Map<String, String>> personalFields = [
       {'Nome': userData['firstName'] ?? 'N/A'},
@@ -132,6 +141,8 @@ class UserProfile extends StatelessWidget {
       {'Città': userData['city'] ?? 'N/A'},
       {'CAP': userData['CAP'] ?? 'N/A'},
     ];
+
+    TextStyle textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
 
     return personalFields
         .map(
@@ -144,17 +155,27 @@ class UserProfile extends StatelessWidget {
               flex: 2,
               child: Text(
                 '${field.keys.first}:',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
+                style: textStyle.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             Expanded(
               flex: 3,
-              child: Text(
+              child: isEditing
+                  ? TextFormField(
+                initialValue: field.values.first,
+                style: textStyle,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                ),
+                onFieldSubmitted: (newValue) {
+                  setState(() {
+                    userData[field.keys.first.toLowerCase()] = newValue;
+                  });
+                },
+              )
+                  : Text(
                 field.values.first,
-                style: theme.textTheme.titleMedium,
+                style: textStyle,
               ),
             ),
           ],
@@ -164,7 +185,6 @@ class UserProfile extends StatelessWidget {
         .toList();
   }
 
-  // Widget per i dati dell'account
   Widget _buildAccountData(User user, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,7 +220,7 @@ class UserProfile extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Text(
-                '********', // Puoi gestire la modifica della password separatamente
+                '********',
                 style: theme.textTheme.titleMedium,
               ),
             ),
