@@ -11,6 +11,7 @@ import 'package:hugeicons/hugeicons.dart';
 /// [obscureText] is an optional parameter, a boolean that determines if the text is obscured.
 /// Pass this parameter as true if the text is obscured.
 /// Pass a variable to set the State in the caller widget to change the obscureText value.
+/// For other parameters, refer to the [InputDecoration] class.
 class TextFieldInputDecoration extends InputDecoration {
   /// A callback that is called when the eye-icon is pressed.
   final VoidCallback? onObscure;
@@ -89,9 +90,9 @@ class TextFieldInputDecoration extends InputDecoration {
           .onPrimary,
     ),
     border: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+        borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
     errorBorder: UnderlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(30),
       borderSide: BorderSide(
         width: 3,
         color: Theme
@@ -115,42 +116,42 @@ class TextFieldInputDecoration extends InputDecoration {
     ),
     suffixIcon: (onObscure == null)
         ? null
-        : Padding(
-      padding: const EdgeInsets.only(right: 5.0),
-      child: IconButton(
-        style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(
-              Theme
-                  .of(context)
-                  .shadowColor
-                  .withAlpha(20)),
-          animationDuration: const Duration(milliseconds: 200),
-          elevation: WidgetStatePropertyAll(2),
-        ),
-        tooltip: 'Mostra/Nascondi password',
-        icon: obscureText
-            ? HugeIcon(
-          icon: HugeIcons.strokeRoundedViewOff,
-          color: Theme
-              .of(context)
-              .colorScheme
-              .onPrimaryContainer,
-        )
-            : HugeIcon(
-            icon: HugeIcons.strokeRoundedView,
+        : IconButton(
+          padding: EdgeInsets.all(0),
+          style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(
+                Theme
+                    .of(context)
+                    .shadowColor
+                    .withAlpha(20)),
+            animationDuration: const Duration(milliseconds: 200),
+            elevation: WidgetStatePropertyAll(2),
+          ),
+          tooltip: 'Mostra/Nascondi password',
+          icon: obscureText
+              ? HugeIcon(
+            size: 20,
+            icon: HugeIcons.strokeRoundedViewOff,
             color: Theme
                 .of(context)
                 .colorScheme
-                .onPrimaryContainer),
-        color: Theme
-            .of(context)
-            .colorScheme
-            .onPrimary,
-        onPressed: () {
-          onObscure.call();
-        },
-      ),
-    ),
+                .onPrimaryContainer,
+          )
+              : HugeIcon(
+              icon: HugeIcons.strokeRoundedView,
+              size: 20,
+              color: Theme
+                  .of(context)
+                  .colorScheme
+                  .onPrimaryContainer),
+          color: Theme
+              .of(context)
+              .colorScheme
+              .onPrimary,
+          onPressed: () {
+            onObscure.call();
+          },
+        ),
   );
 
 

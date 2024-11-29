@@ -34,10 +34,11 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
 
   @override
   Widget build(BuildContext context) {
+    double padding = MediaQuery.of(context).size.width / 15;
     return Scaffold(
       backgroundColor: ThemeManager().seedColor,
       body: _LoginFormWidget(
-        padding: const EdgeInsets.symmetric(horizontal: 50),
+        padding: EdgeInsets.symmetric(horizontal: padding),
         margin: const EdgeInsets.only(bottom: 50),
         alignment: Alignment.center,
         child: Center(
@@ -47,7 +48,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
               /// Logo
               Container(
                 margin: const EdgeInsets.only(bottom: 20),
-                padding: const EdgeInsets.only(left: 50, right: 50),
+                padding: EdgeInsets.only(left:padding, right: padding),
                 child: Column(
                   children: [
                     Hero(
@@ -133,7 +134,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                         style: ElevatedButton.styleFrom(
                           textStyle: Theme.of(context).textTheme.labelLarge,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 22, vertical: 16),
+                              horizontal: 30, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
