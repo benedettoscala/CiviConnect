@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+
 /// A custom class to create the input decoration for the text form fields.
 /// This class extends the InputDecoration class and provides a custom input decoration.
 ///
@@ -25,135 +26,106 @@ class TextFieldInputDecoration extends InputDecoration {
   /// onObscure is a callback that is called when the eye-icon is pressed.
   /// If null, the eye-icon is not displayed.
   /// The eye-icon changes based on the obscureText parameter.
-  TextFieldInputDecoration(BuildContext context,
-      {this.onObscure, this.obscureText = false,
-        super.icon,
-        super.iconColor,
-        super.label,
-        super.labelText,
-        super.floatingLabelStyle,
-        super.helper,
-        super.helperText,
-        super.helperStyle,
-        super.helperMaxLines,
-        super.hintText,
-        super.hintStyle,
-        super.hintTextDirection,
-        super.hintMaxLines,
-        super.hintFadeDuration,
-        super.error,
-        super.errorText,
-        super.floatingLabelAlignment,
-        super.isCollapsed,
-        //super.isDense,
-        super.prefixIcon,
-        super.prefixIconConstraints,
-        super.prefix,
-        super.prefixText,
-        super.prefixStyle,
-        super.prefixIconColor,
-        super.suffix,
-        super.suffixText,
-        super.suffixStyle,
-        super.suffixIconColor,
-        super.suffixIconConstraints,
-        super.counter,
-        super.counterText,
-        super.focusColor,
-        super.hoverColor,
-        super.focusedBorder,
-        super.focusedErrorBorder,
-        super.disabledBorder,
-        super.enabledBorder,
-        super.enabled = true,
-        super.semanticCounterText,
-        super.alignLabelWithHint,
-        super.constraints,
-      })
-      : super(
-    isDense: true,
-    contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-    filled: true,
-    fillColor: Theme
-        .of(context)
-        .colorScheme
-        .onPrimary,
-    floatingLabelBehavior: FloatingLabelBehavior.never,
-    labelStyle: TextStyle(
-      color: Theme
-          .of(context)
-          .colorScheme
-          .onPrimaryContainer,
-      backgroundColor: Theme
-          .of(context)
-          .colorScheme
-          .onPrimary,
-    ),
-    border: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-    errorBorder: UnderlineInputBorder(
-      borderRadius: BorderRadius.circular(30),
-      borderSide: BorderSide(
-        width: 3,
-        color: Theme
-            .of(context)
-            .colorScheme
-            .error,
-      ),
-    ),
-    errorMaxLines: 2,
-    errorStyle: TextStyle(
-      color: Theme
-          .of(context)
-          .colorScheme
-          .onPrimary,
-    ),
-    counterStyle: TextStyle(
-      color: Theme
-          .of(context)
-          .colorScheme
-          .onPrimaryContainer,
-    ),
-    suffixIcon: (onObscure == null)
-        ? null
-        : IconButton(
-          padding: EdgeInsets.all(0),
-          style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(
-                Theme
-                    .of(context)
-                    .shadowColor
-                    .withAlpha(20)),
-            animationDuration: const Duration(milliseconds: 200),
-            elevation: WidgetStatePropertyAll(2),
+  TextFieldInputDecoration(
+    BuildContext context, {
+    this.onObscure,
+    this.obscureText = false,
+    super.icon,
+    super.iconColor,
+    super.label,
+    super.labelText,
+    super.floatingLabelStyle,
+    super.helper,
+    super.helperText,
+    super.helperStyle,
+    super.helperMaxLines,
+    super.hintText,
+    super.hintStyle,
+    super.hintTextDirection,
+    super.hintMaxLines,
+    super.hintFadeDuration,
+    super.error,
+    super.errorText,
+    super.floatingLabelAlignment,
+    super.isCollapsed,
+    //super.isDense,
+    super.prefixIcon,
+    super.prefixIconConstraints,
+    super.prefix,
+    super.prefixText,
+    super.prefixStyle,
+    super.prefixIconColor,
+    super.suffix,
+    super.suffixText,
+    super.suffixStyle,
+    super.suffixIconColor,
+    super.suffixIconConstraints,
+    super.counter,
+    super.counterText,
+    super.focusColor,
+    super.hoverColor,
+    super.focusedBorder,
+    super.focusedErrorBorder,
+    super.disabledBorder,
+    super.enabledBorder,
+    super.enabled = true,
+    super.semanticCounterText,
+    super.alignLabelWithHint,
+    super.constraints,
+  }) : super(
+          isDense: true,
+          contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+          filled: true,
+          fillColor: Theme.of(context).colorScheme.onPrimary,
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          labelStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            backgroundColor: Theme.of(context).colorScheme.onPrimary,
           ),
-          tooltip: 'Mostra/Nascondi password',
-          icon: obscureText
-              ? HugeIcon(
-            size: 20,
-            icon: HugeIcons.strokeRoundedViewOff,
-            color: Theme
-                .of(context)
-                .colorScheme
-                .onPrimaryContainer,
-          )
-              : HugeIcon(
-              icon: HugeIcons.strokeRoundedView,
-              size: 20,
-              color: Theme
-                  .of(context)
-                  .colorScheme
-                  .onPrimaryContainer),
-          color: Theme
-              .of(context)
-              .colorScheme
-              .onPrimary,
-          onPressed: () {
-            onObscure.call();
-          },
-        ),
-  );
-
-
-
+          border: UnderlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none),
+          errorBorder: UnderlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              width: 3,
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ),
+          errorMaxLines: 2,
+          errorStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+          counterStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+          suffixIcon: (onObscure == null)
+              ? null
+              : IconButton(
+                  padding: const EdgeInsets.all(0),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(
+                        Theme.of(context).shadowColor.withAlpha(20)),
+                    animationDuration: const Duration(milliseconds: 200),
+                    elevation: const WidgetStatePropertyAll(2),
+                  ),
+                  tooltip: 'Mostra/Nascondi password',
+                  icon: obscureText
+                      ? HugeIcon(
+                          size: 20,
+                          icon: HugeIcons.strokeRoundedViewOff,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        )
+                      : HugeIcon(
+                          icon: HugeIcons.strokeRoundedView,
+                          size: 20,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer),
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  onPressed: () {
+                    onObscure.call();
+                  },
+                ),
+        );
 }

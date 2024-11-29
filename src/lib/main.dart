@@ -31,10 +31,10 @@ class FirstPage extends StatelessWidget {
     return MaterialApp(
       theme: ThemeManager().customTheme,
       home: const _FirstPage(),
-      supportedLocales: [
+      supportedLocales: const [
         Locale('it'),
       ],
-      localizationsDelegates: [
+      localizationsDelegates: const [
         ...GlobalMaterialLocalizations.delegates,
         FormBuilderLocalizations.delegate,
       ],
@@ -56,9 +56,9 @@ class _FirstPageState extends State<_FirstPage> {
     return Scaffold(
       backgroundColor: ThemeManager().seedColor,
       body: UserManagementDAO().currentUser != null
-          ? HomePage()
+          ? const HomePage()
           : Container(
-              margin: EdgeInsets.only(bottom: 50),
+              margin: const EdgeInsets.only(bottom: 50),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -66,14 +66,14 @@ class _FirstPageState extends State<_FirstPage> {
                     Container(
                       margin: EdgeInsets.only(
                           bottom: MediaQuery.of(context).size.height / 4),
-                      padding: EdgeInsets.only(left: 50, right: 50),
-                      child: Column(
+                      padding: const EdgeInsets.only(left: 50, right: 50),
+                      child: const Column(
                         children: [
                           Hero(
-                            child: const LogoWidget(),
+                            child: LogoWidget(),
                             tag: 'logo_from_home',
                           ),
-                          const SizedBox(height: 50),
+                          SizedBox(height: 50),
                           Text(
                             'Benvenuto in CiviConnect',
                             style: TextStyle(
@@ -93,23 +93,23 @@ class _FirstPageState extends State<_FirstPage> {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(bottom: 20),
+                      margin: const EdgeInsets.only(bottom: 20),
                       width: MediaQuery.of(context).size.width * 0.8,
                       child: ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
                               _transitionAnimationLogin(
-                                  (context) => LoginUtenteGUI()),
+                                  (context) => const LoginUtenteGUI()),
                             );
                             /*MaterialPageRoute(
                           builder: (context) => LoginUtenteGUI()),
                       );*/
                           },
-                          child: Text('Login')),
+                          child: const Text('Login')),
                     ),
                     Container(
-                      margin: EdgeInsets.only(bottom: 20),
+                      margin: const EdgeInsets.only(bottom: 20),
                       width: MediaQuery.of(context).size.width * 0.8,
                       child: ElevatedButton(
                           onPressed: () {
@@ -117,10 +117,10 @@ class _FirstPageState extends State<_FirstPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      RegistrazioneUtenteGui()),
+                                      const RegistrazioneUtenteGui()),
                             );
                           },
-                          child: Text('Registrazione')),
+                          child: const Text('Registrazione')),
                     ),
                   ],
                 ),
@@ -135,12 +135,12 @@ class _FirstPageState extends State<_FirstPage> {
 PageRouteBuilder _transitionAnimationLogin(
     Widget Function(BuildContext context) function) {
   return PageRouteBuilder(
-      transitionDuration: Duration(milliseconds: 800),
+      transitionDuration: const Duration(milliseconds: 800),
       pageBuilder: (context, animation, secondaryAnimation) =>
           function(context),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         // You can change the begin and end values to customize the animation.
-        var begin = Offset(0.0, 1.0);
+        var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
         var curve = Curves.easeInOut;
 

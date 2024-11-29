@@ -18,9 +18,9 @@ class ThemeManager {
     brightness: Brightness.light,
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: Color.fromRGBO(0, 69, 118, 1),
+      seedColor: const Color.fromRGBO(0, 69, 118, 1),
     ),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: Color.fromRGBO(0, 69, 118, 1),
       foregroundColor: Colors.white,
       elevation: 4,

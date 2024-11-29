@@ -48,11 +48,11 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
               /// Logo
               Container(
                 margin: const EdgeInsets.only(bottom: 20),
-                padding: EdgeInsets.only(left:padding, right: padding),
+                padding: EdgeInsets.only(left: padding, right: padding),
                 child: Column(
                   children: [
-                    Hero(
-                      child: const LogoWidget(),
+                    const Hero(
+                      child: LogoWidget(),
                       tag: 'logo_from_home',
                     ),
 
@@ -150,7 +150,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
               ),
 
               /// Bottom buttons
-              _BottomLoginRedirectButtons(),
+              const _BottomLoginRedirectButtons(),
             ],
           ),
         ),
@@ -169,7 +169,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     }
     // Sends the email and password to the controller.
     UserManagementController controller =
-        UserManagementController(redirectPage: HomePage());
+        UserManagementController(redirectPage: const HomePage());
 
     validUser =
         await controller.login(context, email: email, password: password);
@@ -255,7 +255,7 @@ class _BottomLoginRedirectButtons extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RegistrazioneUtenteGui()),
+                      builder: (context) => const RegistrazioneUtenteGui()),
                 );
               },
               child: Text(
@@ -300,11 +300,11 @@ class TestingPage extends StatelessWidget {
                 UserManagementDAO().logOut();
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => FirstPage()),
+                  MaterialPageRoute(builder: (context) => const FirstPage()),
                   (route) => false,
                 );
               },
-              child: Text('Logout'),
+              child: const Text('Logout'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -329,7 +329,7 @@ class TestingPage extends StatelessWidget {
                   },
                 );
               },
-              child: Text('Test if I\' m admin'),
+              child: const Text('Test if I\' m admin'),
             ),
           ],
         ),
