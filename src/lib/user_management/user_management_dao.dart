@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// A Data Access Object (DAO) for managing user authentication
@@ -5,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 class UserManagementDAO {
   // Private instance of FirebaseAuth used to interact with authentication services.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  // Private instance of FirebaseFirestore used to interact with Firestore.
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Returns the currently authenticated user, or `null` if no user is logged in.
   User? get currentUser => _firebaseAuth.currentUser;
@@ -42,21 +45,7 @@ class UserManagementDAO {
 
   /// Creates a new user with the provided email and password.
   ///
-  /// Throws an exception if the account creation fails. Ensure to handle
-  /// errors such as email already in use or invalid password format.
-  ///
-  /// Example:
-  /// ```dart
-  /// try {
-  ///   await userManagementDAO.createUserWithEmailAndPassword(
-  ///     email: "newuser@example.com",
-  ///     password: "securePassword123",
-  ///   );
-  ///   print("User created successfully");
-  /// } catch (e) {
-  ///   print("Error creating user: $e");
-  /// }
-  /// ```
+  /// Throws an exception if the account creation fails.
   Future<void> createUserWithEmailAndPassword({
     required String email,
     required String password,
@@ -67,14 +56,7 @@ class UserManagementDAO {
 
   /// Logs out the currently authenticated user.
   ///
-  /// Throws an exception if the logout operation fails. After a successful
-  /// logout, `authStateChanges` will emit `null`.
-  ///
-  /// Example:
-  /// ```dart
-  /// await userManagementDAO.logOut();
-  /// print("User logged out successfully");
-  /// ```
+  /// Throws an exception if the logout operation fails.
   Future<void> logOut() async {
     await _firebaseAuth.signOut();
   }
@@ -104,6 +86,9 @@ class UserManagementDAO {
 
     // Update the user's email.
     await user.updateEmail(newEmail);
+
+    // Update the email in Firestore.
+    await _firestore.collection('citizen').doc(user.uid).update({'email': newEmail});
   }
 
   /// Updates the password of the authenticated user.
@@ -129,5 +114,30 @@ class UserManagementDAO {
 
     // Update the user's password.
     await user.updatePassword(newPassword);
+  }
+
+  /// Retrieves the user's data from Firestore.
+  Future<Map<String, dynamic>> getUserData() async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      DocumentSnapshot snapshot =
+      await _firestore.collection('citizen').doc(user.uid).get();
+      return snapshot.data() as Map<String, dynamic>;
+    } else {
+      throw Exception('Nessun utente autenticato');
+    }
+  }
+
+  /// Updates the user's data in Firestore.
+  ///
+  /// Parameters:
+  /// - [userData]: The user data to update.
+  Future<void> updateUserData(Map<String, dynamic> userData) async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await _firestore.collection('citizen').doc(user.uid).update(userData);
+    } else {
+      throw Exception('Nessun utente autenticato');
+    }
   }
 }

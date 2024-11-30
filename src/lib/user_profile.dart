@@ -1,6 +1,5 @@
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +26,6 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeManager().customTheme;
     final user = FirebaseAuth.instance.currentUser;
-    String uid = user!.uid;
 
     return Scaffold(
       appBar: AppBar(
@@ -37,21 +35,20 @@ class _UserProfileState extends State<UserProfile> {
         ),
         centerTitle: true,
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future:
-        FirebaseFirestore.instance.collection('citizen').doc(uid).get(),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: userController.getUserData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Something went wrong: ${snapshot.error}',
+                'Qualcosa è andato storto: ${snapshot.error}',
                 style: theme.textTheme.titleMedium,
               ),
             );
           } else {
-            userData = snapshot.data!.data() as Map<String, dynamic>;
+            userData = snapshot.data!;
 
             return SingleChildScrollView(
               child: Padding(
@@ -60,7 +57,7 @@ class _UserProfileState extends State<UserProfile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 0),
-                    _buildProfileHeader(theme, user, userData),
+                    _buildProfileHeader(theme, user!, userData),
                     const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,7 +73,7 @@ class _UserProfileState extends State<UserProfile> {
                             setState(() {
                               isEditing = !isEditing;
                               if (!isEditing) {
-                                /// Save the updated userData to Firestore
+                                _saveUserData();
                               }
                             });
                           },
@@ -125,6 +122,19 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  Future<void> _saveUserData() async {
+    try {
+      await userController.saveUserData(userData);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dati salvati con successo')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Errore durante il salvataggio: $e')),
+      );
+    }
+  }
+
   Widget _buildProfileHeader(
       ThemeData theme, User user, Map<String, dynamic> userData) {
     return Center(
@@ -163,8 +173,7 @@ class _UserProfileState extends State<UserProfile> {
           (field) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 3.0),
         child: Row(
-          crossAxisAlignment:
-          CrossAxisAlignment.center, // Allineamento verticale
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               flex: 2,
@@ -182,8 +191,7 @@ class _UserProfileState extends State<UserProfile> {
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
-                  contentPadding:
-                  EdgeInsets.zero, // Rimuove il padding interno
+                  contentPadding: EdgeInsets.zero,
                 ),
                 onFieldSubmitted: (newValue) {
                   setState(() {
@@ -294,8 +302,7 @@ class _UserProfileState extends State<UserProfile> {
       context: context,
       isScrollControlled: true,
       builder: (context) => ChangePasswordSheet(
-        onSubmit:
-            (currentPassword, newPassword, confirmPassword) async {
+        onSubmit: (currentPassword, newPassword, confirmPassword) async {
           Navigator.of(context).pop();
           await _changePassword(currentPassword, newPassword);
         },
@@ -303,18 +310,10 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  Future<void> _changeEmail(
-      String newEmail, String currentPassword) async {
+  Future<void> _changeEmail(String newEmail, String currentPassword) async {
     try {
       await userController.changeEmail(context,
           newEmail: newEmail, currentPassword: currentPassword);
-
-      // Update the email in Firestore
-      final user = FirebaseAuth.instance.currentUser!;
-      await FirebaseFirestore.instance
-          .collection('citizen')
-          .doc(user.uid)
-          .update({'email': newEmail});
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email aggiornata con successo')),
@@ -518,8 +517,8 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                   children: [
                     TextFormField(
                       controller: _currentPasswordController,
-                      decoration: const InputDecoration(
-                          labelText: 'Password Corrente'),
+                      decoration:
+                      const InputDecoration(labelText: 'Password Corrente'),
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -541,7 +540,8 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                         if (value.length < 6) {
                           return 'La password deve essere di almeno 6 caratteri';
                         }
-                        if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\W)').hasMatch(value)) {
+                        if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\W)')
+                            .hasMatch(value)) {
                           return 'La password deve contenere almeno una lettera maiuscola, una lettera minuscola e un carattere speciale';
                         }
                         return null;

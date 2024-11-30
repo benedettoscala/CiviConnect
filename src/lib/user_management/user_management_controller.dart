@@ -15,6 +15,9 @@ class UserManagementController {
   /// Redirect page to navigate to after successful login.
   final Widget redirectPage;
 
+  /// Instance of the user DAO, used to interact with the user database.
+  final UserManagementDAO userDao = UserManagementDAO();
+
   /// Constructor for the `UserManagementController` class.
   ///
   /// This constructor require a `redirectPage` parameter, which is the page.
@@ -72,11 +75,9 @@ class UserManagementController {
   /// - [currentPassword]: The user's current password.
   Future<void> changeEmail(BuildContext context,
       {required String newEmail, required String currentPassword}) async {
-    UserManagementDAO userDao = UserManagementDAO();
     try {
       await userDao.updateEmail(
           newEmail: newEmail, currentPassword: currentPassword);
-      // You can also update the email in Firestore if necessary.
     } catch (e) {
       throw e;
     }
@@ -92,10 +93,27 @@ class UserManagementController {
   /// - [newPassword]: The new password to set.
   Future<void> changePassword(BuildContext context,
       {required String currentPassword, required String newPassword}) async {
-    UserManagementDAO userDao = UserManagementDAO();
     try {
       await userDao.updatePassword(
           currentPassword: currentPassword, newPassword: newPassword);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /// Retrieves the user's data.
+  Future<Map<String, dynamic>> getUserData() async {
+    try {
+      return await userDao.getUserData();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /// Updates the user's data.
+  Future<void> saveUserData(Map<String, dynamic> userData) async {
+    try {
+      await userDao.updateUserData(userData);
     } catch (e) {
       throw e;
     }
