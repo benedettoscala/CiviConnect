@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// A Data Access Object (DAO) for managing user authentication
 /// using Firebase Authentication.
@@ -77,5 +77,57 @@ class UserManagementDAO {
   /// ```
   Future<void> logOut() async {
     await _firebaseAuth.signOut();
+  }
+
+  // -------------------- Methods for Modify User Data --------------------
+
+  /// Updates the email of the authenticated user.
+  ///
+  /// Requires the user to re-authenticate with the current password
+  /// for security reasons.
+  ///
+  /// Parameters:
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password.
+  Future<void> updateEmail({
+    required String newEmail,
+    required String currentPassword,
+  }) async {
+    User user = _firebaseAuth.currentUser!;
+
+    // Create credentials with the user's email and current password.
+    AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!, password: currentPassword);
+
+    // Re-authenticate the user.
+    await user.reauthenticateWithCredential(credential);
+
+    // Update the user's email.
+    await user.updateEmail(newEmail);
+  }
+
+  /// Updates the password of the authenticated user.
+  ///
+  /// Requires the user to re-authenticate with the current password
+  /// for security reasons.
+  ///
+  /// Parameters:
+  /// - [currentPassword]: The user's current password.
+  /// - [newPassword]: The new password to set.
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    User user = _firebaseAuth.currentUser!;
+
+    // Create credentials with the user's email and current password.
+    AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!, password: currentPassword);
+
+    // Re-authenticate the user.
+    await user.reauthenticateWithCredential(credential);
+
+    // Update the user's password.
+    await user.updatePassword(newPassword);
   }
 }
