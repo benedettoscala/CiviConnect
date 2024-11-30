@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
@@ -172,32 +174,38 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
   /// This method validates the form and sends the email and password to the controller.
   /// If the user is not valid, a snackbar is displayed.
   void _sendData(String email, String password) async {
+    String motivation = 'Invalid email or password';
     final formState = _formKey.currentState;
-    bool validUser;
+    bool validUser = false;
     if (formState == null || !formState.saveAndValidate()) {
       return;
     }
     // Sends the email and password to the controller.
     UserManagementController controller =
         UserManagementController(redirectPage: const HomePage());
-
-    validUser =
-        await controller.login(context, email: email, password: password);
-
-    // If the user is not valid, a snackbar is displayed.
-    if (!validUser) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          showCloseIcon: true,
-          backgroundColor: Theme.of(context).colorScheme.error,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+    try {
+      validUser =
+      await controller.login(context, email: email, password: password);
+    } on HttpException catch (e) {
+      motivation = e.message;
+      validUser = false;
+    } finally {
+      // If the user is not valid, a snackbar is displayed.
+      if (!validUser) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            showCloseIcon: true,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            content: Text(motivation),
           ),
-          content: const Text('Invalid email or password'),
-        ),
-      );
+        );
+      }
     }
+
   }
 }
 

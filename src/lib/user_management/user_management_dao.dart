@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
@@ -6,6 +8,9 @@ import 'package:flutter/foundation.dart';
 /// A Data Access Object (DAO) for managing user authentication
 /// and role determination using Firebase Authentication and Firestore.
 class UserManagementDAO {
+  /// Error code for network request failures.
+  static final _networkError = 'network-request-failed';
+
   /// Instance of FirebaseAuth used for user authentication.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -50,7 +55,10 @@ class UserManagementDAO {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
+      if(e.code == _networkError){
+        throw HttpException('Errore di rete, controlla la connessione o riprova più tardi');
+      }
       return false;
     }
     return true;
