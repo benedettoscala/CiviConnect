@@ -124,10 +124,16 @@ class _UserProfileState extends State<UserProfile> {
 
   Future<void> _saveUserData() async {
     try {
-      await userController.saveUserData(userData);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dati salvati con successo')),
-      );
+      bool result = await userController.saveUserData(userData);
+      if (result) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Dati salvati con successo')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Errore durante il salvataggio')),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Errore durante il salvataggio: $e')),
@@ -163,7 +169,7 @@ class _UserProfileState extends State<UserProfile> {
       {'Cognome': userData['lastName'] ?? 'N/A'},
       {'Indirizzo': userData['address']['street'] ?? 'N/A'},
       {'Città': userData['city'] ?? 'N/A'},
-      {'CAP': userData['CAP'] ?? 'N/A'},
+      {'CAP': userData['cap'] ?? 'N/A'},
     ];
 
     TextStyle textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
@@ -195,8 +201,19 @@ class _UserProfileState extends State<UserProfile> {
                 ),
                 onFieldSubmitted: (newValue) {
                   setState(() {
-                    userData[field.keys.first.toLowerCase()] =
-                        newValue;
+                    // Update the userData map with the new value
+                    String key = field.keys.first;
+                    if (key == 'Nome') {
+                      userData['firstName'] = newValue;
+                    } else if (key == 'Cognome') {
+                      userData['lastName'] = newValue;
+                    } else if (key == 'Indirizzo') {
+                      userData['address']['street'] = newValue;
+                    } else if (key == 'Città') {
+                      userData['city'] = newValue;
+                    } else if (key == 'CAP') {
+                      userData['cap'] = newValue;
+                    }
                   });
                 },
               )

@@ -48,8 +48,6 @@ class UserManagementController {
   /// Parameters:
   /// - [context]: The current context of the Flutter application.
   Future<bool> _validateAuth(BuildContext context) async {
-    UserManagementDAO userDao = UserManagementDAO();
-
     final bool result = await userDao.signInWithEmailAndPassword(
         email: user.email, password: user.password!);
 
@@ -111,9 +109,9 @@ class UserManagementController {
   }
 
   /// Updates the user's data.
-  Future<void> saveUserData(Map<String, dynamic> userData) async {
+  Future<bool> saveUserData(Map<String, dynamic> userData) async {
     try {
-      await userDao.updateUserData(userData);
+      return await userDao.updateUserData(userData);
     } catch (e) {
       throw e;
     }
