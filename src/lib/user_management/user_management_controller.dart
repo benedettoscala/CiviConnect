@@ -59,4 +59,45 @@ class UserManagementController {
 
     return result;
   }
+
+  // -------------------- Methods for Modify User Data --------------------
+
+  /// Method to change the user's email.
+  ///
+  /// Uses the DAO to update the email and handles any exceptions.
+  ///
+  /// Parameters:
+  /// - [context]: The current context of the Flutter application.
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password.
+  Future<void> changeEmail(BuildContext context,
+      {required String newEmail, required String currentPassword}) async {
+    UserManagementDAO userDao = UserManagementDAO();
+    try {
+      await userDao.updateEmail(
+          newEmail: newEmail, currentPassword: currentPassword);
+      // You can also update the email in Firestore if necessary.
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /// Method to change the user's password.
+  ///
+  /// Uses the DAO to update the password and handles any exceptions.
+  ///
+  /// Parameters:
+  /// - [context]: The current context of the Flutter application.
+  /// - [currentPassword]: The user's current password.
+  /// - [newPassword]: The new password to set.
+  Future<void> changePassword(BuildContext context,
+      {required String currentPassword, required String newPassword}) async {
+    UserManagementDAO userDao = UserManagementDAO();
+    try {
+      await userDao.updatePassword(
+          currentPassword: currentPassword, newPassword: newPassword);
+    } catch (e) {
+      throw e;
+    }
+  }
 }
