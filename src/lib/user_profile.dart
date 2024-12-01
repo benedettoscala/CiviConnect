@@ -32,7 +32,7 @@ class _UserProfileState extends State<UserProfile> {
       Map<String, dynamic> data = await userController.getUserData();
       setState(() {
         userData = data;
-        originalUserData = Map<String, dynamic>.from(data);
+        //originalUserData = Map<String, dynamic>.from(data);
         isLoading = false;
       });
     } catch (e) {
@@ -97,13 +97,22 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                   IconButton(
                     icon: Icon(isEditing ? Icons.save : Icons.edit),
-                    onPressed: () {
-                      setState(() {
-                        if (isEditing) {
-                          _saveUserData();
+                    onPressed: () async {
+                      if (isEditing) {
+                        // Tenta di salvare i dati
+                        bool success = await _saveUserData();
+                        if (success) {
+                          setState(() {
+                            isEditing = false;
+                          });
                         }
-                        isEditing = !isEditing;
-                      });
+                        // Se il salvataggio fallisce, mantieni isEditing = true
+                      } else {
+                        // Entra in modalità modifica
+                        setState(() {
+                          isEditing = true;
+                        });
+                      }
                     },
                   ),
                 ],
@@ -147,20 +156,257 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  /// Save the user data to Firestore.
-  Future<void> _saveUserData() async {
+  List<Widget> _buildPersonalData(
+      Map<String, dynamic> userData, ThemeData theme) {
+    // Definizione dei campi personali
+    final List<Map<String, dynamic>> personalFields = [
+      {'label': 'Nome', 'value': userData['firstName'] ?? 'N/A'},
+      {'label': 'Cognome', 'value': userData['lastName'] ?? 'N/A'},
+      {'label': 'Indirizzo', 'value': userData['address']},
+      {'label': 'Città', 'value': userData['city'] ?? 'N/A'},
+      {'label': 'CAP', 'value': userData['cap'] ?? 'N/A'},
+    ];
+
+    TextStyle textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
+
+    return personalFields.map((field) {
+      if (field['label'] == 'Indirizzo' && field['value'] != null) {
+        // Estrazione di street e number dall'indirizzo
+        String street = field['value']['street'] ?? 'N/A';
+        String number = field['value']['number'] ?? 'N/A';
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Etichetta Indirizzo
+              Expanded(
+                flex: 2,
+                child: Text(
+                  '${field['label']}:',
+                  style: textStyle.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              // Via e Numero affiancati
+              Expanded(
+                flex: 5,
+                child: Row(
+                  children: [
+                    // Campo Via
+                    Flexible(
+                      child: isEditing
+                          ? TextFormField(
+                        initialValue: street,
+                        style: textStyle.copyWith(fontSize: 16),
+                        decoration: const InputDecoration(
+                          hintText: 'Via',
+                          border: InputBorder.none, // Rimuove il bordo
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero, // Rimuove il padding
+                        ),
+                        onChanged: (newValue) {
+                          setState(() {
+                            userData['address']['street'] = newValue;
+                          });
+                        },
+                      )
+                          : Text(
+                        street,
+                        style: textStyle,
+                      ),
+                    ),
+                    // Riduci la larghezza dello spazio tra Via e Numero
+                    const SizedBox(width: 10), // Da 10 a 5
+                    // Campo Numero
+                    Flexible(
+                      child: isEditing
+                          ? TextFormField(
+                        initialValue: number,
+                        style: textStyle.copyWith(fontSize: 16),
+                        decoration: const InputDecoration(
+                          hintText: 'Numero',
+                          border: InputBorder.none, // Rimuove il bordo
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero, // Rimuove il padding
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (newValue) {
+                          setState(() {
+                            userData['address']['number'] = newValue;
+                          });
+                        },
+                      )
+                          : Text(
+                        number,
+                        style: textStyle,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      } else {
+        // Gestione degli altri campi
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Text(
+                  '${field['label']}:',
+                  style: textStyle.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                flex: 5,
+                child: isEditing
+                    ? TextFormField(
+                  initialValue: field['value'].toString(),
+                  style: textStyle.copyWith(fontSize: 16),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none, // Rimuove il bordo
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero, // Rimuove il padding
+                  ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      // Aggiorna la mappa userData con il nuovo valore
+                      String label = field['label'];
+                      if (label == 'Nome') {
+                        userData['firstName'] = newValue;
+                      } else if (label == 'Cognome') {
+                        userData['lastName'] = newValue;
+                      } else if (label == 'Città') {
+                        userData['city'] = newValue;
+                      } else if (label == 'CAP') {
+                        userData['cap'] = newValue;
+                      }
+                    });
+                  },
+                )
+                    : Text(
+                  field['value'].toString(),
+                  style: textStyle,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    }).toList();
+  }
+
+  /// Save the user data to Firestore after validation checks.
+  Future<bool> _saveUserData() async {
+    // Definizione delle espressioni regolari per la validazione
+    final RegExp nameRegExp = RegExp(r"^[A-Za-zÀ-ÿ\s']{1,255}$");
+    final RegExp streetRegExp = RegExp(r"^[A-Za-zÀ-ÿ\s']{1,255}$");
+    final RegExp numberRegExp = RegExp(r"^[A-Za-z0-9/]{1,10}$");
+    final RegExp cityRegExp = RegExp(r"^[A-Za-zÀ-ÿ\s']{1,255}$");
+    final RegExp capRegExp = RegExp(r"^\d{5}$");
+
+    List<String> errors = [];
+
+    // Estrazione e trim dei valori
+    String firstName = (userData['firstName'] ?? '').toString().trim();
+    String lastName = (userData['lastName'] ?? '').toString().trim();
+    Map<String, dynamic>? address = userData['address'];
+    String street = address != null ? (address['street'] ?? '').toString().trim() : '';
+    String number = address != null ? (address['number'] ?? '').toString().trim() : '';
+    String city = (userData['city'] ?? '').toString().trim();
+    String cap = (userData['cap'] ?? '').toString().trim();
+
+    // Controllo non nullità e non vuotezza
+    if (firstName.isEmpty) {
+      errors.add('Il campo "Nome" non può essere vuoto.');
+    }
+    if (lastName.isEmpty) {
+      errors.add('Il campo "Cognome" non può essere vuoto.');
+    }
+    if (street.isEmpty) {
+      errors.add('Il campo "Via" non può essere vuoto.');
+    }
+    if (number.isEmpty) {
+      errors.add('Il campo "Numero Civico" non può essere vuoto.');
+    }
+    if (city.isEmpty) {
+      errors.add('Il campo "Città" non può essere vuoto.');
+    }
+    if (cap.isEmpty) {
+      errors.add('Il campo "CAP" non può essere vuoto.');
+    }
+
+    // Validazione Nome
+    if (firstName.isNotEmpty && !nameRegExp.hasMatch(firstName)) {
+      errors.add('Il campo "Nome" può contenere solo lettere, spazi e apostrofi (max 255 caratteri).');
+    }
+
+    // Validazione Cognome
+    if (lastName.isNotEmpty && !nameRegExp.hasMatch(lastName)) {
+      errors.add('Il campo "Cognome" può contenere solo lettere, spazi e apostrofi (max 255 caratteri).');
+    }
+
+    // Validazione Street
+    if (street.isNotEmpty && !streetRegExp.hasMatch(street)) {
+      errors.add('Il campo "Via" può contenere solo lettere, spazi, apostrofi e caratteri accentati (max 255 caratteri).');
+    }
+
+    // Validazione Numero Civico
+    if (number.isNotEmpty && !numberRegExp.hasMatch(number)) {
+      errors.add('Il campo "Numero Civico" può contenere solo lettere, numeri e "/" (max 10 caratteri).');
+    }
+
+    // Validazione Città
+    if (city.isNotEmpty && !cityRegExp.hasMatch(city)) {
+      errors.add('Il campo "Città" può contenere solo lettere, spazi e apostrofi (max 255 caratteri).');
+    }
+
+    // Validazione CAP
+    if (cap.isNotEmpty && !capRegExp.hasMatch(cap)) {
+      errors.add('Il campo "CAP" deve essere esattamente composto da 5 cifre.');
+    }
+
+    // Se ci sono errori, mostrare un SnackBar con tutti i messaggi di errore
+    if (errors.isNotEmpty) {
+      String errorMessage = errors.join('\n');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      return false; // Indica che il salvataggio non è riuscito
+    }
+
+    // Se tutti i controlli passano, procediamo al salvataggio
     try {
       await userController.updateUserData(userData);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dati salvati con successo')),
+        const SnackBar(
+          content: Text('Dati salvati con successo'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
       );
       setState(() {
-        isEditing = false;
+        originalUserData = Map<String, dynamic>.from(userData);
       });
+      return true; // Indica che il salvataggio è riuscito
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore durante il salvataggio: $e')),
+        SnackBar(
+          content: Text('Errore durante il salvataggio: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
       );
+      return false; // Indica che il salvataggio non è riuscito
     }
   }
 
@@ -183,81 +429,6 @@ class _UserProfileState extends State<UserProfile> {
         ],
       ),
     );
-  }
-
-  List<Widget> _buildPersonalData(
-      Map<String, dynamic> userData, ThemeData theme) {
-    final List<Map<String, String>> personalFields = [
-      {'Nome': userData['firstName'] ?? 'N/A'},
-      {'Cognome': userData['lastName'] ?? 'N/A'},
-      {
-        'Indirizzo':
-        userData['address'] != null ? userData['address']['street'] ?? 'N/A' : 'N/A'
-      },
-      {'Città': userData['city'] ?? 'N/A'},
-      {'CAP': userData['cap'] ?? 'N/A'},
-    ];
-
-    TextStyle textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
-
-    return personalFields
-        .map(
-          (field) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Text(
-                '${field.keys.first}:',
-                style: textStyle.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: isEditing
-                  ? TextFormField(
-                initialValue: field.values.first,
-                style: textStyle.copyWith(
-                  fontSize: 16,
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                onChanged: (newValue) {
-                  setState(() {
-                    // Aggiorna la mappa userData con il nuovo valore
-                    String key = field.keys.first;
-                    if (key == 'Nome') {
-                      userData['firstName'] = newValue;
-                    } else if (key == 'Cognome') {
-                      userData['lastName'] = newValue;
-                    } else if (key == 'Indirizzo') {
-                      if (userData['address'] == null) {
-                        userData['address'] = {};
-                      }
-                      userData['address']['street'] = newValue;
-                    } else if (key == 'Città') {
-                      userData['city'] = newValue;
-                    } else if (key == 'CAP') {
-                      userData['cap'] = newValue;
-                    }
-                  });
-                },
-              )
-                  : Text(
-                field.values.first,
-                style: textStyle,
-              ),
-            ),
-          ],
-        ),
-      ),
-    )
-        .toList();
   }
 
   Widget _buildAccountData(User user, ThemeData theme) {
@@ -405,7 +576,9 @@ class _UserProfileState extends State<UserProfile> {
           currentPassword: currentPassword, newPassword: newPassword);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password aggiornata con successo')),
+        const SnackBar(content: Text('Password aggiornata con successo'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3)),
       );
     } catch (e) {
       String errorMessage;
@@ -415,16 +588,20 @@ class _UserProfileState extends State<UserProfile> {
             errorMessage = 'La nuova password è troppo debole.';
             break;
           case 'wrong-password':
+          case 'invalid-credential':
             errorMessage = 'La password corrente non è corretta.';
             break;
           default:
-            errorMessage = 'Errore: ${e.message}';
+            // errorMessage = 'Errore: ${e.message}';
+            errorMessage = 'Si è verificato un errore.';
         }
       } else {
         errorMessage = 'Si è verificato un errore: $e';
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
+        SnackBar(content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5)),
       );
     }
   }
