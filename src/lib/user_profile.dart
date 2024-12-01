@@ -3,9 +3,9 @@ import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-/// A stateful widget to display the user profile.
+/// Widget stateful per visualizzare il profilo utente.
 class UserProfile extends StatefulWidget {
-  UserProfile({super.key});
+  UserProfile({Key? key}) : super(key: key);
 
   @override
   _UserProfileState createState() => _UserProfileState();
@@ -15,17 +15,50 @@ class _UserProfileState extends State<UserProfile> {
   bool isEditing = false;
   Map<String, dynamic> userData = {};
   late UserManagementController userController;
+  bool isLoading = true; // Indica se i dati sono in caricamento
 
   @override
   void initState() {
     super.initState();
     userController = UserManagementController(redirectPage: UserProfile());
+    _loadUserData();
+  }
+
+  /// Carica i dati dell'utente una sola volta e li memorizza nello stato.
+  void _loadUserData() async {
+    try {
+      Map<String, dynamic> data = await userController.getUserData();
+      setState(() {
+        userData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Errore durante il caricamento dei dati: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeManager().customTheme;
     final user = FirebaseAuth.instance.currentUser;
+
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Area Utente',
+            style: theme.textTheme.titleLarge,
+          ),
+          centerTitle: true,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -35,73 +68,62 @@ class _UserProfileState extends State<UserProfile> {
         ),
         centerTitle: true,
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: userController.getUserData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Qualcosa è andato storto: ${snapshot.error}',
-                style: theme.textTheme.titleMedium,
+      body: userData.isEmpty
+          ? Center(
+        child: Text(
+          'Nessun dato utente disponibile.',
+          style: theme.textTheme.titleMedium,
+        ),
+      )
+          : SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 0),
+              _buildProfileHeader(theme, user!, userData),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Dati Personali',
+                    style: theme.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: Icon(isEditing ? Icons.save : Icons.edit),
+                    onPressed: () {
+                      setState(() {
+                        if (isEditing) {
+                          _saveUserData();
+                        }
+                        isEditing = !isEditing;
+                      });
+                    },
+                  ),
+                ],
               ),
-            );
-          } else {
-            userData = snapshot.data!;
-
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 0),
-                    _buildProfileHeader(theme, user!, userData),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Dati Personali',
-                          style: theme.textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: Icon(isEditing ? Icons.save : Icons.edit),
-                          onPressed: () {
-                            setState(() {
-                              isEditing = !isEditing;
-                              if (!isEditing) {
-                                _saveUserData();
-                              }
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ..._buildPersonalData(userData, theme),
-                    const SizedBox(height: 20),
-                    const Divider(
-                      thickness: 1,
-                      height: 10,
-                      color: Color.fromRGBO(0, 69, 118, 1),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Dati Account',
-                      style: theme.textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildAccountData(user, theme),
-                  ],
-                ),
+              const SizedBox(height: 10),
+              ..._buildPersonalData(userData, theme),
+              const SizedBox(height: 20),
+              const Divider(
+                thickness: 1,
+                height: 10,
+                color: Color.fromRGBO(0, 69, 118, 1),
               ),
-            );
-          }
-        },
+              const SizedBox(height: 20),
+              Text(
+                'Dati Account',
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              _buildAccountData(user, theme),
+            ],
+          ),
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
@@ -122,18 +144,16 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  /// Salva i dati dell'utente utilizzando il controller.
   Future<void> _saveUserData() async {
     try {
-      bool result = await userController.saveUserData(userData);
-      if (result) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Dati salvati con successo')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Errore durante il salvataggio')),
-        );
-      }
+      await userController.updateUserData(userData);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dati salvati con successo')),
+      );
+      setState(() {
+        isEditing = false;
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Errore durante il salvataggio: $e')),
@@ -167,7 +187,10 @@ class _UserProfileState extends State<UserProfile> {
     final List<Map<String, String>> personalFields = [
       {'Nome': userData['firstName'] ?? 'N/A'},
       {'Cognome': userData['lastName'] ?? 'N/A'},
-      {'Indirizzo': userData['address']['street'] ?? 'N/A'},
+      {
+        'Indirizzo':
+        userData['address'] != null ? userData['address']['street'] ?? 'N/A' : 'N/A'
+      },
       {'Città': userData['city'] ?? 'N/A'},
       {'CAP': userData['cap'] ?? 'N/A'},
     ];
@@ -193,21 +216,26 @@ class _UserProfileState extends State<UserProfile> {
               child: isEditing
                   ? TextFormField(
                 initialValue: field.values.first,
-                style: textStyle,
+                style: textStyle.copyWith(
+                  fontSize: 16,
+                ),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
-                onFieldSubmitted: (newValue) {
+                onChanged: (newValue) {
                   setState(() {
-                    // Update the userData map with the new value
+                    // Aggiorna la mappa userData con il nuovo valore
                     String key = field.keys.first;
                     if (key == 'Nome') {
                       userData['firstName'] = newValue;
                     } else if (key == 'Cognome') {
                       userData['lastName'] = newValue;
                     } else if (key == 'Indirizzo') {
+                      if (userData['address'] == null) {
+                        userData['address'] = {};
+                      }
                       userData['address']['street'] = newValue;
                     } else if (key == 'Città') {
                       userData['city'] = newValue;
@@ -273,29 +301,24 @@ class _UserProfileState extends State<UserProfile> {
           ],
         ),
         const SizedBox(height: 20),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.email),
-                    label: const Text('Modifica Email'),
-                    onPressed: _showChangeEmailSheet,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.lock),
-                    label: const Text('Modifica Password'),
-                    onPressed: _showChangePasswordSheet,
-                  ),
-                ),
-              ],
-            );
-          },
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.email),
+                label: const Text('Modifica Email'),
+                onPressed: _showChangeEmailSheet,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.lock),
+                label: const Text('Modifica Password'),
+                onPressed: _showChangePasswordSheet,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -392,6 +415,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 }
 
+/// Widget per il foglio modale di modifica dell'email.
 class ChangeEmailSheet extends StatefulWidget {
   final Function(String newEmail, String currentPassword) onSubmit;
 
@@ -448,8 +472,8 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
                     ),
                     TextFormField(
                       controller: _passwordController,
-                      decoration: const InputDecoration(
-                          labelText: 'Password Corrente'),
+                      decoration:
+                      const InputDecoration(labelText: 'Password Corrente'),
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -489,6 +513,7 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
   }
 }
 
+/// Widget per il foglio modale di modifica della password.
 class ChangePasswordSheet extends StatefulWidget {
   final Function(
       String currentPassword, String newPassword, String confirmPassword)

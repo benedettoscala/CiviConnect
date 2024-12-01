@@ -132,16 +132,10 @@ class UserManagementDAO {
   ///
   /// Parameters:
   /// - [userData]: The user data to update.
-  Future<bool> updateUserData(Map<String, dynamic> userData) async {
+  Future<void> updateUserData(Map<String, dynamic> userData) async {
     User? user = _firebaseAuth.currentUser;
     if (user != null) {
-      try {
-        await _firestore.collection('citizen').doc(user.uid).update(userData);
-        return true;
-      } catch (e) {
-        // Rilancia l'eccezione per una gestione a livello superiore.
-        throw Exception('Error updating user data: $e');
-      }
+      await _firestore.collection('citizen').doc(user.uid).update(userData);
     } else {
       throw Exception('Nessun utente autenticato');
     }

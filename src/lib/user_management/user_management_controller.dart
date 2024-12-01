@@ -109,9 +109,9 @@ class UserManagementController {
   }
 
   /// Updates the user's data.
-  Future<bool> saveUserData(Map<String, dynamic> userData) async {
+  Future<void> updateUserData(Map<String, dynamic> userData) async {
     try {
-      return await userDao.updateUserData(userData);
+      await userDao.updateUserData(userData);
     } catch (e) {
       throw e;
     }
