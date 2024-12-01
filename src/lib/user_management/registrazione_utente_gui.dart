@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 //import 'package:civiconnect/user_management/user_management_dao.dart';
@@ -8,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../home_page.dart';
 //import '../main.dart';
 import '../widgets/logo_widget.dart';
@@ -291,7 +288,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
     }
 
     bool isMatching = await isCapMatchingCityAPI(cap, city);
-    print(isMatching);
+    //print(isMatching);
     if (!isMatching) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -352,45 +349,46 @@ InputDecoration _inputDecoration(BuildContext context, String? labelText) {
   );
 }
 
-/// Checks if the provided CAP matches the city using an external API.
+/// Verifica se il CAP fornito corrisponde alla città utilizzando un file JSON locale.
 ///
-/// This method sends a request to the Zippopotam.us API to verify if the
-/// provided CAP (postal code) corresponds to the given city. It returns
-/// `true` if the city matches the CAP, otherwise `false`.
+/// Questo metodo legge un file JSON locale contenente una lista di CAP e città,
+/// e controlla se il CAP specificato corrisponde alla città data. Restituisce `true`
+/// se il CAP corrisponde alla città, altrimenti `false`.
 ///
-/// Parameters:
-/// - [cap]: The postal code to be checked.
-/// - [city]: The city name to be verified against the postal code.
+/// Parametri:
+/// - [cap]: Il codice postale da verificare.
+/// - [city]: Il nome della città da verificare rispetto al CAP.
 ///
-/// Returns:
-/// - A `Future<bool>` that resolves to `true` if the city matches the CAP,
-///   otherwise `false`.
+/// Ritorna:
+/// - Un `Future<bool>` che risolve a `true` se il CAP corrisponde alla città,
+///   altrimenti `false`.
 ///
-/// Example:
+/// Esempio:
 /// ```dart
 /// bool isMatching = await isCapMatchingCityAPI('00100', 'Rome');
 /// if (isMatching) {
-///   print('The CAP matches the city.');
+///   print('Il CAP corrisponde alla città.');
 /// } else {
-///   print('The CAP does not match the city.');
+///   print('Il CAP non corrisponde alla città.');
 /// }
 /// ```
+
 Future<bool> isCapMatchingCityAPI(String cap, String city) async {
   try {
     // Legge il contenuto del file JSON dalla directory "files"
     final jsonData = await rootBundle.loadString('assets/files/comuni-localita-cap-italia.json');
 
     // Decodifica il contenuto del file in una lista di mappe
-    final List<dynamic> comuniData = json.decode(jsonData)["Sheet 1 - comuni-localita-cap-i"];
+    final List<dynamic> comuniData = json.decode(jsonData)['Sheet 1 - comuni-localita-cap-i'];
 
     // Cerca se c'è un elemento con il CAP e il Comune corrispondente
     final match = comuniData.any((element) =>
-    element["CAP"] == cap && element["Comune Localita’"].toLowerCase() == city.toLowerCase());
+    element['CAP'] == cap && element['Comune Localita’'].toLowerCase() == city.toLowerCase());
 
     return match; // Restituisce true se corrisponde, altrimenti false
   } catch (e) {
     // In caso di errore (es. file non trovato), stampa il problema e restituisce false
-    print("Errore nel controllo CAP-Città: $e");
+    //print("Errore nel controllo CAP-Città: $e");
     return false;
   }
 }
