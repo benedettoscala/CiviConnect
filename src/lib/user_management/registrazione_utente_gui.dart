@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 //import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'dart:convert';
@@ -373,17 +376,21 @@ InputDecoration _inputDecoration(BuildContext context, String? labelText) {
 /// }
 /// ```
 Future<bool> isCapMatchingCityAPI(String cap, String city) async {
-  final url = Uri.parse('http://api.zippopotam.us/IT/$cap');
-  final response = await http.get(url);
+  try {
+    // Legge il contenuto del file JSON dalla directory "files"
+    final jsonData = await rootBundle.loadString('assets/files/comuni-localita-cap-italia.json');
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    List<dynamic> places = data['places'];
-    bool isMatching = places.any(
-        (place) => place['place name'].toLowerCase() == city.toLowerCase());
-    return isMatching;
-  } else {
-    print('Errore API: ${response.statusCode}');
+    // Decodifica il contenuto del file in una lista di mappe
+    final List<dynamic> comuniData = json.decode(jsonData)["Sheet 1 - comuni-localita-cap-i"];
+
+    // Cerca se c'è un elemento con il CAP e il Comune corrispondente
+    final match = comuniData.any((element) =>
+    element["CAP"] == cap && element["Comune Localita’"].toLowerCase() == city.toLowerCase());
+
+    return match; // Restituisce true se corrisponde, altrimenti false
+  } catch (e) {
+    // In caso di errore (es. file non trovato), stampa il problema e restituisce false
+    print("Errore nel controllo CAP-Città: $e");
     return false;
   }
 }
