@@ -3,7 +3,7 @@ import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-/// Widget stateful per visualizzare il profilo utente.
+/// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
   UserProfile({Key? key}) : super(key: key);
 
@@ -12,8 +12,10 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  // Variable State
   bool isEditing = false;
   Map<String, dynamic> userData = {};
+  Map<String, dynamic> originalUserData = {}; // Original user data
   late UserManagementController userController;
   bool isLoading = true; // Indica se i dati sono in caricamento
 
@@ -24,12 +26,13 @@ class _UserProfileState extends State<UserProfile> {
     _loadUserData();
   }
 
-  /// Carica i dati dell'utente una sola volta e li memorizza nello stato.
+  /// Load the user data only once and save it in the state.
   void _loadUserData() async {
     try {
       Map<String, dynamic> data = await userController.getUserData();
       setState(() {
         userData = data;
+        originalUserData = Map<String, dynamic>.from(data);
         isLoading = false;
       });
     } catch (e) {
@@ -144,7 +147,7 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  /// Salva i dati dell'utente utilizzando il controller.
+  /// Save the user data to Firestore.
   Future<void> _saveUserData() async {
     try {
       await userController.updateUserData(userData);
@@ -306,15 +309,27 @@ class _UserProfileState extends State<UserProfile> {
             Expanded(
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.email),
-                label: const Text('Modifica Email'),
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Modifica Email',
+                    style: const TextStyle(fontSize: 14), // Riduce la dimensione del testo
+                  ),
+                ),
                 onPressed: _showChangeEmailSheet,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 7),
             Expanded(
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.lock),
-                label: const Text('Modifica Password'),
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Modifica Password',
+                    style: const TextStyle(fontSize: 14), // Riduce la dimensione del testo
+                  ),
+                ),
                 onPressed: _showChangePasswordSheet,
               ),
             ),
@@ -415,7 +430,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 }
 
-/// Widget per il foglio modale di modifica dell'email.
+/// Widget for the modal sheet to change the email.
 class ChangeEmailSheet extends StatefulWidget {
   final Function(String newEmail, String currentPassword) onSubmit;
 
@@ -513,7 +528,7 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
   }
 }
 
-/// Widget per il foglio modale di modifica della password.
+/// Widget for the modal sheet to change the password.
 class ChangePasswordSheet extends StatefulWidget {
   final Function(
       String currentPassword, String newPassword, String confirmPassword)
@@ -571,8 +586,13 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                     ),
                     TextFormField(
                       controller: _newPasswordController,
-                      decoration:
-                      const InputDecoration(labelText: 'Nuova Password'),
+                      decoration: InputDecoration(
+                        labelText: 'Nuova Password',
+                        errorMaxLines: 3, // For multiple error messages
+                        errorStyle: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
                       obscureText: true,
                       validator: (value) {
                         /// Validates the new password.
