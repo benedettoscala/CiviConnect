@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 
 final ThemeData theme = ThemeManager().customTheme;
 
+// Main widget to display user profile (citizen or municipality)
 class UserProfile extends StatelessWidget {
   UserProfile({super.key});
 
   final user = FirebaseAuth.instance.currentUser;
 
+  // Determine user type based on Firestore collections
   Future<String> _getUserType(String uid) async {
     final citizenDoc = await FirebaseFirestore.instance.collection('citizen').doc(uid).get();
     if (citizenDoc.exists) return 'citizen';
@@ -32,40 +34,32 @@ class UserProfile extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError || snapshot.data == 'unknown') {
-          return Scaffold(
-            body: Center(
-              child: Text(
-                'Errore nel caricamento dei dati utente.',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-          );
+          return _errorScreen('Error loading user data.');
         }
 
         final userType = snapshot.data!;
-        if (userType == 'citizen') {
-          return CitizenArea(uid: uid);
-        } else if (userType == 'municipality') {
-          return MunicipalityArea(uid: uid);
-        } else {
-          return Scaffold(
-            body: Center(
-              child: Text(
-                'Tipo utente non riconosciuto.',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-          );
-        }
+        return UserArea(uid: uid, collection: userType);
       },
     );
   }
+// Error screen widget
+  Widget _errorScreen(String message) {
+    return Scaffold(
+      body: Center(
+        child: Text(
+          message,
+          style: theme.textTheme.titleMedium,
+        ),
+      ),
+    );
+  }
 }
-
-class CitizenArea extends StatelessWidget {
+// UserArea widget to display user data
+class UserArea extends StatelessWidget {
   final String uid;
+  final String collection;
 
-  CitizenArea({super.key, required this.uid});
+  const UserArea({super.key, required this.uid, required this.collection});
 
   @override
   Widget build(BuildContext context) {
@@ -74,47 +68,47 @@ class CitizenArea extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Area Cittadino',
+          collection == 'citizen' ? 'Citizen Area' : 'Municipality Area',
           style: theme.textTheme.titleLarge,
         ),
         centerTitle: true,
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance.collection('citizen').doc(uid).get(),
+        future: FirebaseFirestore.instance.collection(collection).doc(uid).get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Errore nel caricamento dei dati: ${snapshot.error}',
+                'Error loading data: ${snapshot.error}',
                 style: theme.textTheme.titleMedium,
               ),
             );
           } else if (!snapshot.hasData || !snapshot.data!.exists) {
             return Center(
               child: Text(
-                'Dati utente non trovati.',
+                'User data not found.',
                 style: theme.textTheme.titleMedium,
               ),
             );
           }
 
           final userData = snapshot.data!.data() as Map<String, dynamic>;
-          return _buildContent(userData, theme);
+          return _buildContent(userData, collection, theme);
         },
       ),
     );
   }
 
-  Widget _buildContent(Map<String, dynamic> userData, ThemeData theme) {
+// Build user data content
+  Widget _buildContent(Map<String, dynamic> userData, String userType, ThemeData theme) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar centrato
             Center(
               child: CircleAvatar(
                 radius: 80,
@@ -122,184 +116,76 @@ class CitizenArea extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Sezione Dati Personali
             Text(
-              'Dati Personali',
+              'Dati Utente',
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 10),
-            ..._buildPersonalData(userData, theme),
-            const SizedBox(height: 20),
-            const Divider(
-              thickness: 1,
-              color: Color.fromRGBO(0, 69, 118, 1),
-            ),
-            const SizedBox(height: 20),
-            // Sezione Dati Account
-            Text(
-              'Dati Account',
-              style: theme.textTheme.titleLarge,
-            ),
-            const SizedBox(height: 20),
-           text_widget(boldText: 'Email', normalText: userData['email'] ?? 'N/A'),
-            const SizedBox(height: 10),
-            text_widget(boldText: 'Password', normalText: '******'),
+            if (userType == 'citizen') ..._buildCitizenData(userData) else ..._buildMunicipalityData(userData),
           ],
         ),
       ),
     );
   }
-
-  List<Widget> _buildPersonalData(Map<String, dynamic> userData, ThemeData theme) {
+// Build citizen data
+  List<Widget> _buildCitizenData(Map<String, dynamic> userData) {
     return [
-      Text(
-        'Nome: ${userData['firstName'] ?? 'N/A'}',
-        style: theme.textTheme.titleMedium,
+      InfoRow(label: 'First Name', value: userData['firstName'] ?? 'N/A'),
+      InfoRow(label: 'Last Name', value: userData['lastName'] ?? 'N/A'),
+      InfoRow(label: 'Street', value: userData['address']?['street'] ?? 'N/A'),
+      InfoRow(label: 'City', value: userData['city'] ?? 'N/A'),
+      InfoRow(label: 'Postal Code', value: userData['CAP'] ?? 'N/A'),
+
+      const SizedBox(height: 20),
+      const Divider(
+        thickness: 1,
+        color: Color.fromRGBO(0, 69, 118, 1),
       ),
       Text(
-        'Cognome: ${userData['lastName'] ?? 'N/A'}',
-        style: theme.textTheme.titleMedium,
+        'Dati Account',
+        style: theme.textTheme.titleLarge,
       ),
-      Text(
-        'Indirizzo: ${userData['address']?['street'] ?? 'N/A'}',
-        style: theme.textTheme.titleMedium,
-      ),
-      Text(
-        'Città: ${userData['city'] ?? 'N/A'}',
-        style: theme.textTheme.titleMedium,
-      ),
-      Text(
-        'CAP: ${userData['CAP'] ?? 'N/A'}',
-        style: theme.textTheme.titleMedium,
-      ),
+      const SizedBox(height: 20),
+      InfoRow(label: 'Email', value: userData['email'] ?? 'N/A'),
+      InfoRow(label: 'Password', value: '********'),
+
+    ];
+  }
+// Build municipality data
+  List<Widget> _buildMunicipalityData(Map<String, dynamic> userData) {
+    return [
+      InfoRow(label: 'Municipality Name', value: userData['municipalityName'] ?? 'N/A'),
+      InfoRow(label: 'Email', value: userData['email'] ?? 'N/A'),
     ];
   }
 }
-class MunicipalityArea extends StatelessWidget {
-  final String uid;
+// InfoRow widget to display information row
+class InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
 
-  MunicipalityArea({super.key, required this.uid});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Area Comune',
-          style: theme.textTheme.titleLarge,
-        ),
-        centerTitle: true,
-      ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance.collection('municipality').doc(uid).get(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Errore nel caricamento dei dati: ${snapshot.error}',
-                style: theme.textTheme.titleMedium,
-              ),
-            );
-          } else if (!snapshot.hasData || !snapshot.data!.exists) {
-            return Center(
-              child: Text(
-                'Dati comune non trovati.',
-                style: theme.textTheme.titleMedium,
-              ),
-            );
-          }
-
-          final municipalityData = snapshot.data!.data() as Map<String, dynamic>;
-          return _buildContent(municipalityData);
-        },
-      ),
-    );
-  }
-
-
-  Widget _buildContent(Map<String, dynamic> municipalityData) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 0),
-            Text(
-              'Benvenuto, Comune di ${municipalityData['municipalityName'] ?? 'N/A'}!',
-              style: theme.textTheme.titleLarge,
-            ),
-            const SizedBox(height: 20),
-
-            // Nome con grassetto e spaziatura
-            /*
-            Text(
-              'Nome: ',
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            Text('${municipalityData['municipalityName'] ?? 'N/A'}'),
-            const SizedBox(height: 10), // Aggiungi spazio tra Nome e Email
-            */
-            // Email con grassetto e spaziatura
-            /*
-            Text(
-              'Email: ',
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            Text('${municipalityData['email'] ?? 'N/A'}'),
-            const SizedBox(height: 10), // Aggiungi spazio tra Email e Provincia
-            */
-            text_widget(boldText: "Email:", normalText: '${municipalityData['email'] ?? 'N/A'}'),
-            // Provincia con grassetto e spaziatura
-            Text(
-              'Provincia: ',
-              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            Text('${municipalityData['province'] ?? 'N/A'}'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-class text_widget extends StatelessWidget {
-  final String boldText;
-  final String normalText;
-  
-
-  text_widget({super.key, required this.boldText,required this.normalText});
+  const InfoRow({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      //first column
-      Expanded(
-          flex:2,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: 2,
           child: Text(
-
-        boldText,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-
-      )),
-
-      //second column
-      Expanded(
-          flex:2,
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          flex: 2,
           child: Text(
-        normalText,
+            value,
             style: const TextStyle(fontSize: 13),
-
-      )),
-    ],
-
-
-  );
-
+          ),
+        ),
+      ],
+    );
   }
 }
