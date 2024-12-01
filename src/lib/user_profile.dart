@@ -106,9 +106,9 @@ class _UserProfileState extends State<UserProfile> {
                             isEditing = false;
                           });
                         }
-                        // Se il salvataggio fallisce, mantieni isEditing = true
+                        // If saving fails, keep isEditing = true
                       } else {
-                        // Entra in modalità modifica
+                        // Enter edit mode
                         setState(() {
                           isEditing = true;
                         });
@@ -156,9 +156,10 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
+  /// Build the personal data fields.
   List<Widget> _buildPersonalData(
       Map<String, dynamic> userData, ThemeData theme) {
-    // Definizione dei campi personali
+    // Defining the fields to display
     final List<Map<String, dynamic>> personalFields = [
       {'label': 'Nome', 'value': userData['firstName'] ?? 'N/A'},
       {'label': 'Cognome', 'value': userData['lastName'] ?? 'N/A'},
@@ -216,7 +217,7 @@ class _UserProfileState extends State<UserProfile> {
                         style: textStyle,
                       ),
                     ),
-                    // Riduci la larghezza dello spazio tra Via e Numero
+                    // Width Street to number
                     const SizedBox(width: 10), // Da 10 a 5
                     // Campo Numero
                     Flexible(
@@ -249,7 +250,7 @@ class _UserProfileState extends State<UserProfile> {
           ),
         );
       } else {
-        // Gestione degli altri campi
+        // Manage all other fields
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 3.0),
           child: Row(
@@ -275,7 +276,7 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                   onChanged: (newValue) {
                     setState(() {
-                      // Aggiorna la mappa userData con il nuovo valore
+                      // Update the userData map with the new value
                       String label = field['label'];
                       if (label == 'Nome') {
                         userData['firstName'] = newValue;
@@ -312,7 +313,7 @@ class _UserProfileState extends State<UserProfile> {
 
     List<String> errors = [];
 
-    // Estrazione e trim dei valori
+    // Extracting and trimming the fields
     String firstName = (userData['firstName'] ?? '').toString().trim();
     String lastName = (userData['lastName'] ?? '').toString().trim();
     Map<String, dynamic>? address = userData['address'];
@@ -321,7 +322,7 @@ class _UserProfileState extends State<UserProfile> {
     String city = (userData['city'] ?? '').toString().trim();
     String cap = (userData['cap'] ?? '').toString().trim();
 
-    // Controllo non nullità e non vuotezza
+    // Check for empty fields
     if (firstName.isEmpty) {
       errors.add('Il campo "Nome" non può essere vuoto.');
     }
@@ -341,37 +342,37 @@ class _UserProfileState extends State<UserProfile> {
       errors.add('Il campo "CAP" non può essere vuoto.');
     }
 
-    // Validazione Nome
+    // Validate Name
     if (firstName.isNotEmpty && !nameRegExp.hasMatch(firstName)) {
       errors.add('Il campo "Nome" può contenere solo lettere, spazi e apostrofi (max 255 caratteri).');
     }
 
-    // Validazione Cognome
+    // Validate Surname
     if (lastName.isNotEmpty && !nameRegExp.hasMatch(lastName)) {
       errors.add('Il campo "Cognome" può contenere solo lettere, spazi e apostrofi (max 255 caratteri).');
     }
 
-    // Validazione Street
+    // Validate Street
     if (street.isNotEmpty && !streetRegExp.hasMatch(street)) {
       errors.add('Il campo "Via" può contenere solo lettere, spazi, apostrofi e caratteri accentati (max 255 caratteri).');
     }
 
-    // Validazione Numero Civico
+    // Validate Numero Civico
     if (number.isNotEmpty && !numberRegExp.hasMatch(number)) {
       errors.add('Il campo "Numero Civico" può contenere solo lettere, numeri e "/" (max 10 caratteri).');
     }
 
-    // Validazione Città
+    // Validate Città
     if (city.isNotEmpty && !cityRegExp.hasMatch(city)) {
       errors.add('Il campo "Città" può contenere solo lettere, spazi e apostrofi (max 255 caratteri).');
     }
 
-    // Validazione CAP
+    // Validate CAP
     if (cap.isNotEmpty && !capRegExp.hasMatch(cap)) {
       errors.add('Il campo "CAP" deve essere esattamente composto da 5 cifre.');
     }
 
-    // Se ci sono errori, mostrare un SnackBar con tutti i messaggi di errore
+    // If there are errors, show a snackbar and return false
     if (errors.isNotEmpty) {
       String errorMessage = errors.join('\n');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -381,10 +382,10 @@ class _UserProfileState extends State<UserProfile> {
           duration: const Duration(seconds: 5),
         ),
       );
-      return false; // Indica che il salvataggio non è riuscito
+      return false; // Save failed
     }
 
-    // Se tutti i controlli passano, procediamo al salvataggio
+    // If there are no errors, save the data
     try {
       await userController.updateUserData(userData);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -397,7 +398,7 @@ class _UserProfileState extends State<UserProfile> {
       setState(() {
         originalUserData = Map<String, dynamic>.from(userData);
       });
-      return true; // Indica che il salvataggio è riuscito
+      return true; // Save successful
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -406,7 +407,7 @@ class _UserProfileState extends State<UserProfile> {
           duration: const Duration(seconds: 5),
         ),
       );
-      return false; // Indica che il salvataggio non è riuscito
+      return false; // Save failed
     }
   }
 
