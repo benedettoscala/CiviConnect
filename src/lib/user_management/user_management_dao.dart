@@ -5,49 +5,49 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-/// A Data Access Object (DAO) for managing user authentication
-/// and role determination using Firebase Authentication and Firestore.
+/// A Data Access Object (DAO) for managing user authentication and role determination.
+///
+/// This class provides methods for:
+/// - Authenticating users using Firebase Authentication.
+/// - Determining user roles via Firestore queries.
+/// - Managing user data and performing CRUD operations in Firestore.
 class UserManagementDAO {
   /// Error code for network request failures.
   static final _networkError = 'network-request-failed';
 
-  /// Instance of FirebaseAuth used for user authentication.
+  /// Instance of FirebaseAuth for user authentication.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  /// Instance of FirebaseFirestore used for database operations.
+  /// Instance of FirebaseFirestore for database operations.
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  /// The currently authenticated user information.
+  /// Cached information about the currently authenticated user.
   GenericUser? _user;
 
-  /// Returns the currently authenticated user, or `null` if no user is logged in.
+  /// Returns the currently authenticated Firebase user, or `null` if no user is logged in.
   User? get currentUser => _firebaseAuth.currentUser;
 
-  /// Get all information about the currently authenticated user.
+  /// Retrieves the cached user information, or `null` if no user is cached.
   GenericUser? get getUser => _user;
 
   /// A stream providing updates to the authentication state.
   ///
-  /// Emits the current user whenever there is a login, logout,
-  /// or token refresh. Emits `null` if the user logs out.
+  /// Emits the current user when a login, logout, or token refresh occurs.
+  /// Emits `null` when the user logs out.
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
-  /// Signs in a user using email and password.
+  /// Authenticates a user using email and password.
   ///
-  /// This method attempts to authenticate a user with the given credentials.
-  /// Returns `true` if authentication succeeds, or `false` otherwise.
-  ///
+  /// Parameters:
   /// - [email]: The user's email address.
   /// - [password]: The user's password.
-  /// - Returns: `true` if login is successful, `false` otherwise.
   ///
-  /// Example:
-  /// ```dart
-  /// bool isLoggedIn = await userManagementDAO.signInWithEmailAndPassword(
-  ///   email: "user@example.com",
-  ///   password: "securePassword123",
-  /// );
-  /// ```
+  /// Returns:
+  /// - `true` if authentication is successful.
+  /// - `false` if authentication fails.
+  ///
+  /// Throws:
+  /// - [HttpException]: If a network error occurs.
   Future<bool> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -58,33 +58,21 @@ class UserManagementDAO {
     } on FirebaseAuthException catch (e) {
       if (e.code == _networkError) {
         throw HttpException(
-            'Errore di rete, controlla la connessione o riprova più tardi');
+            'Errore di rete, controlla la connessione o riprova più tardi.');
       }
       return false;
     }
     return true;
   }
 
-  /// Creates a new user with the provided email and password.
+  /// Creates a new user with the specified email and password.
   ///
-  /// This method registers a new user in Firebase Authentication.
-  /// Throws an exception if account creation fails (e.g., email already in use).
-  ///
+  /// Parameters:
   /// - [email]: The email address for the new account.
   /// - [password]: The password for the new account.
   ///
-  /// Example:
-  /// ```dart
-  /// try {
-  ///   await userManagementDAO.createUserWithEmailAndPassword(
-  ///     email: "newuser@example.com",
-  ///     password: "securePassword123",
-  ///   );
-  ///   print("User created successfully");
-  /// } catch (e) {
-  ///   print("Error creating user: $e");
-  /// }
-  /// ```
+  /// Throws:
+  /// - [FirebaseAuthException]: If account creation fails (e.g., email already in use).
   Future<void> createUserWithEmailAndPassword({
     required String email,
     required String password,
@@ -192,7 +180,7 @@ class UserManagementDAO {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Maybe municipality user?');
+        print('Error checking admin: $e');
       }
     }
 
@@ -209,7 +197,7 @@ class UserManagementDAO {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Maybe citizen user?');
+        print('Error checking municipality: $e');
       }
     }
 
@@ -232,13 +220,20 @@ class UserManagementDAO {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Unknown user');
+        print('Error checking citizen: $e');
       }
     }
 
     return null;
   }
 
+  /// Retrieves the currently authenticated user's data from Firestore.
+  ///
+  /// Returns:
+  /// - A `Future<Map<String, dynamic>>` containing the user's data.
+  ///
+  /// Throws:
+  /// - [Exception]: If no user is currently authenticated.
   Future<Map<String, dynamic>> getUserData() async {
     User? user = _firebaseAuth.currentUser;
     if (user != null) {
@@ -246,14 +241,14 @@ class UserManagementDAO {
           await _firebaseFirestore.collection('citizen').doc(user.uid).get();
       return snapshot.data() as Map<String, dynamic>;
     } else {
-      throw Exception('Nessun utente autenticato');
+      throw Exception('No authenticated user found.');
     }
   }
 
-  /// Updates the user's data in Firestore.
+  /// Updates the authenticated user's data in Firestore.
   ///
   /// Parameters:
-  /// - [userData]: The user data to update.
+  /// - [userData]: A map containing the data to update.
   Future<void> updateUserData(Map<String, dynamic> userData) async {
     User? user = _firebaseAuth.currentUser;
     if (user != null) {
@@ -262,37 +257,28 @@ class UserManagementDAO {
           .doc(user.uid)
           .update(userData);
     } else {
-      throw Exception('Nessun utente autenticato');
+      throw Exception('No authenticated user found.');
     }
   }
 
-  // -------------------- Methods for Modify User Data --------------------
+  // -------------------- User Data Modification Methods --------------------
 
-  /// Updates the email of the authenticated user.
-  ///
-  /// Requires the user to re-authenticate with the current password
-  /// for security reasons.
+  /// Updates the email address of the authenticated user.
   ///
   /// Parameters:
   /// - [newEmail]: The new email to set.
-  /// - [currentPassword]: The user's current password.
+  /// - [currentPassword]: The user's current password (required for re-authentication).
   Future<void> updateEmail({
     required String newEmail,
     required String currentPassword,
   }) async {
     User user = _firebaseAuth.currentUser!;
 
-    // Create credentials with the user's email and current password.
     AuthCredential credential = EmailAuthProvider.credential(
         email: user.email!, password: currentPassword);
 
-    // Re-authenticate the user.
     await user.reauthenticateWithCredential(credential);
-
-    // Update the user's email.
     await user.updateEmail(newEmail);
-
-    // Update the email in Firestore.
     await _firebaseFirestore
         .collection('citizen')
         .doc(user.uid)
@@ -301,11 +287,8 @@ class UserManagementDAO {
 
   /// Updates the password of the authenticated user.
   ///
-  /// Requires the user to re-authenticate with the current password
-  /// for security reasons.
-  ///
   /// Parameters:
-  /// - [currentPassword]: The user's current password.
+  /// - [currentPassword]: The user's current password (required for re-authentication).
   /// - [newPassword]: The new password to set.
   Future<void> updatePassword({
     required String currentPassword,
@@ -313,14 +296,10 @@ class UserManagementDAO {
   }) async {
     User user = _firebaseAuth.currentUser!;
 
-    // Create credentials with the user's email and current password.
     AuthCredential credential = EmailAuthProvider.credential(
         email: user.email!, password: currentPassword);
 
-    // Re-authenticate the user.
     await user.reauthenticateWithCredential(credential);
-
-    // Update the user's password.
     await user.updatePassword(newPassword);
   }
 }
