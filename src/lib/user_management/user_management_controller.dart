@@ -35,9 +35,8 @@ class UserManagementController {
   /// Parameters:
   /// - [context]: The current context of the Flutter application.
   Future<bool> _validateAuth(BuildContext context, email, password) async {
-    UserManagementDAO userDao = UserManagementDAO();
 
-    final bool result = await userDao.signInWithEmailAndPassword(
+    final bool result = await UserManagementDAO().signInWithEmailAndPassword(
         email: email, password: password);
 
     if (result) {
@@ -48,5 +47,55 @@ class UserManagementController {
     }
 
     return result;
+  }
+
+  Future<Map<String, dynamic>> getUserData() async {
+    try {
+      return await UserManagementDAO().getUserData();
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> updateUserData(Map<String, dynamic> userData) async {
+    try {
+      await UserManagementDAO().updateUserData(userData);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  // -------------------- Methods for Modify User Data --------------------
+
+  /// Method to change the user's email.
+  ///
+  /// Uses the DAO to update the email and handles any exceptions.
+  ///
+  /// Parameters:
+  /// - [context]: The current context of the Flutter application.
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password.
+  Future<void> changeEmail(BuildContext context,
+      {required String newEmail, required String currentPassword}) async {
+    try {
+      await UserManagementDAO().updateEmail(
+          newEmail: newEmail, currentPassword: currentPassword);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /// Method to change the user's password.
+  ///
+  /// Uses the DAO to update the password and handles any exceptions.
+  ///
+  /// Parameters:
+  /// - [context]: The current context of the Flutter application.
+  /// - [currentPassword]: The user's current password.
+  /// - [newPassword]: The new password to set.
+  Future<void> changePassword(BuildContext context,
+      {required String currentPassword, required String newPassword}) async {
+    await UserManagementDAO().updatePassword(
+        currentPassword: currentPassword, newPassword: newPassword);
   }
 }

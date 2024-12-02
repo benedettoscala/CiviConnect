@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 /// A Data Access Object (DAO) for managing user authentication
@@ -56,8 +56,9 @@ class UserManagementDAO {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      if(e.code == _networkError){
-        throw HttpException('Errore di rete, controlla la connessione o riprova più tardi');
+      if (e.code == _networkError) {
+        throw HttpException(
+            'Errore di rete, controlla la connessione o riprova più tardi');
       }
       return false;
     }
@@ -181,7 +182,7 @@ class UserManagementDAO {
 
     try {
       DocumentSnapshot adminDoc =
-      await _firebaseFirestore.doc('/private/admin').get();
+          await _firebaseFirestore.doc('/private/admin').get();
       if (adminDoc.exists) {
         List<dynamic> adminUIDs = adminDoc['uids'] as List<dynamic>;
         if (adminUIDs.contains(uid)) {
@@ -197,7 +198,7 @@ class UserManagementDAO {
 
     try {
       DocumentSnapshot municipalityDoc =
-      await _firebaseFirestore.doc('/municipality/$uid').get();
+          await _firebaseFirestore.doc('/municipality/$uid').get();
       if (municipalityDoc.exists) {
         _user = Municipality(
           user: currentUser,
@@ -214,7 +215,7 @@ class UserManagementDAO {
 
     try {
       DocumentSnapshot citizenDoc =
-      await _firebaseFirestore.doc('/citizen/$uid').get();
+          await _firebaseFirestore.doc('/citizen/$uid').get();
       if (citizenDoc.exists) {
         _user = Citizen(
           user: currentUser,
@@ -225,7 +226,7 @@ class UserManagementDAO {
             'street': citizenDoc['address']['street'],
             'number': citizenDoc['address']['number'],
           },
-          cap: citizenDoc['CAP'],
+          cap: citizenDoc['cap'],
         );
         return _user!;
       }
@@ -236,5 +237,90 @@ class UserManagementDAO {
     }
 
     return null;
+  }
+
+  Future<Map<String, dynamic>> getUserData() async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      DocumentSnapshot snapshot =
+          await _firebaseFirestore.collection('citizen').doc(user.uid).get();
+      return snapshot.data() as Map<String, dynamic>;
+    } else {
+      throw Exception('Nessun utente autenticato');
+    }
+  }
+
+  /// Updates the user's data in Firestore.
+  ///
+  /// Parameters:
+  /// - [userData]: The user data to update.
+  Future<void> updateUserData(Map<String, dynamic> userData) async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await _firebaseFirestore
+          .collection('citizen')
+          .doc(user.uid)
+          .update(userData);
+    } else {
+      throw Exception('Nessun utente autenticato');
+    }
+  }
+
+  // -------------------- Methods for Modify User Data --------------------
+
+  /// Updates the email of the authenticated user.
+  ///
+  /// Requires the user to re-authenticate with the current password
+  /// for security reasons.
+  ///
+  /// Parameters:
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password.
+  Future<void> updateEmail({
+    required String newEmail,
+    required String currentPassword,
+  }) async {
+    User user = _firebaseAuth.currentUser!;
+
+    // Create credentials with the user's email and current password.
+    AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!, password: currentPassword);
+
+    // Re-authenticate the user.
+    await user.reauthenticateWithCredential(credential);
+
+    // Update the user's email.
+    await user.updateEmail(newEmail);
+
+    // Update the email in Firestore.
+    await _firebaseFirestore
+        .collection('citizen')
+        .doc(user.uid)
+        .update({'email': newEmail});
+  }
+
+  /// Updates the password of the authenticated user.
+  ///
+  /// Requires the user to re-authenticate with the current password
+  /// for security reasons.
+  ///
+  /// Parameters:
+  /// - [currentPassword]: The user's current password.
+  /// - [newPassword]: The new password to set.
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    User user = _firebaseAuth.currentUser!;
+
+    // Create credentials with the user's email and current password.
+    AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!, password: currentPassword);
+
+    // Re-authenticate the user.
+    await user.reauthenticateWithCredential(credential);
+
+    // Update the user's password.
+    await user.updatePassword(newPassword);
   }
 }
