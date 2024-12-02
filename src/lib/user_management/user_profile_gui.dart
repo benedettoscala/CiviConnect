@@ -59,7 +59,7 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = UserManagementDAO().currentUser;
 
     if (isLoading) {
       return Scaffold(
