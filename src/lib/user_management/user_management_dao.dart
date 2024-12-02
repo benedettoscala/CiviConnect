@@ -245,6 +245,13 @@ class UserManagementDAO {
     }
   }
 
+  /// Retrieves the municipality data for the currently authenticated user.
+  ///
+  /// Returns:
+  /// - A `Future<Map<String, String>>` containing the municipality data.
+  ///
+  /// Throws:
+  /// - [Exception]: If no user is currently authenticated.
   Future<Map<String, String>> getMunicipalityData() async {
     User? user = _firebaseAuth.currentUser;
     if (user != null) {

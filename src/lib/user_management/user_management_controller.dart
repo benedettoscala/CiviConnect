@@ -68,6 +68,10 @@ class UserManagementController {
     return await UserManagementDAO().getUserData();
   }
 
+  /// Fetches the municipality data.
+  ///
+  /// Returns:
+  /// - A `Future<Map<String, String>>` containing the municipality data.
   Future<Map<String, String>> getMunicipalityData() async {
     return await UserManagementDAO().getMunicipalityData();
   }
