@@ -13,10 +13,14 @@ class UserProfile extends StatelessWidget {
 
   // Determine user type based on Firestore collections
   Future<String> _getUserType(String uid) async {
-    final citizenDoc = await FirebaseFirestore.instance.collection('citizen').doc(uid).get();
+    final citizenDoc =
+        await FirebaseFirestore.instance.collection('citizen').doc(uid).get();
     if (citizenDoc.exists) return 'citizen';
 
-    final municipalityDoc = await FirebaseFirestore.instance.collection('municipality').doc(uid).get();
+    final municipalityDoc = await FirebaseFirestore.instance
+        .collection('municipality')
+        .doc(uid)
+        .get();
     if (municipalityDoc.exists) return 'municipality';
 
     return 'unknown';
@@ -42,6 +46,7 @@ class UserProfile extends StatelessWidget {
       },
     );
   }
+
 // Error screen widget
   Widget _errorScreen(String message) {
     return Scaffold(
@@ -54,6 +59,7 @@ class UserProfile extends StatelessWidget {
     );
   }
 }
+
 // UserArea widget to display user data
 class UserArea extends StatelessWidget {
   final String uid;
@@ -74,7 +80,8 @@ class UserArea extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance.collection(collection).doc(uid).get(),
+        future:
+            FirebaseFirestore.instance.collection(collection).doc(uid).get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -102,7 +109,8 @@ class UserArea extends StatelessWidget {
   }
 
 // Build user data content
-  Widget _buildContent(Map<String, dynamic> userData, String userType, ThemeData theme) {
+  Widget _buildContent(
+      Map<String, dynamic> userData, String userType, ThemeData theme) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -121,21 +129,26 @@ class UserArea extends StatelessWidget {
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 10),
-            if (userType == 'citizen') ..._buildCitizenData(userData) else ..._buildMunicipalityData(userData),
+            if (userType == 'citizen')
+              ..._buildCitizenData(userData)
+            else
+              ..._buildMunicipalityData(userData),
           ],
         ),
       ),
     );
   }
+
 // Build citizen data
   List<Widget> _buildCitizenData(Map<String, dynamic> userData) {
     return [
       InfoRow(label: 'First Name', value: userData['firstName'] ?? 'N/A'),
       InfoRow(label: 'Last Name', value: userData['lastName'] ?? 'N/A'),
-      InfoRow(label: 'Street', value: userData['address']?['street'] ?? 'N/A'),
+      InfoRow(
+          label: 'Street',
+          value: userData['address']?['street'] ?? 'N/A', other: userData['address']?['number'] ?? 'N/A'),
       InfoRow(label: 'City', value: userData['city'] ?? 'N/A'),
-      InfoRow(label: 'Postal Code', value: userData['CAP'] ?? 'N/A'),
-
+      InfoRow(label: 'Postal Code', value: userData['cap'] ?? 'N/A'),
       const SizedBox(height: 20),
       const Divider(
         thickness: 1,
@@ -148,43 +161,53 @@ class UserArea extends StatelessWidget {
       const SizedBox(height: 20),
       InfoRow(label: 'Email', value: userData['email'] ?? 'N/A'),
       InfoRow(label: 'Password', value: '********'),
-
     ];
   }
+
 // Build municipality data
   List<Widget> _buildMunicipalityData(Map<String, dynamic> userData) {
     return [
-      InfoRow(label: 'Municipality Name', value: userData['municipalityName'] ?? 'N/A'),
+      InfoRow(
+          label: 'Municipality Name',
+          value: userData['municipalityName'] ?? 'N/A'),
       InfoRow(label: 'Email', value: userData['email'] ?? 'N/A'),
     ];
   }
 }
+
 // InfoRow widget to display information row
 class InfoRow extends StatelessWidget {
   final String label;
   final String value;
+  final String other;
 
-  const InfoRow({super.key, required this.label, required this.value});
+  const InfoRow({super.key, required this.label, required this.value, this.other = ''});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          flex: 2,
+        Container(
+          width: MediaQuery.of(context).size.width * 0.3,
           child: Text(
             label,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(
-          flex: 2,
           child: Text(
             value,
             style: const TextStyle(fontSize: 13),
           ),
         ),
+        Container(
+          width: MediaQuery.of(context).size.width * 0.2,
+          child: Text(
+            other,
+            style: const TextStyle(fontSize: 13),
+          ),
+        )
       ],
     );
   }
