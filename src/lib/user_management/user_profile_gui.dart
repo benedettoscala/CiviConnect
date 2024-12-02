@@ -1,5 +1,7 @@
+import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/widgets/modal_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ class _UserProfileState extends State<UserProfile> {
   bool isLoading = true; // Indica se i dati sono in caricamento
   late ThemeData theme;
   late TextStyle textStyle;
+  late GenericUser userInfo;
 
   @override
   void initState() {
@@ -33,8 +36,14 @@ class _UserProfileState extends State<UserProfile> {
 
   /// Load the user data only once and save it in the state.
   void _loadUserData() async {
+    late Map<String, dynamic> data;
     try {
-      Map<String, dynamic> data = await userController.getUserData();
+      userInfo = (await UserManagementDAO().determineUserType())!;
+      if (userInfo is Citizen) {
+        data = await userController.getUserData();
+      } else {
+        data = await userController.getMunicipalityData();
+      }
       setState(() {
         userData = data;
         isLoading = false;
@@ -75,44 +84,7 @@ class _UserProfileState extends State<UserProfile> {
                     const SizedBox(height: 0),
                     _buildProfileHeader(theme, user!, userData),
                     const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Dati Personali',
-                          style: theme.textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: Icon(isEditing ? Icons.save : Icons.edit),
-                          onPressed: () async {
-                            if (isEditing) {
-                              // Tenta di salvare i dati
-                              bool success = await _saveUserData();
-                              if (success) {
-                                setState(() {
-                                  isEditing = false;
-                                });
-                              }
-                              // If saving fails, keep isEditing = true
-                            } else {
-                              // Enter edit mode
-                              setState(() {
-                                isEditing = true;
-                              });
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ..._buildPersonalData(userData, theme),
-                    const SizedBox(height: 20),
-                    const Divider(
-                      thickness: 1,
-                      height: 10,
-                      color: Color.fromRGBO(0, 69, 118, 1),
-                    ),
+                    if (userInfo is Citizen) ..._buildCitizenData(),
                     const SizedBox(height: 20),
                     Text(
                       'Dati Account',
@@ -126,6 +98,49 @@ class _UserProfileState extends State<UserProfile> {
               ),
             ),
     );
+  }
+
+  List<Widget> _buildCitizenData() {
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Dati Personali',
+            style: theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          IconButton(
+            icon: Icon(isEditing ? Icons.save : Icons.edit),
+            onPressed: () async {
+              if (isEditing) {
+                // Tenta di salvare i dati
+                bool success = await _saveUserData();
+                if (success) {
+                  setState(() {
+                    isEditing = false;
+                  });
+                }
+                // If saving fails, keep isEditing = true
+              } else {
+                // Enter edit mode
+                setState(() {
+                  isEditing = true;
+                });
+              }
+            },
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      ..._buildPersonalData(userData, theme),
+      const SizedBox(height: 20),
+      const Divider(
+        thickness: 1,
+        height: 10,
+        color: Color.fromRGBO(0, 69, 118, 1),
+      ),
+    ];
   }
 
   /// Build the personal data fields.
@@ -393,15 +408,26 @@ class _UserProfileState extends State<UserProfile> {
       children: [
         buildRow('Email:', user.email ?? 'N/A'),
         const SizedBox(height: 10),
-        buildRow('Password:', '********'),
-        const SizedBox(height: 20),
+        if (userInfo is Citizen) ...[
+          buildRow('Password:', '********'),
+          const SizedBox(height: 10),
+        ],
+        if (userInfo is Municipality) ...[
+          buildRow('Comune:', userData['municipalityName'] ?? 'N/A'),
+          const SizedBox(height: 10),
+          buildRow('Provincia:', userData['province'] ?? 'N/A'),
+          const SizedBox(height: 10),
+        ],
         Row(
           children: [
-            buildButton(Icons.email, 'Modifica Email',
-                () => _showChangeEmailSheet(true)),
-            const SizedBox(width: 7),
-            buildButton(Icons.lock, 'Modifica Password',
-                () => _showChangeEmailSheet(false)),
+            if (userInfo is Citizen) ...[
+              const SizedBox(height: 10),
+              buildButton(Icons.email, 'Modifica Email',
+                  () => _showChangeEmailSheet(true)),
+              const SizedBox(width: 7),
+              buildButton(Icons.lock, 'Modifica Password',
+                  () => _showChangeEmailSheet(false)),
+            ]
           ],
         ),
       ],

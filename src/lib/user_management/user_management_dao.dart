@@ -245,6 +245,21 @@ class UserManagementDAO {
     }
   }
 
+  Future<Map<String, String>> getMunicipalityData() async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      DocumentSnapshot snapshot =
+          await _firebaseFirestore.collection('municipality').doc(user.uid).get();
+      return {
+        'email': snapshot['email'],
+        'municipalityName': snapshot['municipalityName'],
+        'province': snapshot['province'],
+      };
+    } else {
+      throw Exception('No authenticated user found.');
+    }
+  }
+
   /// Updates the authenticated user's data in Firestore.
   ///
   /// Parameters:
