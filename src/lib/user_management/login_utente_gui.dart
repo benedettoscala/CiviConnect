@@ -307,9 +307,6 @@ class TestingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Logged'),
-      ),
       body: Container(
         child: Column(
           children: [

@@ -54,25 +54,11 @@ class _UserProfileState extends State<UserProfile> {
 
     if (isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Area Utente',
-            style: theme.textTheme.titleLarge,
-          ),
-          centerTitle: true,
-        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Area Utente',
-          style: theme.textTheme.titleLarge,
-        ),
-        centerTitle: true,
-      ),
       body: userData.isEmpty
           ? Center(
               child: Text(

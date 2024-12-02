@@ -12,13 +12,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _selectedIndex = 1;
 
   final List<Widget> _pages = <Widget>[
     TestingPage(),
     TestingPage(),
     UserProfile(),
+  ];
+
+  final List<String> _title = [
+    'Segnalazioni',
+    'Home',
+    'Area Personale',
   ];
 
   void _onItemTapped(int index) {
@@ -30,6 +35,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(_title[_selectedIndex]),
+      ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
