@@ -115,9 +115,7 @@ class _FirstPageState extends State<_FirstPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const RegistrazioneUtenteGui()),
+                              _transitionAnimationLogin((context) => const RegistrazioneUtenteGui()),
                             );
                           },
                           child: const Text('Registrazione')),
