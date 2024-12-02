@@ -91,12 +91,8 @@ class UserManagementController {
   /// - [newPassword]: The new password to set.
   Future<void> changePassword(BuildContext context,
       {required String currentPassword, required String newPassword}) async {
-    try {
-      await userDao.updatePassword(
-          currentPassword: currentPassword, newPassword: newPassword);
-    } catch (e) {
-      throw e;
-    }
+    await userDao.updatePassword(
+        currentPassword: currentPassword, newPassword: newPassword);
   }
 
   /// Retrieves the user's data.
