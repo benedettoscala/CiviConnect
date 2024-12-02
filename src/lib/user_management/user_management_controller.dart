@@ -167,7 +167,7 @@ class UserManagementController {
     // we can't create a Citizen object because no user is logged in.
 
     return _validateRegistration(
-        context, email, password, surname, name, address, city, cap);
+        context, email, password, name, surname, address, city, cap);
   }
 
   Future<bool> _validateRegistration(BuildContext context, email, password,
@@ -193,4 +193,7 @@ class UserManagementController {
 
     return result;
   }
+
+
+  //MI MANCA MARTINA :(
 }
