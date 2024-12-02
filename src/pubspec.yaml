@@ -45,6 +45,20 @@ dependencies:
   cloud_firestore: ^5.5.0
   flutter_localizations:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.3
+
+flutter_icons:
+  image_path: "assets/images/logo_image.png"
+  android: true
+  min_sdk_android: 31
+  remove_alpha_ios: true
+  adaptive_icon_foreground: "assets/images/logo_image.png"
+
+flutter_native_splash:
+  image: "assets/images/logo_image.png"
+  android: true
+  android_gravity: center
 
 dev_dependencies:
   flutter_test:
