@@ -34,6 +34,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
     'number': '',
     'street': '',
   };
+  bool obscureText = true;
   final _formKey = GlobalKey<FormBuilderState>();
 
   @override
@@ -69,9 +70,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                           FormBuilderValidators.required(),
                         ]),
                         name: 'email',
-                        decoration: _inputDecoration(context, 'Email').copyWith(
-                          errorStyle: TextStyle(color: Colors.redAccent),
-                        ),
+                        maxLength: 255,
+                        decoration: TextFieldInputDecoration(context, labelText: "Email"),
                         onChanged: (value) {
                           setState(() {
                             email = value!;
@@ -85,9 +85,16 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               minLength: 8, maxLength: 4096),
                           FormBuilderValidators.required(),
                         ]),
-                        obscureText: true,
+                        obscureText: obscureText,
                         name: 'password',
-                        decoration: _inputDecoration(context, 'Password'),
+                        maxLength: 4096,
+                        decoration: TextFieldInputDecoration(context,
+                          labelText: 'Password',
+                          obscureText: obscureText, onObscure: () {
+                          setState(() {
+                            obscureText = !obscureText;
+                          });
+                        }),
                         onChanged: (value) {
                           setState(() {
                             password = value!;
@@ -112,9 +119,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                   'Il nome non può superare i 255 caratteri'),
                         ]),
                         name: 'firstName',
-                        decoration: _inputDecoration(context, 'Nome').copyWith(
-                          errorStyle: TextStyle(color: Colors.redAccent),
-                        ),
+                        maxLength: 255,
+                        decoration: TextFieldInputDecoration(context, labelText: "Nome"),
                         onChanged: (value) {
                           setState(() {
                             firstName = value!;
@@ -134,10 +140,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                   'Il cognome non può superare i 255 caratteri'),
                         ]),
                         name: 'lastName',
-                        decoration:
-                            _inputDecoration(context, 'Cognome').copyWith(
-                          errorStyle: TextStyle(color: Colors.redAccent),
-                        ),
+                        maxLength: 255,
+                        decoration: TextFieldInputDecoration(context, labelText: "Cognome"),
                         onChanged: (value) {
                           setState(() {
                             lastName = value!;
@@ -157,9 +161,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                   'La città non può superare i 255 caratteri'),
                         ]),
                         name: 'City',
-                        decoration: _inputDecoration(context, 'Città').copyWith(
-                          errorStyle: TextStyle(color: Colors.redAccent),
-                        ),
+                        maxLength: 255,
+                        decoration: TextFieldInputDecoration(context, labelText: "Città"),
                         onChanged: (value) {
                           setState(() {
                             city = value!;
@@ -176,9 +179,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                   'Il CAP deve contenere esattamente 5 cifre'),
                         ]),
                         name: 'cap',
-                        decoration: _inputDecoration(context, 'CAP').copyWith(
-                          errorStyle: TextStyle(color: Colors.redAccent),
-                        ),
+                        maxLength: 5,
+                        decoration: TextFieldInputDecoration(context, labelText: "CAP"),
                         onChanged: (value) async {
                           setState(() {
                             cap = value!;
@@ -199,10 +201,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                         'La via non può superare i 255 caratteri'),
                               ]),
                               name: 'street',
-                              decoration:
-                                  _inputDecoration(context, 'Via').copyWith(
-                                errorStyle: TextStyle(color: Colors.redAccent),
-                              ),
+                              maxLength: 255,
+                              decoration: TextFieldInputDecoration(context, labelText: "Via"),
                               onChanged: (value) {
                                 setState(() {
                                   address['street'] = value!;
@@ -217,7 +217,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
                                     errorText:
-                                        'Il numero civico è obbligatorio'),
+                                        'N. Civico obbligatorio'),
                                 FormBuilderValidators.match(RegExp(r'^\d+$'),
                                     errorText:
                                         'Il numero civico può contenere solo cifre'),
@@ -226,10 +226,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                         'Il numero civico non può superare i 10 caratteri'),
                               ]),
                               name: 'number',
-                              decoration:
-                                  _inputDecoration(context, 'Civico').copyWith(
-                                errorStyle: TextStyle(color: Colors.redAccent),
-                              ),
+                              maxLength: 10,
+                              decoration: TextFieldInputDecoration(context, labelText: "Civico"),
                               onChanged: (value) {
                                 setState(() {
                                   address['number'] = value!;
@@ -336,21 +334,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   }
 }
 
-InputDecoration _inputDecoration(BuildContext context, String? labelText) {
-  return InputDecoration(
-    labelText: labelText,
-    filled: true,
-    fillColor: Theme.of(context).colorScheme.onPrimary,
-    labelStyle: TextStyle(
-      color: Theme.of(context).colorScheme.onPrimaryContainer,
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
-    ),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(20),
-    ),
-  );
-}
-
 /// Verifica se il CAP fornito corrisponde alla città utilizzando un file JSON locale.
 ///
 /// Questo metodo legge un file JSON locale contenente una lista di CAP e città,
@@ -393,7 +376,7 @@ Future<bool> isCapMatchingCityAPI(String cap, String city) async {
     return match; // Restituisce true se corrisponde, altrimenti false
   } catch (e) {
     // In caso di errore (es. file non trovato), stampa il problema e restituisce false
-    //print("Errore nel controllo CAP-Città: $e");
+    print("Errore nel controllo CAP-Città: $e");
     return false;
   }
 }
