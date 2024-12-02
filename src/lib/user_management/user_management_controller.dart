@@ -113,4 +113,84 @@ class UserManagementController {
     await UserManagementDAO().updatePassword(
         currentPassword: currentPassword, newPassword: newPassword);
   }
+
+  /// Method to handle user registration.
+  ///
+  /// This method initializes a `UserWrapper` instance using the provided email,
+  /// password, username, name, surname, address, city, and cap, then calls the
+  /// `_validateAuth` method to complete the authentication process.
+  ///
+  /// Parameters:
+  /// - [context]: The current context of the Flutter application.
+  /// - [email]: The user's email address.
+  /// - [password]: The user's password.
+  /// - [username]: The user's username.
+  /// - [name]: The user's name.
+  /// - [surname]: The user's surname.
+  /// - [address]: The user's address.
+  /// - [city]: The user's city.
+  /// - [cap]: The user's CAP.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` that resolves to `true` if the registration is successful.
+  ///   Otherwise, it resolves to `false`.
+  ///
+  /// Example:
+  /// ```dart
+  /// bool isRegistered = await controller.register(
+  ///   context,
+  ///   email: 'example@example.com',
+  ///   password: 'securePassword',
+  ///   username: 'username123',
+  ///   name: 'John',
+  ///   surname: 'Doe',
+  ///   address: '123 Main St',
+  ///   city: 'Metropolis',
+  ///   cap: '12345',
+  /// );
+  /// ```
+  Future<bool> register(BuildContext context,
+      {required String email,
+      required String password,
+      required String name,
+      required String surname,
+      required Map<String, String> address,
+      required String city,
+      required String cap}) {
+    // Citizen user = Citizen(
+    //       firstName: name,
+    //       lastName: surname,
+    //       address: address,
+    //       city: city,
+    //       cap: cap,
+    //     );
+    // we can't create a Citizen object because no user is logged in.
+
+    return _validateRegistration(
+        context, email, password, surname, name, address, city, cap);
+  }
+
+  Future<bool> _validateRegistration(BuildContext context, email, password,
+      name, surname, address, city, cap) async {
+    UserManagementDAO userDao = UserManagementDAO();
+    final bool result = await userDao.createUserWithEmailAndPassword(
+        email: email,
+        password: password!,
+        additionalData: {
+          'firstName': name,
+          'lastName': surname,
+          'address': address,
+          'city': city,
+          'cap': cap
+        });
+
+    if (result) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => redirectPage),
+      );
+    }
+
+    return result;
+  }
 }

@@ -73,12 +73,22 @@ class UserManagementDAO {
   ///
   /// Throws:
   /// - [FirebaseAuthException]: If account creation fails (e.g., email already in use).
-  Future<void> createUserWithEmailAndPassword({
+  Future<bool> createUserWithEmailAndPassword({
     required String email,
     required String password,
+    required Map<String, dynamic>
+    additionalData,
   }) async {
-    await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email, password: password);
+    try {
+      // Crea l'utente con Firebase Authentication.
+      UserCredential userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      String uid = userCredential.user!.uid;
+      await UserManagementDAO()._firebaseFirestore.collection('citizen').doc(uid).set({...additionalData});
+    } catch (e) {
+      throw Exception('Error creating user: $e');
+    }
+    return true;
   }
 
   /// Logs out the currently authenticated user.

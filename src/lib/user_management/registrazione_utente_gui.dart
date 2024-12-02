@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 //import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
@@ -28,7 +31,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   String cap = '';
   Map<String, String> address = {
     'number': '',
-    'road': '',
     'street': '',
   };
   final _formKey = GlobalKey<FormBuilderState>();
@@ -95,7 +97,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       FormBuilderTextField(
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.password(
-                              minLength: 6, maxLength: 4096),
+                              minLength: 8, maxLength: 4096),
                           FormBuilderValidators.required(),
                         ]),
                         obscureText: true,
@@ -108,10 +110,10 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         },
                       ),
                       SizedBox(
-                          height: 60,
-                          child: Divider(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
+                        height: 60,
+                        child: Divider(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                       FormBuilderTextField(
                         validator: FormBuilderValidators.compose([
@@ -124,7 +126,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               errorText:
                                   'Il nome non può superare i 255 caratteri'),
                         ]),
-                        obscureText: true,
                         name: 'firstName',
                         decoration: _inputDecoration(context, 'Nome').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
@@ -148,7 +149,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                   'Il cognome non può superare i 255 caratteri'),
                         ]),
                         name: 'lastName',
-                        decoration: _inputDecoration(context, 'Cognome').copyWith(
+                        decoration:
+                            _inputDecoration(context, 'Cognome').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
                         ),
                         onChanged: (value) {
@@ -169,7 +171,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               errorText:
                                   'La città non può superare i 255 caratteri'),
                         ]),
-                        obscureText: true,
                         name: 'City',
                         decoration: _inputDecoration(context, 'Città').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
@@ -193,7 +194,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         decoration: _inputDecoration(context, 'CAP').copyWith(
                           errorStyle: TextStyle(color: Colors.redAccent),
                         ),
-                        onChanged: (value) {
+                        onChanged: (value) async {
                           setState(() {
                             cap = value!;
                           });
@@ -212,13 +213,14 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                                     errorText:
                                         'La via non può superare i 255 caratteri'),
                               ]),
-                              name: 'road',
-                              decoration: _inputDecoration(context, 'Via').copyWith(
+                              name: 'street',
+                              decoration:
+                                  _inputDecoration(context, 'Via').copyWith(
                                 errorStyle: TextStyle(color: Colors.redAccent),
                               ),
                               onChanged: (value) {
                                 setState(() {
-                                  address['road'] = value!;
+                                  address['street'] = value!;
                                 });
                               },
                             ),
@@ -241,8 +243,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               name: 'number',
                               decoration:
                                   _inputDecoration(context, 'Civico').copyWith(
-                                    errorStyle: TextStyle(color: Colors.redAccent),
-                                  ),
+                                errorStyle: TextStyle(color: Colors.redAccent),
+                              ),
                               onChanged: (value) {
                                 setState(() {
                                   address['number'] = value!;
@@ -259,7 +261,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
                     style: Theme.of(context).elevatedButtonTheme.style,
-                    onPressed: () => _sendData(email, password),
+                    onPressed: () => _sendData(email, password, firstName,
+                        lastName, city, cap, address),
                     child: const Text(
                       'Registrati',
                     ),
@@ -288,19 +291,49 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   /// Method to send the login data to the controller.
   /// This method validates the form and sends the email and password to the controller.
   /// If the user is not valid, a snackbar is displayed.
-  void _sendData(String email, String password) async {
+  void _sendData(
+      String email,
+      String password,
+      String firstName,
+      String lastName,
+      String city,
+      String cap,
+      Map<String, String> indirizzo) async {
     final formState = _formKey.currentState;
     bool validUser;
     if (formState == null || !formState.saveAndValidate()) {
       return;
     }
+
+    bool isMatching = await isCapMatchingCityAPI(cap, city);
+    //print(isMatching);
+    if (!isMatching) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          showCloseIcon: true,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: const Text('Il CAP inserito non rispecchia la città'),
+        ),
+      );
+      return;
+    }
+
     // Sends the email and password to the controller.
     UserManagementController controller =
         UserManagementController(redirectPage: HomePage());
 
-    validUser =
-        await controller.login(context, email: email, password: password);
-
+    validUser = await controller.register(context,
+        email: email,
+        password: password,
+        name: firstName,
+        surname: lastName,
+        address: indirizzo,
+        city: city,
+        cap: cap);
     // If the user is not valid, a snackbar is displayed.
     if (!validUser) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -331,6 +364,53 @@ InputDecoration _inputDecoration(BuildContext context, String? labelText) {
       borderRadius: BorderRadius.circular(20),
     ),
   );
+}
+
+/// Verifica se il CAP fornito corrisponde alla città utilizzando un file JSON locale.
+///
+/// Questo metodo legge un file JSON locale contenente una lista di CAP e città,
+/// e controlla se il CAP specificato corrisponde alla città data. Restituisce `true`
+/// se il CAP corrisponde alla città, altrimenti `false`.
+///
+/// Parametri:
+/// - [cap]: Il codice postale da verificare.
+/// - [city]: Il nome della città da verificare rispetto al CAP.
+///
+/// Ritorna:
+/// - Un `Future<bool>` che risolve a `true` se il CAP corrisponde alla città,
+///   altrimenti `false`.
+///
+/// Esempio:
+/// ```dart
+/// bool isMatching = await isCapMatchingCityAPI('00100', 'Rome');
+/// if (isMatching) {
+///   print('Il CAP corrisponde alla città.');
+/// } else {
+///   print('Il CAP non corrisponde alla città.');
+/// }
+/// ```
+
+Future<bool> isCapMatchingCityAPI(String cap, String city) async {
+  try {
+    // Legge il contenuto del file JSON dalla directory "files"
+    final jsonData = await rootBundle
+        .loadString('assets/files/comuni-localita-cap-italia.json');
+
+    // Decodifica il contenuto del file in una lista di mappe
+    final List<dynamic> comuniData =
+        json.decode(jsonData)['Sheet 1 - comuni-localita-cap-i'];
+
+    // Cerca se c'è un elemento con il CAP e il Comune corrispondente
+    final match = comuniData.any((element) =>
+        element['CAP'] == cap &&
+        element['Comune Localita’'].toLowerCase() == city.toLowerCase());
+
+    return match; // Restituisce true se corrisponde, altrimenti false
+  } catch (e) {
+    // In caso di errore (es. file non trovato), stampa il problema e restituisce false
+    //print("Errore nel controllo CAP-Città: $e");
+    return false;
+  }
 }
 
 /// A widget to display the login form.
