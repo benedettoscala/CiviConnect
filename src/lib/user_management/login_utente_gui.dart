@@ -4,7 +4,7 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import '../user_profile.dart';
+import 'user_profile_gui.dart';
 import '../home_page.dart';
 import '../main.dart';
 import '../widgets/logo_widget.dart';

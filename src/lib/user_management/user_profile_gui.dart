@@ -1,14 +1,15 @@
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:civiconnect/widgets/modal_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 /// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
-  UserProfile({Key? key}) : super(key: key);
+  UserProfile({super.key});
 
   @override
-  _UserProfileState createState() => _UserProfileState();
+  State<UserProfile> createState() => _UserProfileState();
 }
 
 class _UserProfileState extends State<UserProfile> {
@@ -425,40 +426,35 @@ class _UserProfileState extends State<UserProfile> {
         const SizedBox(height: 20),
         Row(
           children: [
-            buildButton(Icons.email, 'Modifica Email', _showChangeEmailSheet),
+            buildButton(Icons.email, 'Modifica Email',
+                () => _showChangeEmailSheet(true)),
             const SizedBox(width: 7),
-            buildButton(
-                Icons.lock, 'Modifica Password', _showChangePasswordSheet),
+            buildButton(Icons.lock, 'Modifica Password',
+                () => _showChangeEmailSheet(false)),
           ],
         ),
       ],
     );
   }
 
-  void _showChangeEmailSheet() {
+  void _showChangeEmailSheet(isEmail) {
     showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => ChangeEmailSheet(
-        onSubmit: (newEmail, currentPassword) async {
-          Navigator.of(context).pop();
-          await _changeEmail(newEmail, currentPassword);
-        },
-      ),
-    );
-  }
-
-  void _showChangePasswordSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => ChangePasswordSheet(
-        onSubmit: (currentPassword, newPassword, confirmPassword) async {
-          Navigator.of(context).pop();
-          await _changePassword(currentPassword, newPassword);
-        },
-      ),
-    );
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => isEmail
+            ? ChangeEmailSheet(
+                onSubmit: (newEmail, currentPassword) async {
+                  Navigator.of(context).pop();
+                  await _changeEmail(newEmail, currentPassword);
+                },
+              )
+            : ChangePasswordSheet(
+                onSubmit:
+                    (currentPassword, newPassword, confirmPassword) async {
+                  Navigator.of(context).pop();
+                  await _changePassword(currentPassword, newPassword);
+                },
+              ));
   }
 
   Future<void> _changeEmail(String newEmail, String currentPassword) async {
@@ -506,228 +502,5 @@ class _UserProfileState extends State<UserProfile> {
       errorMessage = 'Si è verificato un errore: $e';
     }
     _showMessage(isError: true, message: errorMessage);
-  }
-}
-
-/// Widget for the modal sheet to change the email.
-class ChangeEmailSheet extends StatefulWidget {
-  final Function(String newEmail, String currentPassword) onSubmit;
-
-  const ChangeEmailSheet({required this.onSubmit, Key? key}) : super(key: key);
-
-  @override
-  _ChangeEmailSheetState createState() => _ChangeEmailSheetState();
-}
-
-class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = ThemeManager().customTheme;
-
-    return Wrap(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              top: 16,
-              left: 16,
-              right: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Modifica Email',
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _emailController,
-                      decoration:
-                          const InputDecoration(labelText: 'Nuova Email'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Inserisci una nuova email';
-                        }
-                        if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) {
-                          return 'Inserisci un\'email valida';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _passwordController,
-                      decoration:
-                          const InputDecoration(labelText: 'Password Corrente'),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Inserisci la password corrente';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : ElevatedButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  _isLoading = true;
-                                });
-                                await widget.onSubmit(
-                                  _emailController.text.trim(),
-                                  _passwordController.text.trim(),
-                                );
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              }
-                            },
-                            child: const Text('Conferma'),
-                          ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Widget for the modal sheet to change the password.
-class ChangePasswordSheet extends StatefulWidget {
-  final Function(
-          String currentPassword, String newPassword, String confirmPassword)
-      onSubmit;
-
-  const ChangePasswordSheet({required this.onSubmit, Key? key})
-      : super(key: key);
-
-  @override
-  _ChangePasswordSheetState createState() => _ChangePasswordSheetState();
-}
-
-class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _currentPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = ThemeManager().customTheme;
-
-    return Wrap(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              top: 16,
-              left: 16,
-              right: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Modifica Password',
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _currentPasswordController,
-                      decoration:
-                          const InputDecoration(labelText: 'Password Corrente'),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Inserisci la password corrente';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _newPasswordController,
-                      decoration: InputDecoration(
-                        labelText: 'Nuova Password',
-                        errorMaxLines: 3, // For multiple error messages
-                        errorStyle: TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                      obscureText: true,
-                      validator: (value) {
-                        /// Validates the new password.
-                        if (value == null || value.isEmpty) {
-                          return 'Inserisci una nuova password';
-                        }
-                        if (value.length < 6) {
-                          return 'La password deve essere di almeno 6 caratteri';
-                        }
-                        if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\W)')
-                            .hasMatch(value)) {
-                          return 'La password deve contenere almeno una lettera maiuscola, una lettera minuscola e un carattere speciale';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      decoration: const InputDecoration(
-                          labelText: 'Conferma Nuova Password'),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value != _newPasswordController.text) {
-                          return 'Le password non coincidono';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : ElevatedButton(
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  _isLoading = true;
-                                });
-                                await widget.onSubmit(
-                                  _currentPasswordController.text.trim(),
-                                  _newPasswordController.text.trim(),
-                                  _confirmPasswordController.text.trim(),
-                                );
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              }
-                            },
-                            child: const Text('Conferma'),
-                          ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }
