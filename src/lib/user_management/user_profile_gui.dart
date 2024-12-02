@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 /// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
+  /// Widget stateful for viewing and editing user profile data.
   UserProfile({super.key});
 
   @override
