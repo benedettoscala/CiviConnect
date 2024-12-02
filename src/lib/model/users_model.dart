@@ -21,10 +21,7 @@ abstract class GenericUser {
 
   /// Returns the unique UID of the user.
   String get uid => user.uid;
-
-
 }
-
 
 /* ------------------- ADMIN ------------------------ */
 
@@ -33,20 +30,18 @@ abstract class GenericUser {
 /// Extends [GenericUser] to provide a representation of a user
 /// with global administrator privileges.
 class Admin extends GenericUser {
-  /// Constructor to create a [Admin] instance.
+  /// Constructor to create an [Admin] instance.
   ///
   /// Requires a Firebase [User] as a parameter.
   Admin({required super.user});
 }
 
-
 /* -------------------- MUNICIPALITY -------------------- */
 
-
-/// Class representing a Municipality.
+/// Class representing a Municipality user.
 ///
 /// Extends [GenericUser] to add specific properties
-/// such as the municipality name, and province.
+/// such as the municipality name and province.
 class Municipality extends GenericUser {
   /// The name of the municipality associated with this user.
   final String? municipalityName;
@@ -56,8 +51,8 @@ class Municipality extends GenericUser {
 
   /// Constructor to create a [Municipality] instance.
   ///
-  /// Requires a Firebase [User] as a parameter, with optional [password],
-  /// [municipality], and [province] fields.
+  /// Requires a Firebase [User] as a parameter, with optional
+  /// fields for [municipalityName] and [province].
   Municipality({
     required super.user,
     this.municipalityName,
@@ -65,13 +60,12 @@ class Municipality extends GenericUser {
   });
 }
 
-
 /* ------------------- CITIZEN --------------------- */
 
-/// Class representing a Citizen.
+/// Class representing a Citizen user.
 ///
 /// Extends [GenericUser] to add specific properties
-/// such as the first name, last name, address, and other personal details.
+/// such as the first name, last name, address, city, and postal code.
 class Citizen extends GenericUser {
   static const _addressKeys = ['street', 'number'];
 
@@ -81,7 +75,13 @@ class Citizen extends GenericUser {
   /// The last name of the citizen.
   final String? lastName;
 
-  /// The address of the citizen.
+  /// The address of the citizen, represented as a map
+  /// containing `street` and `number` keys.
+  ///
+  /// Example:
+  /// ```dart
+  /// {'street': 'Main St', 'number': '123'}
+  /// ```
   final Map<String, String>? address;
 
   /// The city of residence of the citizen.
@@ -93,8 +93,10 @@ class Citizen extends GenericUser {
   /// Constructor to create a [Citizen] instance.
   ///
   /// Requires a Firebase [User] as a parameter, with optional
-  /// personal information such as [username], [password], [name],
-  /// [surname], [address], [city], and [cap].
+  /// fields for [firstName], [lastName], [address], [city], and [cap].
+  ///
+  /// The [address] parameter is validated to ensure it contains the required
+  /// keys (`street` and `number`). If invalid, it is set to `null`.
   Citizen({
     required super.user,
     this.firstName,
@@ -106,29 +108,32 @@ class Citizen extends GenericUser {
 
   /// Validates the provided address map.
   ///
-  /// This method checks if the provided address map contains only valid keys
-  /// (`street` and `number`). If any invalid key is found, an `ArgumentError`
-  /// is thrown. The method returns a new map containing only the valid keys.
+  /// Ensures the map contains only the required keys: `street` and `number`.
+  /// If the map is valid, it returns the original map; otherwise, it returns `null`.
   ///
-  /// \param address The address map to validate.
+  /// Example:
+  /// ```dart
+  /// Map<String, String>? validAddress = {'street': 'Main St', 'number': '123'};
+  /// Map<String, String>? invalidAddress = {'street': 'Main St', 'city': 'Springfield'};
   ///
-  /// \return A new map containing only the valid keys, or `null` if the input is `null`.
+  /// print(Citizen._validateAddress(validAddress)); // {street: Main St, number: 123}
+  /// print(Citizen._validateAddress(invalidAddress)); // null
+  /// print(Citizen._validateAddress(null)); // null
+  /// ```
   ///
-  /// \throws ArgumentError if the address map contains invalid keys.
-  static Map<String, String>? _validateAddress(Map<String, String>? address){
+  /// \param address The address map to validate, which can be null.
+  ///
+  /// \return The original map if valid, or `null` if invalid.
+  static Map<String, String>? _validateAddress(Map<String, String>? address) {
     if (address == null) {
       return null;
     }
 
-    /// Keys Validation: Only `street` and `number` are valid keys
-    final Map<String, String> validatedAddress = {};
-    for (var key in address.keys) {
-      if (!_addressKeys.contains(key)) {
-        throw ArgumentError('Invalid address key: $key');
-      }
-      validatedAddress[key] = address[key]!;
+    if (address.keys.toSet().containsAll(_addressKeys.toSet()) &&
+        address.keys.length == _addressKeys.length) {
+      return address;
     }
-    return validatedAddress;
-  }
 
+    return null;
+  }
 }

@@ -109,7 +109,7 @@ service cloud.firestore {
       // A citizen user can only read and write his data
       allow read, update, delete: if isSameUserFromId(citizenId);
       // TODO: Add create citizen data on registration
-      allow create: if false;
+       allow create: if request.auth.uid!=null && !isValidAdmin() && !isMunicipality();
     }
 
     // Rules for Municipalities
