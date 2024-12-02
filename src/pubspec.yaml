@@ -73,6 +73,7 @@ flutter:
      - assets/images/
      - assets/images/logo_blu.svg
      - assets/images/logo_white.svg
+     - assets/images/profile/
      - assets/files/comuni-localita-cap-italia.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
