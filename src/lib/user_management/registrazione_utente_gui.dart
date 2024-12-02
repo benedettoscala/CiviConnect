@@ -39,22 +39,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeManager().seedColor,
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Segnalazioni',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profilo',
-          ),
-        ],
-      ),
       body: _RegistrationFormWidget(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
           alignment: Alignment.center,
