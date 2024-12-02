@@ -15,7 +15,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
 
   final List<Widget> _pages = <Widget>[
-    TestingPage(),
+    Placeholder(),
     TestingPage(),
     UserProfile(),
   ];
