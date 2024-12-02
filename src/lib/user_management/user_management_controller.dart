@@ -1,97 +1,104 @@
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
 
-/// Controller class responsible for managing user-related operations.
+/// A controller class responsible for managing user-related operations.
 ///
 /// This class encapsulates the logic for user login, user creation,
-/// and credential validation. It provides methods to interact with the
-/// user DAO and handles navigation to other pages.
+/// credential validation, and user data modification. It interacts
+/// with the `UserManagementDAO` for backend operations and handles
+/// navigation within the application.
 class UserManagementController {
-  /// Redirect page to navigate to after successful login.
+  /// The page to navigate to after a successful login.
   final Widget redirectPage;
 
-  /// Constructor for the `UserManagementController` class.
-  ///
-  /// This constructor require a `redirectPage` parameter, which is the page.
-  UserManagementController({required this.redirectPage});
-
-  /// Method to handle user login.
-  /// This will be redirect route after successful login.
+  /// Constructs a `UserManagementController` instance.
   ///
   /// Parameters:
-  /// - [context]: The current context of the Flutter application.
+  /// - [redirectPage]: The target page to navigate to after a successful login.
+  UserManagementController({required this.redirectPage});
+
+  /// Handles user login.
+  ///
+  /// This method validates the user's credentials and, upon success,
+  /// navigates to the `redirectPage`.
+  ///
+  /// Parameters:
+  /// - [context]: The current BuildContext of the application.
   /// - [email]: The user's email address.
   /// - [password]: The user's password.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` indicating whether the login was successful.
   Future<bool> login(BuildContext context,
       {required String email, required String password}) {
     return _validateAuth(context, email, password);
   }
 
-  /// Method to validate user credentials and complete authentication.
+  /// Validates user credentials and completes the authentication process.
   ///
-  /// This method uses the `UserManagementDAO` to create a user with the provided
-  /// email and password, then navigates to the [redirectPage].
+  /// Upon successful validation, navigates to the [redirectPage].
   ///
   /// Parameters:
-  /// - [context]: The current context of the Flutter application.
+  /// - [context]: The current BuildContext of the application.
+  /// - [email]: The user's email address.
+  /// - [password]: The user's password.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` indicating whether the authentication was successful.
   Future<bool> _validateAuth(BuildContext context, email, password) async {
-
-    final bool result = await UserManagementDAO().signInWithEmailAndPassword(
-        email: email, password: password);
+    final bool result = await UserManagementDAO()
+        .signInWithEmailAndPassword(email: email, password: password);
 
     if (result) {
       Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => redirectPage),
-          (route) => false);
+        context,
+        MaterialPageRoute(builder: (context) => redirectPage),
+        (route) => false,
+      );
     }
 
     return result;
   }
 
-  Future<Map<String, dynamic>> getUserData() async {
-    try {
-      return await UserManagementDAO().getUserData();
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  Future<void> updateUserData(Map<String, dynamic> userData) async {
-    try {
-      await UserManagementDAO().updateUserData(userData);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  // -------------------- Methods for Modify User Data --------------------
-
-  /// Method to change the user's email.
+  /// Fetches the current user's data.
   ///
-  /// Uses the DAO to update the email and handles any exceptions.
+  /// Returns:
+  /// - A `Future<Map<String, dynamic>>` containing the user's data.
+  Future<Map<String, dynamic>> getUserData() async {
+    return await UserManagementDAO().getUserData();
+  }
+
+  /// Updates the user's data.
   ///
   /// Parameters:
-  /// - [context]: The current context of the Flutter application.
-  /// - [newEmail]: The new email to set.
-  /// - [currentPassword]: The user's current password.
+  /// - [userData]: A map containing the user's updated data.
+  Future<void> updateUserData(Map<String, dynamic> userData) async {
+    await UserManagementDAO().updateUserData(userData);
+  }
+
+  // -------------------- User Data Modification Methods --------------------
+
+  /// Changes the user's email address.
+  ///
+  /// This method updates the email via the DAO and handles any exceptions.
+  ///
+  /// Parameters:
+  /// - [context]: The current BuildContext of the application.
+  /// - [newEmail]: The new email address to set.
+  /// - [currentPassword]: The user's current password for authentication.
   Future<void> changeEmail(BuildContext context,
       {required String newEmail, required String currentPassword}) async {
-    try {
-      await UserManagementDAO().updateEmail(
-          newEmail: newEmail, currentPassword: currentPassword);
-    } catch (e) {
-      throw e;
-    }
+    await UserManagementDAO()
+        .updateEmail(newEmail: newEmail, currentPassword: currentPassword);
   }
 
-  /// Method to change the user's password.
+  /// Changes the user's password.
   ///
-  /// Uses the DAO to update the password and handles any exceptions.
+  /// This method updates the password via the DAO and handles any exceptions.
   ///
   /// Parameters:
-  /// - [context]: The current context of the Flutter application.
-  /// - [currentPassword]: The user's current password.
+  /// - [context]: The current BuildContext of the application.
+  /// - [currentPassword]: The user's current password for authentication.
   /// - [newPassword]: The new password to set.
   Future<void> changePassword(BuildContext context,
       {required String currentPassword, required String newPassword}) async {
