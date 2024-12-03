@@ -48,7 +48,10 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
             child: Column(
               children: [
                 // Logo
-                const LogoWidget(),
+                const Hero(
+                  child: LogoWidget(),
+                  tag: 'logo_from_home',
+                ),
                 // Form
                 FormBuilder(
                   key: _formKey,
