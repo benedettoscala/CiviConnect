@@ -13,7 +13,7 @@ import 'package:flutter/foundation.dart';
 /// - Managing user data and performing CRUD operations in Firestore.
 class UserManagementDAO {
   /// Error code for network request failures.
-  static final _networkError = 'network-request-failed';
+  static const _networkError = 'network-request-failed';
 
   /// Instance of FirebaseAuth for user authentication.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -57,7 +57,7 @@ class UserManagementDAO {
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
       if (e.code == _networkError) {
-        throw HttpException(
+        throw const HttpException(
             'Errore di rete, controlla la connessione o riprova più tardi.');
       }
       return false;

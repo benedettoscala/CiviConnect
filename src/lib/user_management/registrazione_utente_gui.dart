@@ -255,7 +255,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginUtenteGUI()),
+                      MaterialPageRoute(builder: (context) => const LoginUtenteGUI()),
                     );
                   },
                   child: Text(
@@ -307,7 +307,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
 
     // Sends the email and password to the controller.
     UserManagementController controller =
-        UserManagementController(redirectPage: HomePage());
+        UserManagementController(redirectPage: const HomePage());
 
     validUser = await controller.register(context,
         email: email,

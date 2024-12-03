@@ -13,8 +13,8 @@ void main() {
   testWidgets('Counter increments smoke test', (tester) async {
     //Build our app and trigger a frame.
     await tester.pumpWidget(
-        MaterialApp(
-            home: const LoginUtenteGUI())
+        const MaterialApp(
+            home: LoginUtenteGUI())
     );
 
     // Verify the login button is present

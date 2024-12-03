@@ -55,8 +55,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                       padding: EdgeInsets.only(left: padding, right: padding),
                       child: Column(
                         children: [
-                          Hero(
-                            child: const LogoWidget(),
+                          const Hero(
+                            child: LogoWidget(),
                             tag: 'logo_from_home',
                           ),
 
@@ -158,7 +158,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     ),
 
                     /// Bottom buttons
-                    _BottomLoginRedirectButtons(),
+                    const _BottomLoginRedirectButtons(),
                   ],
                 ),
               ],

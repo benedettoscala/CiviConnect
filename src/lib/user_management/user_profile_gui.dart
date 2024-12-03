@@ -11,7 +11,7 @@ import '../main.dart';
 /// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
   /// Widget stateful for viewing and editing user profile data.
-  UserProfile({super.key});
+  const UserProfile({super.key});
 
   @override
   State<UserProfile> createState() => _UserProfileState();
@@ -32,7 +32,7 @@ class _UserProfileState extends State<UserProfile> {
     super.initState();
     theme = ThemeManager().customTheme;
     textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
-    userController = UserManagementController(redirectPage: UserProfile());
+    userController = UserManagementController(redirectPage: const UserProfile());
     _loadUserData();
   }
 
@@ -64,8 +64,8 @@ class _UserProfileState extends State<UserProfile> {
     final user = UserManagementDAO().currentUser;
 
     if (isLoading) {
-      return Scaffold(
-        body: const Center(child: CircularProgressIndicator()),
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
