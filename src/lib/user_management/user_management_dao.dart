@@ -310,6 +310,7 @@ class UserManagementDAO {
         email: user.email!, password: currentPassword);
 
     await user.reauthenticateWithCredential(credential);
+    // ignore: deprecated_member_use
     await user.updateEmail(newEmail);
     await _firebaseFirestore
         .collection('citizen')
