@@ -2,6 +2,33 @@ import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Enum representing different categories of reports.
+enum Category {
+  /// Category for waste-related reports.
+  waste(name: 'Rifiuti'),
+
+  /// Category for road damage-related reports.
+  roadDamage(name: 'Dissesto Stradale'),
+
+  /// Category for maintenance-related reports.
+  maintenance(name: 'Manutenzione'),
+
+  /// Category for lighting-related reports.
+  lighting(name: 'Illuminazione');
+
+  /// The name of the category.
+  final String _name;
+
+  /// Constructs a new `Category` instance.
+  ///
+  /// [name] is the name of the category.
+  const Category({required name}) : _name = name;
+
+  /// Returns the name of the category.
+  String name() => _name;
+}
+
+
 
 /// Class representing a report in the system.
 ///
@@ -29,6 +56,9 @@ class Report {
 
   /// The city where the report is located.
   final String? city;
+
+  /// The category of the report.
+  final Category? category;
 
   /// The status of the report.
   final StatusReport? status;
@@ -89,6 +119,7 @@ class Report {
     this.description,
     this.photo,
     this.city,
+    this.category,
     this.status,
     this.reportDate,
     this.endDate,
