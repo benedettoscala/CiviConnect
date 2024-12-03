@@ -89,6 +89,10 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                                     FormBuilderValidators.maxLength(255),
                                     FormBuilderValidators.email(),
                                     FormBuilderValidators.required(),
+                                    FormBuilderValidators.match( // Note: order of validators is important
+                                      RegExp(r'^[a-zA-Z0-9.+@_\-]+$'),
+                                      errorText: 'Inserito carattere non valido',
+                                    ),
                                   ]),
                                   name: 'email',
                                   //textInputAction: TextInputAction.continueAction, // Bricks user input on mobile to be checked in future
