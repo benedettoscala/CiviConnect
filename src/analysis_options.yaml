@@ -19,6 +19,11 @@ linter:
     annotate_overrides: true
     avoid_types_on_closure_parameters: true
     public_member_api_docs: true
+    prefer_const_constructors: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+    unnecessary_const: true
 
 analyzer:
   strong-mode:
