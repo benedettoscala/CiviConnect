@@ -133,7 +133,7 @@ class Citizen extends GenericUser {
         address.keys.length == _addressKeys.length) {
       return address;
     }
-
+ 
     return null;
   }
 }
