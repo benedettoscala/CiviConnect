@@ -48,7 +48,10 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
             child: Column(
               children: [
                 // Logo
-                const LogoWidget(),
+                const Hero(
+                  child: LogoWidget(),
+                  tag: 'logo_from_home',
+                ),
                 // Form
                 FormBuilder(
                   key: _formKey,
@@ -307,7 +310,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
 
     // Sends the email and password to the controller.
     UserManagementController controller =
-        UserManagementController(redirectPage: HomePage());
+        UserManagementController(redirectPage: const HomePage());
 
     validUser = await controller.register(context,
         email: email,

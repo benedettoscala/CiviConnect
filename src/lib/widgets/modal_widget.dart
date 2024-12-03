@@ -178,7 +178,7 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                     ),
                     TextFormField(
                       controller: _newPasswordController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Nuova Password',
                         errorMaxLines: 3,
                         errorStyle: TextStyle(fontSize: 12),

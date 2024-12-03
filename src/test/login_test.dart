@@ -35,7 +35,7 @@ class FakeUserManagementController extends Fake implements UserManagementControl
       //push to HomePage if login is successful
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => const HomePage()),
             (route) => false,
       );
       return Future.value(true);

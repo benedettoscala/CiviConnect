@@ -14,9 +14,9 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
 
   final List<Widget> _pages = <Widget>[
-    Placeholder(),
-    Placeholder(),
-    UserProfile(),
+    const Placeholder(),
+    const Placeholder(),
+    const UserProfile(),
   ];
 
   final List<String> _title = [

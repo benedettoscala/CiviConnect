@@ -15,7 +15,7 @@ import '../widgets/logo_widget.dart';
 class LoginUtenteGUI extends StatefulWidget {
   /// Constructs a new instance of [LoginUtenteGUI].
   LoginUtenteGUI({super.key, UserManagementController? controller})
-      : _controller = (controller == null) ? UserManagementController(redirectPage: HomePage()) : controller;
+      : _controller = (controller == null) ? UserManagementController(redirectPage: const HomePage()) : controller;
 
   /// The title of the login page.
   final String title = 'Login';
@@ -63,8 +63,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                       padding: EdgeInsets.only(left: padding, right: padding),
                       child: Column(
                         children: [
-                          Hero(
-                            child: const LogoWidget(),
+                          const Hero(
+                            child: LogoWidget(),
                             tag: 'logo_from_home',
                           ),
 
@@ -171,7 +171,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     ),
 
                     /// Bottom buttons
-                    _BottomLoginRedirectButtons(),
+                    const _BottomLoginRedirectButtons(),
                   ],
                 ),
               ],
