@@ -379,9 +379,10 @@ class _UserProfileState extends State<UserProfile> {
         children: [
           CircleAvatar(
             radius: 80,
-            backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-            child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
+            backgroundImage: user.photoURL != null
+                ? NetworkImage(user.photoURL!)
+                : AssetImage('assets/images/profile/${user.uid.hashCode % 6}.jpg'),
+            //child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
           ),
           const SizedBox(height: 5),
           Text(
