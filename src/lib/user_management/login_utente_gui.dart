@@ -1,18 +1,14 @@
 import 'dart:io';
 
-import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
-import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../home_page.dart';
-import '../main.dart';
 import '../widgets/logo_widget.dart';
 
 /// A stateful widget to wrap the login form.
@@ -64,7 +60,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                     /// Logo
                     Container(
                       margin: const EdgeInsets.only(bottom: 20),
-                      padding: EdgeInsets.only(left:padding, right: padding),
+                      padding: EdgeInsets.only(left: padding, right: padding),
                       child: Column(
                         children: [
                           Hero(
@@ -75,7 +71,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                           /// Form
                           FormBuilder(
                             key: _formKey,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -155,7 +152,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                             padding: const EdgeInsets.all(10),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                textStyle: Theme.of(context).textTheme.labelLarge,
+                                textStyle:
+                                    Theme.of(context).textTheme.labelLarge,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 30, vertical: 10),
                                 shape: RoundedRectangleBorder(
@@ -171,6 +169,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                         ],
                       ),
                     ),
+
                     /// Bottom buttons
                     _BottomLoginRedirectButtons(),
                   ],
@@ -195,7 +194,7 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
     }
     try {
       validUser =
-      await controller.login(context, email: email, password: password);
+          await controller.login(context, email: email, password: password);
     } on HttpException catch (e) {
       motivation = e.message;
       validUser = false;
@@ -215,7 +214,6 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
         );
       }
     }
-
   }
 }
 
@@ -299,62 +297,6 @@ class _BottomLoginRedirectButtons extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ----------------------------- TESTING PAGE --------------------------------
-
-/// UI page for testing login functionality.
-class TestingPage extends StatelessWidget {
-  /// Constructs a new instance of [TestingPage].
-  const TestingPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                UserManagementDAO().logOut();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FirstPage()),
-                  (route) => false,
-                );
-              },
-              child: const Text('Logout'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                UserManagementDAO().determineUserType().then(
-                  (value) {
-                    if (kDebugMode) {
-                      switch (value) {
-                        case Citizen citizen:
-                          print('Citizen ${citizen.firstName!}');
-                          break;
-                        case Municipality municipality:
-                          print('Municipality Admin ${municipality.province!}');
-                          break;
-                        case Admin admin:
-                          print('Super Admin ${admin.email!}');
-                          break;
-                        default:
-                          print('Unknown');
-                          break;
-                      }
-                    }
-                  },
-                );
-              },
-              child: const Text('Test if I\' m admin'),
             ),
           ],
         ),

@@ -6,6 +6,8 @@ import 'package:civiconnect/widgets/modal_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
+
 /// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
   /// Widget stateful for viewing and editing user profile data.
@@ -93,6 +95,22 @@ class _UserProfileState extends State<UserProfile> {
                     ),
                     const SizedBox(height: 10),
                     _buildAccountData(user, theme),
+                    const SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          UserManagementDAO().logOut();
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const FirstPage()),
+                            (route) => false,
+                          );
+                        },
+                        child: const Text('Logout'),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -361,9 +379,10 @@ class _UserProfileState extends State<UserProfile> {
         children: [
           CircleAvatar(
             radius: 80,
-            backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-            child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
+            backgroundImage: user.photoURL != null
+                ? NetworkImage(user.photoURL!)
+                : AssetImage('assets/images/profile/${user.uid.hashCode % 6}.jpg'),
+            //child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
           ),
           const SizedBox(height: 5),
           Text(

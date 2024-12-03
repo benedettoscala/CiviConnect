@@ -1,4 +1,3 @@
-import 'package:civiconnect/user_management/login_utente_gui.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +15,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = <Widget>[
     Placeholder(),
-    TestingPage(),
+    Placeholder(),
     UserProfile(),
   ];
 

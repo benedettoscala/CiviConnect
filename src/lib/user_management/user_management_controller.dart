@@ -185,15 +185,20 @@ class UserManagementController {
         });
 
     if (result) {
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => redirectPage),
+        (route) => false,
       );
     }
 
     return result;
   }
 
-
-  //MI MANCA MARTINA :(
+  /// By Marco: MI MANCA MARTINA :(
+  /// Marco is sad
+  /// Please help Marco find Martina
+  String marcoMissingMartina() {
+    return 'Marco is sad';
+  }
 }
