@@ -54,6 +54,9 @@ class Report {
   /// The address where the report is located.
   final Map<String, String>? address;
 
+  /// The location of the report as a GeoPoint: latitude and longitude.
+  final GeoPoint? location;
+
   /// The city where the report is located.
   final String? city;
 
@@ -86,6 +89,7 @@ class Report {
   /// [description] is the description of the report.
   /// [photo] is the photo associated with the report.
   /// [city] is the city where the report is located.
+  /// [location] is the location of the report as a GeoPoint: latitude and longitude.
   /// [status] is the status of the report.
   /// [reportDate] is the date when the report was created.
   /// [endDate] is the date when the report was resolved or closed.
@@ -119,6 +123,7 @@ class Report {
     this.description,
     this.photo,
     this.city,
+    this.location,
     this.category,
     this.status,
     this.reportDate,
