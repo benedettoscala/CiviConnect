@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:civiconnect/gestione_admin/gestione_admin_controller.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({Key? key}) : super(key: key);
@@ -9,7 +9,7 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
-  final UserManagementController _controller = UserManagementController(redirectPage: const AdminHomePage());
+  final AdminManagementController _controller = AdminManagementController(redirectPage: const AdminHomePage());
   List<Map<String, String>> _allMunicipalities = [];
   Map<String, String>? _selectedMunicipality;
   String? _generatedEmail;
@@ -24,7 +24,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   void _loadMunicipalities() async {
     List<Map<String, String>> municipalities = await _controller.loadMunicipalities();
-    print('ciao ----$municipalities');
     setState(() {
       _allMunicipalities = municipalities;
     });
@@ -48,19 +47,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
       Map<String, String> credentials =
       await _controller.generateCredentials(_selectedMunicipality!);
 
-      print('bbbbbbbbb--------$credentials');
-
       setState(() {
         _generatedEmail = credentials['email'];
         _generatedPassword = credentials['password'];
       });
 
-      // Mostra la snackbar con l'esito dell'operazione
+      // Show a snackbar with results
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Credenziali generate con successo')),
       );
     } catch (e) {
-      // Gestisci eventuali errori
+      // Error handling
       print('Errore nella generazione delle credenziali: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Errore: $e')),
