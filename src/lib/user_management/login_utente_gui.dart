@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:civiconnect/theme.dart';
+import 'package:civiconnect/user_management/admin_main_gui.dart';
 import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
@@ -15,7 +16,7 @@ import '../widgets/logo_widget.dart';
 class LoginUtenteGUI extends StatefulWidget {
   /// Constructs a new instance of [LoginUtenteGUI].
   LoginUtenteGUI({super.key, UserManagementController? controller})
-      : _controller = (controller == null) ? UserManagementController(redirectPage: const HomePage()) : controller;
+      : _controller = (controller == null) ? UserManagementController(redirectPage: const AdminHomePage()) : controller;
 
   /// The title of the login page.
   final String title = 'Login';

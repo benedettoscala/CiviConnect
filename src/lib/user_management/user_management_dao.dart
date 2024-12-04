@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 /// A Data Access Object (DAO) for managing user authentication and role determination.
 ///
@@ -334,5 +337,92 @@ class UserManagementDAO {
 
     await user.reauthenticateWithCredential(credential);
     await user.updatePassword(newPassword);
+  }
+
+  //-------- Generate Credentials for Municipality --------
+
+  /// Load the list of municipalities from JSON.
+  Future<List<Map<String, String>>> loadMunicipalities() async {
+    String data = await rootBundle.loadString('assets/files/comuni-localita-cap-italia.json');
+    Map<String, dynamic> jsonResult = json.decode(data);
+
+    print('JSON Result: $jsonResult'); // Debug
+
+    List<dynamic> municipalitiesList = jsonResult["Sheet 1 - comuni-localita-cap-i"];
+    List<Map<String, String>> allMunicipalities = municipalitiesList
+        .map((comune) => {
+      'Comune': comune["Comune Localita’"].toString(),
+      'Provincia': comune["Provincia"].toString(),
+    })
+        .toSet()
+        .toList(); // Rimuove duplicati
+
+    print('All Municipalities Length: ${allMunicipalities.length}'); // Debug
+
+    return allMunicipalities;
+  }
+
+  /// Check if the municipality already exists in the database.
+  Future<bool> municipalityExistsInDatabase(String comune) async {
+    try {
+      final querySnapshot = await _firebaseFirestore
+          .collection('municipality')
+          .where('municipalityName', isEqualTo: comune)
+          .get();
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Comune già presente nel database: $e');
+      return false;
+    }
+  }
+
+  /// Save credentials for the municipality in the database.
+  Future<void> saveCredentialsToDatabase(
+      String email, String password, Map<String, String> selectedComune) async {
+    try {
+      // Create the user with Firebase Authentication.
+      UserCredential userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Save the municipality data to Firestore.
+      await _firebaseFirestore
+          .collection('municipality')
+          .doc(userCredential.user!.uid)
+          .set({
+        'municipalityName': selectedComune['Comune'],
+        'email': email,
+        'province': selectedComune['Provincia'],
+      });
+    } catch (e) {
+      print('Errore nel salvataggio delle credenziali: $e');
+      throw Exception('Errore nel salvataggio delle credenziali: $e');
+    }
+  }
+
+  /// Generate a random password for the municipality.
+  String generatePassword() {
+    const length = 15;
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const special = '!@#\$%&*?';
+
+    final allChars = uppercase + lowercase + numbers + special;
+    final rand = Random.secure();
+
+    String password = '';
+    password += uppercase[rand.nextInt(uppercase.length)];
+    password += lowercase[rand.nextInt(lowercase.length)];
+    password += numbers[rand.nextInt(numbers.length)];
+    password += special[rand.nextInt(special.length)];
+
+    for (int i = 4; i < length; i++) {
+      password += allChars[rand.nextInt(allChars.length)];
+    }
+
+    // Mix character of password
+    List<String> passwordChars = password.split('');
+    passwordChars.shuffle();
+    return passwordChars.join();
   }
 }

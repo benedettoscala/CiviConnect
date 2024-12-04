@@ -195,6 +195,51 @@ class UserManagementController {
     return result;
   }
 
+  //-------- Generate Credentials for Municipality --------
+
+  final UserManagementDAO _dao = UserManagementDAO();
+
+  /// Loads the list of municipalities.
+  Future<List<Map<String, String>>> loadMunicipalities() async {
+    return await _dao.loadMunicipalities();
+  }
+
+  /// Filters the list of municipalities based on the search query.
+  List<Map<String, String>> filterMunicipalities(
+      List<Map<String, String>> allMunicipalities, String query) {
+    List<Map<String, String>> suggestions = allMunicipalities
+        .where((comune) =>
+        comune['Comune']!.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    // Prendi solo i primi 7 suggerimenti
+    if (suggestions.length > 7) {
+      suggestions = suggestions.sublist(0, 7);
+    }
+
+    return suggestions;
+  }
+
+  /// Checks if the municipality exists in the database.
+  Future<bool> municipalityExistsInDatabase(String comune) async {
+    return await _dao.municipalityExistsInDatabase(comune);
+  }
+
+  /// Generates credentials for the selected municipality.
+  Future<Map<String, String>> generateCredentials(
+      Map<String, String> selectedMunicipality) async {
+    String municipalityEmailPart = selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
+    String email = 'comune.$municipalityEmailPart@anci.gov';
+    String password = _dao.generatePassword();
+
+    print('aaaaaaaaaaaa--------$municipalityEmailPart');
+
+    // Save credentials to the database
+    await _dao.saveCredentialsToDatabase(email, password, selectedMunicipality);
+
+    return {'email': email, 'password': password};
+  }
+
   /// By Marco: MI MANCA MARTINA :(
   /// Marco is sad
   /// Please help Marco find Martina

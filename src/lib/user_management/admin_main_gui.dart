@@ -1,9 +1,5 @@
-import 'dart:convert';
-import 'dart:math';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:civiconnect/user_management/user_management_controller.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({Key? key}) : super(key: key);
@@ -12,63 +8,33 @@ class AdminHomePage extends StatefulWidget {
   _AdminHomePageState createState() => _AdminHomePageState();
 }
 
-class _AdminHomePageState extends State<AdminHomePage>{
-  List<Map<String, String>> _allComuni = [];
-  List<Map<String, String>> _filteredComuni = [];
-  String _searchText = '';
-  Map<String, String>? _selectedComune;
+class _AdminHomePageState extends State<AdminHomePage> {
+  final UserManagementController _controller = UserManagementController(redirectPage: const AdminHomePage());
+  List<Map<String, String>> _allMunicipalities = [];
+  Map<String, String>? _selectedMunicipality;
   String? _generatedEmail;
   String? _generatedPassword;
-  bool _isComuneExisting = false;
+  bool _isMunicipalityExisting = false;
 
   @override
   void initState() {
     super.initState();
-    _loadComuni();
+    _loadMunicipalities();
   }
 
-  void _loadComuni() async {
-    // Load all comuni from the JSON file
-    String data = await DefaultAssetBundle.of(context)
-        .loadString('assets/comuni-localita-cap-italia.json');
-    Map<String, dynamic> jsonResult = json.decode(data);
-
-    // Extract the name and province from jason
-    List<dynamic> comuniList = jsonResult["Sheet 1 - comuni-localita-cap-i"];
+  void _loadMunicipalities() async {
+    List<Map<String, String>> municipalities = await _controller.loadMunicipalities();
+    print('ciao ----$municipalities');
     setState(() {
-      _allComuni = comuniList
-          .map((comune) => {
-        'Comune': comune["Comune Localita’"].toString(),
-        'Provincia': comune["Provincia"].toString(),
-      })
-          .toSet()
-          .toList(); // Rimuove duplicati
-      _filteredComuni = _allComuni;
+      _allMunicipalities = municipalities;
     });
   }
 
-  void _filterComuni(String query) {
-    List<Map<String, String>> suggestions = _allComuni
-        .where((comune) =>
-        comune['Comune']!.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    // Pick the first 7 suggestion
-    if (suggestions.length > 7) {
-      suggestions = suggestions.sublist(0, 7);
-    }
-
+  Future<void> _onMunicipalitySelected(Map<String, String> selectedMunicipality) async {
+    bool exists = await _controller.municipalityExistsInDatabase(selectedMunicipality['Comune']!);
     setState(() {
-      _filteredComuni = suggestions;
-      _searchText = query;
-    });
-  }
-
-  Future<void> _onComuneSelected(Map<String, String> comuneSelezionato) async {
-    bool exists = await _comuneExistsInDatabase(comuneSelezionato['Comune']!);
-    setState(() {
-      _selectedComune = comuneSelezionato;
-      _isComuneExisting = exists;
+      _selectedMunicipality = selectedMunicipality;
+      _isMunicipalityExisting = exists;
     });
     if (exists) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -76,75 +42,26 @@ class _AdminHomePageState extends State<AdminHomePage>{
       );
     }
   }
-  
-  Future<bool> _comuneExistsInDatabase(String comune) async {
-    // Check if the comune is already in the database
-    try{
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('municipality')
-          .where('municipalityName', isEqualTo: comune)
-          .get();
-      return querySnapshot.docs.isNotEmpty;
-    } catch (e) {
-      print('Errore nel controllare il database: $e');
-      return false;
-    }
-  }
 
-  void _generateCredentials(){
-    String comuneEmailPart = _selectedComune!['Comune']!.toLowerCase().replaceAll(' ', '');
-    String email = 'comune.$comuneEmailPart@anci.gov';
-    String password = _generatePassword();
+  void _generateCredentials() async {
+    try {
+      Map<String, String> credentials =
+      await _controller.generateCredentials(_selectedMunicipality!);
 
-    // Save the credential in Firebase
-    _saveCredentialsToDatabase(email, password);
+      print('bbbbbbbbb--------$credentials');
 
-  }
-
-  String _generatePassword() {
-    const length = 15;
-    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-    const numbers = '0123456789';
-    const special = '!@#\$%&*?';
-
-    final allChars = uppercase + lowercase + numbers + special;
-    final rand = Random.secure();
-
-    String password = '';
-    password += uppercase[rand.nextInt(uppercase.length)];
-    password += lowercase[rand.nextInt(lowercase.length)];
-    password += numbers[rand.nextInt(numbers.length)];
-    password += special[rand.nextInt(special.length)];
-
-    for (int i = 4; i < length; i++) {
-      password += allChars[rand.nextInt(allChars.length)];
-    }
-
-    // Mix character of password
-    List<String> passwordChars = password.split('');
-    passwordChars.shuffle();
-    return passwordChars.join();
-  }
-
-  Future<void> _saveCredentialsToDatabase(String email, String password) async{
-    try{
-      // Create user in Firestore
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      // Save Comune data in Firestore
-      await FirebaseFirestore.instance
-          .collection('municipality')
-          .doc(userCredential.user!.uid)
-          .set({
-        'municipalityName': _selectedComune!['Comune'],
-        'email': email,
-        'province': _selectedComune!['Provincia'],
+      setState(() {
+        _generatedEmail = credentials['email'];
+        _generatedPassword = credentials['password'];
       });
-    } catch (e){
+
+      // Mostra la snackbar con l'esito dell'operazione
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Credenziali generate con successo')),
+      );
+    } catch (e) {
       // Gestisci eventuali errori
-      print('Errore nel salvataggio delle credenziali: $e');
+      print('Errore nella generazione delle credenziali: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Errore: $e')),
       );
@@ -155,36 +72,65 @@ class _AdminHomePageState extends State<AdminHomePage>{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ben Tornato Supremo'),
+        title: const Text('Bentornato Supremo'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Cerca Comune',
-              ),
-              onChanged: _filterComuni,
+            Autocomplete<Map<String, String>>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text.isEmpty) {
+                  return const Iterable<Map<String, String>>.empty();
+                } else {
+                  return _allMunicipalities.where((Map<String, String> comune) {
+                    return comune['Comune']!.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                  }).take(7);
+                }
+              },
+              displayStringForOption: (Map<String, String> comune) => comune['Comune']!,
+              fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
+                return TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Cerca Comune',
+                  ),
+                );
+              },
+              onSelected: (Map<String, String> selectedComune) {
+                _onMunicipalitySelected(selectedComune);
+              },
+              optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<Map<String, String>> onSelected, Iterable<Map<String, String>> options) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width - 32,
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        itemCount: options.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final Map<String, String> option = options.elementAt(index);
+                          return ListTile(
+                            title: Text(option['Comune']!),
+                            subtitle: Text('Provincia: ${option['Provincia']}'),
+                            onTap: () {
+                              onSelected(option);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _filteredComuni.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(_filteredComuni[index]['Comune']!),
-                    subtitle: Text('Provincia: ${_filteredComuni[index]['Provincia']!}'),
-                    onTap: () {
-                      _onComuneSelected(_filteredComuni[index]);
-                    },
-                  );
-                },
-              ),
-            ),
-            if (_selectedComune != null)
+            if (_selectedMunicipality != null)
               Column(
                 children: [
-                  _isComuneExisting
+                  _isMunicipalityExisting
                       ? const Text(
                     'Comune già presente nel database',
                     style: TextStyle(color: Colors.red),
@@ -204,6 +150,7 @@ class _AdminHomePageState extends State<AdminHomePage>{
                 ],
               ),
           ],
+
         ),
       ),
     );
