@@ -5,15 +5,15 @@ import 'package:hugeicons/hugeicons.dart';
 import '../model/users_model.dart';
 
 /// Gui to visualize reports list of citizen city
-class ReportsListCitizenGUI extends StatefulWidget {
-  /// Constructor of [ReportsListCitizenGUI]
-  const ReportsListCitizenGUI({super.key});
+class ReportsViewCitizenGUI extends StatefulWidget {
+  /// Constructor of [ReportsViewCitizenGUI]
+  const ReportsViewCitizenGUI({super.key});
 
   @override
-  State<ReportsListCitizenGUI> createState() => _ReportsListCitizenState();
+  State<ReportsViewCitizenGUI> createState() => _ReportsListCitizenState();
 }
 
-class _ReportsListCitizenState extends State<ReportsListCitizenGUI> {
+class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
   // Variable State
   bool isEditing = false;

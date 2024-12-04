@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = <Widget>[
     const Placeholder(),
-    const ReportsListCitizenGUI(),
+    const ReportsViewCitizenGUI(),
     const UserProfile(),
   ];
 
