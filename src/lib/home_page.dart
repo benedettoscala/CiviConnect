@@ -1,6 +1,8 @@
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
 
+import 'gestione_segnalazione_cittadino/visualizzazione_segnalazioni_gui.dart';
+
 /// Home page of the application.
 class HomePage extends StatefulWidget {
   /// Home page of the application.
@@ -15,7 +17,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = <Widget>[
     const Placeholder(),
-    const Placeholder(),
+    const ReportsListCitizenGUI(),
     const UserProfile(),
   ];
 
