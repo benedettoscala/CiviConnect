@@ -63,7 +63,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
     if (_userData.isEmpty) {
       return const Scaffold(
-        body: Center(child: Text('Nessun dato utente disponibile.')),
+        body: Center(child: Text('Nessun dato disponibile. Controlla la tua connessione.'),),
       );
     }
     return _buildScaffold();
@@ -78,18 +78,22 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _isLoading = true;
       _hasMoreData = true;
     });
+
     try {
-      final newData = await _reportController.getUserReports();
-      setState(() {
-        _userData.clear();
-        if (newData != null && newData.isNotEmpty) {
-          _userData.addAll(newData);
-        } else {
-          _hasMoreData = false;
-        }
+      _reportController.citizen.then((value) {
+        _reportController.getUserReports().then((value) {
+          setState(() {
+            _userData.clear();
+            if (value != null && value.isNotEmpty) {
+              _userData.addAll(value);
+            } else {
+              _hasMoreData = false;
+            }
+          });
+        });
       });
     } catch (e) {
-      _errorText = 'Errore durante il caricamento iniziale';
+      _errorText = 'Errore durante il caricamento iniziale: $e';
     } finally {
       setState(() {
         _isLoading = false;
