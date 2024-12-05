@@ -29,6 +29,10 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   String _errorText = '';
   late ScrollController _scrollController;
 
+  /// Initializes the state of the widget.
+  ///
+  /// This method sets up the scroll controller, initializes the report controller,
+  /// and loads the initial data.
   @override
   void initState() {
     _userInfo = null;
@@ -71,6 +75,10 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     return _buildScaffold();
   }
 
+  /// Loads the initial data for the widget.
+  ///
+  /// This method fetches the current citizen user and their reports,
+  /// and updates the state with the retrieved data.
   Future<void> _loadInitialData() async {
     setState(() {
       _isLoading = true;
@@ -96,6 +104,10 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     }
   }
 
+  /// Loads additional data when the user scrolls to the bottom of the list.
+  ///
+  /// This method fetches more reports from the controller and updates the state
+  /// with the new data.
   void _loadUpdateData() {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       setState(() {
@@ -252,8 +264,9 @@ Widget _buildHeader() {
     );
   }
 
-  /// Refresh the data
-  /// Wait 1 second before refresh
+  /// Refreshes the data when the user performs a pull-to-refresh action.
+  ///
+  /// This method reloads the initial data and waits for a short delay before completing.
   Future<void> _pullRefresh() async {
     _loadInitialData();
     await Future.delayed(const Duration(seconds: 1));
