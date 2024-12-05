@@ -81,7 +81,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
     try {
       _reportController.citizen.then((value) {
-        _reportController.getUserReports().then((value) {
+        _reportController.getUserReports(reset: true).then((value) {
           setState(() {
             _userData.clear();
             if (value != null && value.isNotEmpty) {
