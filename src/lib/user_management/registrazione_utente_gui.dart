@@ -258,7 +258,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginUtenteGUI()),
+                      MaterialPageRoute(builder: (context) => LoginUtenteGUI()),
                     );
                   },
                   child: Text(
