@@ -153,6 +153,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       itemBuilder: (context, index) {
         final report = reports?[index];
         return CardWidget(
+          uid: report?['uid'],
           name: report?['authorFirstName'] + ' ' + report?['authorLastName'],
           description: report?['title'],
           status: StatusReport.getStatus(report?['status']) ?? StatusReport.rejected,
