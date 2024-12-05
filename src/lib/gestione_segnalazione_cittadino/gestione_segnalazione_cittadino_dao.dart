@@ -96,9 +96,20 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
 
 /// Mock implementation of the `CitizenReportManagementDAO` class.
 class MockCitizenReportManagementDAO extends Mock implements CitizenReportManagementDAO {
+  /// The mock implementation of the `UserManagementDAO` class.
+  /// Could be passed in the constructor.
+  final UserManagementDAO userManagementDAO;
 
-  @override
-  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument}) async {
+  /// The mock list of reports.
+  late final List<Map<String, dynamic>> reports;
+
+  /// The index of the last document retrieved. MOCK
+  int _lastDocument = 0;
+
+  /// Constructs a new `MockCitizenReportManagementDAO` instance.
+  /// Parameters:
+  /// - [userManagementDAO]: An optional instance of `UserManagementDAO`. If not provided, a new instance of `UserManagementDAO` will be created.
+  MockCitizenReportManagementDAO({UserManagementDAO? userManagementDAO}) : userManagementDAO = userManagementDAO ?? UserManagementDAO(){
     Map<String, dynamic> report = {
       'reportId': '123',
       'uid': '456',
@@ -117,11 +128,28 @@ class MockCitizenReportManagementDAO extends Mock implements CitizenReportManage
       'authorLastName': 'Doe',
     };
 
-    List<Map<String, dynamic>> reports = [];
-    for(int i = 0; i < 10; i++) {
-      reports.add(report);
+    reports = [];
+    for(int i = 0; i < 30; i++) {
+      Map<String, dynamic> r = Map.from(report);
+      r['uid'] = i.toString();
+      reports.add(r);
     }
 
-    return Future.value(reports);
   }
+
+  @override
+  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument}) async {
+    if(_lastDocument == 0){
+      _lastDocument = 10;
+     return Future.value(reports.sublist(0, 10));
+    } else {
+      if(_lastDocument >= 30){
+        return Future.value(null);
+      }
+      int index = _lastDocument;
+      _lastDocument = index + 10;
+      return Future.value(reports.sublist(index, index + 10));
+    }
+  }
+
 }
