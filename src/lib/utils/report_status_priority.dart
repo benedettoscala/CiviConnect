@@ -45,7 +45,7 @@ enum StatusReport implements Comparable<StatusReport> {
   int compareTo(StatusReport other) => value - other.value;
 
   /// Returns the status of the report based on the [name].
-  static StatusReport? getStatus(String name) {
+  static StatusReport? getStatus(String? name) {
     for(StatusReport status in StatusReport.values) {
       if(status.name() == name) {
         return status;
@@ -103,7 +103,7 @@ enum PriorityReport implements Comparable<PriorityReport> {
   String get name => _name;
 
   /// Returns the priority of the report based on the [name].
-  static PriorityReport? getPriority(String name) {
+  static PriorityReport? getPriority(String? name) {
     for(PriorityReport priority in PriorityReport.values) {
       if(priority.name == name) {
         return priority;
