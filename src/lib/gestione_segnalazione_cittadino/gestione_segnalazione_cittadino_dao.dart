@@ -5,8 +5,10 @@ import 'package:mockito/mockito.dart';
 
 /// Data Access Object (DAO) for managing citizen reports.
 class CitizenReportManagementDAO {
-  final UserManagementDAO _userManagementDAO;
 
+  /// The data access object for user management.
+  final UserManagementDAO _userManagementDAO;
+  /// The Firestore instance.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 
@@ -20,6 +22,7 @@ class CitizenReportManagementDAO {
   ///
   /// Parameters:
   /// - [city]: The name of the city for which to retrieve the reports.
+  /// - [lastDocument]: The last document retrieved in the previous query (optional).
   ///
   /// Returns:
   /// - A `Future<List<Map<String, dynamic>>?>` containing the list of reports for the specified city, or `null` if the user is not valid.
@@ -44,12 +47,13 @@ class CitizenReportManagementDAO {
   ///
   /// Parameters:
   /// - [city]: The name of the city for which to retrieve the reports.
+  /// - [lastDocument]: The last document retrieved in the previous query (optional).
   ///
   /// Returns:
   /// - A `Future<List<Map<String, dynamic>>>` containing the next ten reports for the specified city.
-  ////
-/// Throws:
-/// - [Exception]: If there is an error retrieving the data.
+  ///
+  /// Throws:
+  /// - [Exception]: If there is an error retrieving the data.
 Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city, DocumentSnapshot? lastDocument}) async {
   Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
     .orderBy('title', descending: true).limit(10);
@@ -94,7 +98,10 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
 }
 
 
-/// Mock implementation of the `CitizenReportManagementDAO` class.
+/// Constructs a new `MockCitizenReportManagementDAO` instance.
+///
+/// Parameters:
+/// - [userManagementDAO]: An optional instance of `UserManagementDAO`. If not provided, a new instance of `UserManagementDAO` will be created.
 class MockCitizenReportManagementDAO extends Mock implements CitizenReportManagementDAO {
   /// The mock implementation of the `UserManagementDAO` class.
   /// Could be passed in the constructor.
