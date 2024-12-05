@@ -1,26 +1,19 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/services.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 import 'gestione_admin_dao.dart';
 
 
 
 class AdminManagementController {
-  /// The page to navigate to after a successful login.
-  final Widget redirectPage;
-
-  /// Constructs a `UserManagementController` instance.
-  ///
-  /// Parameters:
-  /// - [redirectPage]: The target page to navigate to after a successful login.
-  AdminManagementController({required this.redirectPage});
-
   //-------- Generate Credentials for Municipality --------
 
-  final AdminManagementDAO _dao = AdminManagementDAO();
+  final AdminManagementDAO _daoAdmin = AdminManagementDAO();
+  final UserManagementDAO _daoUser = UserManagementDAO();
 
   /// Load the list of municipalities from JSON.
   Future<List<Map<String, String>>> loadMunicipalities() async {
@@ -36,32 +29,60 @@ class AdminManagementController {
       'Provincia': comune["Provincia"].toString(),
     })
         .toSet()
-        .toList(); // Rimuove duplicati
-
-    print('All Municipalities Length: ${allMunicipalities.length}'); // Debug
+        .toList(); // Remove duplicates
 
     return allMunicipalities;
   }
 
-  /// Filters the list of municipalities based on the search query.
   List<Map<String, String>> filterMunicipalities(
       List<Map<String, String>> allMunicipalities, String query) {
-    List<Map<String, String>> suggestions = allMunicipalities
+    if (query.isEmpty) {
+      return allMunicipalities;
+    }
+
+    // Filtra i comuni che contengono la query (case insensitive)
+    List<Map<String, String>> filtered = allMunicipalities
         .where((comune) =>
         comune['Comune']!.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
-    // Only show the first 7 suggestions
-    if (suggestions.length > 7) {
-      suggestions = suggestions.sublist(0, 7);
-    }
+    // Calcola il punteggio di similarità per ogni comune rispetto alla query
+    List<Map<String, dynamic>> scored = filtered.map((comune) {
+      String name = comune['Comune']!;
+      double similarity = StringSimilarity.compareTwoStrings(
+          name.toLowerCase(), query.toLowerCase());
+      return {
+        'comune': comune,
+        'similarity': similarity,
+        'originalIndex': allMunicipalities.indexOf(comune),
+      };
+    }).toList();
 
-    return suggestions;
+    // Ordina per similarità decrescente e poi per indice originale per stabilità
+    scored.sort((a, b) {
+      int cmp = b['similarity'].compareTo(a['similarity']);
+      if (cmp != 0) return cmp;
+      return a['originalIndex'].compareTo(b['originalIndex']);
+    });
+
+    // Prendi i primi 7 più simili
+    List<Map<String, String>> top7 = scored
+        .take(7)
+        .map<Map<String, String>>((item) => item['comune'] as Map<String, String>)
+        .toList();
+
+    // Prendi i comuni filtrati e rimuovi i primi 7
+    filtered = filtered
+        .where((comune) => !top7.contains(comune))
+        .toList();
+
+    // Combina i risultati
+    return [...top7, ...filtered];
   }
 
   /// Checks if the municipality exists in the database.
   Future<bool> municipalityExistsInDatabase(String comune) async {
-    return await _dao.municipalityExistsInDatabase(comune);
+    return await _daoAdmin.municipalityExistsInDatabase(comune);
   }
 
   /// Generates credentials for the selected municipality.
@@ -72,7 +93,7 @@ class AdminManagementController {
     String password = generatePassword();
 
     // Save credentials to the database
-    await _dao.saveCredentialsToDatabase(email, password, selectedMunicipality);
+    await _daoAdmin.saveCredentialsToDatabase(email, password, selectedMunicipality);
 
     return {'email': email, 'password': password};
   }
@@ -102,5 +123,10 @@ class AdminManagementController {
     List<String> passwordChars = password.split('');
     passwordChars.shuffle();
     return passwordChars.join();
+  }
+
+  /// Logout the current user.
+  Future<void> logOut() async{
+    _daoUser.logOut();
   }
 }

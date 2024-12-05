@@ -5,9 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 /// A Data Access Object (DAO) for managing user authentication and role determination.
 ///
 /// This class provides methods for:
-/// - Authenticating users using Firebase Authentication.
-/// - Determining user roles via Firestore queries.
-/// - Managing user data and performing CRUD operations in Firestore.
+/// - Checking if a municipality already exists in the database.
+/// - Generating credentials for municipalities.
 class AdminManagementDAO {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -45,6 +44,7 @@ class AdminManagementDAO {
         'province': selectedComune['Provincia'],
       });
     } catch (e) {
+      // TODO: Remove user if creation fails
       print('Errore nel salvataggio delle credenziali: $e');
       throw Exception('Errore nel salvataggio delle credenziali: $e');
     }

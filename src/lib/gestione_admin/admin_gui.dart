@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:civiconnect/gestione_admin/gestione_admin_controller.dart';
 
+import '../main.dart';
+import '../user_management/login_utente_gui.dart';
+
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({Key? key}) : super(key: key);
 
@@ -9,7 +12,7 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
-  final AdminManagementController _controller = AdminManagementController(redirectPage: const AdminHomePage());
+  final AdminManagementController _controller = AdminManagementController();
   List<Map<String, String>> _allMunicipalities = [];
   Map<String, String>? _selectedMunicipality;
   String? _generatedEmail;
@@ -70,84 +73,129 @@ class _AdminHomePageState extends State<AdminHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bentornato Supremo'),
+        actions: [
+          ElevatedButton(
+            onPressed: () async {
+              await _controller.logOut();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginUtenteGUI()),
+                    (route) => false,
+              );
+            },
+            child: const Text('Logout'),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Autocomplete<Map<String, String>>(
-              optionsBuilder: (TextEditingValue textEditingValue) {
-                if (textEditingValue.text.isEmpty) {
-                  return const Iterable<Map<String, String>>.empty();
-                } else {
-                  return _allMunicipalities.where((Map<String, String> comune) {
-                    return comune['Comune']!.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                  }).take(7);
-                }
-              },
-              displayStringForOption: (Map<String, String> comune) => comune['Comune']!,
-              fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
-                return TextField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Cerca Comune',
-                  ),
-                );
-              },
-              onSelected: (Map<String, String> selectedComune) {
-                _onMunicipalitySelected(selectedComune);
-              },
-              optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<Map<String, String>> onSelected, Iterable<Map<String, String>> options) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width - 32,
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: options.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final Map<String, String> option = options.elementAt(index);
-                          return ListTile(
-                            title: Text(option['Comune']!),
-                            subtitle: Text('Provincia: ${option['Provincia']}'),
-                            onTap: () {
-                              onSelected(option);
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            if (_selectedMunicipality != null)
-              Column(
-                children: [
-                  _isMunicipalityExisting
-                      ? const Text(
-                    'Comune già presente nel database',
-                    style: TextStyle(color: Colors.red),
-                  )
-                      : ElevatedButton(
-                    onPressed: _generateCredentials,
-                    child: const Text('Genera Credenziali'),
-                  ),
-                ],
-              ),
-            if (_generatedEmail != null && _generatedPassword != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Email: $_generatedEmail'),
-                  Text('Password: $_generatedPassword'),
-                ],
-              ),
-          ],
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Autocomplete<Map<String, String>>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return const Iterable<Map<String, String>>.empty();
+                        } else {
+                          return _controller.filterMunicipalities(
+                              _allMunicipalities, textEditingValue.text);
+                        }
+                      },
+                      displayStringForOption: (Map<String, String> comune) =>
+                      comune['Comune']!,
+                      fieldViewBuilder: (
+                          BuildContext context,
+                          TextEditingController textEditingController,
+                          FocusNode focusNode,
+                          VoidCallback onFieldSubmitted,
+                          ) {
+                        return TextField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(
+                            labelText: 'Cerca Comune',
+                          ),
+                        );
+                      },
+                      onSelected: (Map<String, String> selectedComune) {
+                        _onMunicipalitySelected(selectedComune);
+                      },
+                      optionsViewBuilder: (
+                          BuildContext context,
+                          AutocompleteOnSelected<Map<String, String>> onSelected,
+                          Iterable<Map<String, String>> options,
+                          ) {
+                        final List<Map<String, String>> optionsList =
+                        options.toList();
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            elevation: 4.0,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 32,
+                              child: ListView.builder(
+                                padding: EdgeInsets.zero,
+                                shrinkWrap: true,
+                                itemCount: optionsList.length,
+                                itemBuilder:
+                                    (BuildContext context, int index) {
+                                  final Map<String, String> option =
+                                  optionsList[index];
+                                  bool isTop7 = index < 7;
 
+                                  return Container(
+                                    color: isTop7
+                                        ? Colors.grey[200]
+                                        : Colors.white,
+                                    child: ListTile(
+                                      title: Text(option['Comune']!),
+                                      subtitle: Text(
+                                          'Provincia: ${option['Provincia']}'),
+                                      onTap: () {
+                                        onSelected(option);
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    if (_selectedMunicipality != null)
+                      Column(
+                        children: [
+                          _isMunicipalityExisting
+                              ? const Text(
+                            'Comune già presente nel database',
+                            style: TextStyle(color: Colors.red),
+                          )
+                              : ElevatedButton(
+                            onPressed: _generateCredentials,
+                            child:
+                            const Text('Genera Credenziali'),
+                          ),
+                        ],
+                      ),
+                    if (_generatedEmail != null &&
+                        _generatedPassword != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Email: $_generatedEmail'),
+                          Text('Password: $_generatedPassword'),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
