@@ -5,9 +5,6 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 
-import 'gestione_location_failed.dart';
-import 'gestione_segnalazione_cittadino_controller.dart';
-
 class InserimentoSegnalazioneGUI extends StatefulWidget {
   const InserimentoSegnalazioneGUI({super.key});
 
