@@ -27,8 +27,6 @@ class _InserimentoSegnalazioneGUIState
   String? _descrizione;
   String? _titolo;
   String? _citta;
-  String? _stradaPlaceholder;
-  String? _civicoPlaceholder;
   late Map<String, String>? _indirizzo;
   late GeoPoint _location;
   List<String>? _indirizzoLista;
