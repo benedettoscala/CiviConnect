@@ -1,8 +1,12 @@
+import 'package:civiconnect/model/report_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
+
+import 'gestione_segnalazione_cittadino_controller.dart';
 
 class InserimentoSegnalazioneGUI extends StatefulWidget {
   const InserimentoSegnalazioneGUI({super.key});
@@ -17,12 +21,16 @@ class _InserimentoSegnalazioneGUIState
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
+  late CitizenReportManagementController _controller;
 
-  /*String? _categoria;
+  late Category _categoria;
   String? _descrizione;
   String? _titolo;
   String? _citta;
-  String? _indirizzo;*/
+  String? _stradaPlaceholder;
+  String? _civicoPlaceholder;
+  late Map<String, String>? _indirizzo;
+  late GeoPoint _location;
   List<String>? _indirizzoLista;
 
   @override
@@ -37,7 +45,7 @@ class _InserimentoSegnalazioneGUIState
     _indirizzoLista = await getLocation();
     setState(() {
       _indirizzoController.text =
-          '${_indirizzoLista!.elementAt(1)} ${_indirizzoLista!.elementAt(2)}';
+          '${_indirizzoLista!.elementAt(1)} ${_indirizzoLista!.elementAt(2)}'; //strada civico
       _cittaController.text = _indirizzoLista!.elementAt(0);
     });
   }
@@ -87,10 +95,13 @@ class _InserimentoSegnalazioneGUIState
         const Text('Titolo', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
-          decoration: TextFieldInputDecoration(context, labelText: 'Titolo'),
-          validator: FormBuilderValidators.required(),
-          onSaved: (value) => {}//_titolo = value,
-        ),
+            decoration: TextFieldInputDecoration(context, labelText: 'Titolo'),
+            validator: FormBuilderValidators.required(),
+            onChanged: (value) => {
+                  setState(() {
+                    _titolo = value;
+                  }),
+                }),
       ],
     );
   }
@@ -101,16 +112,19 @@ class _InserimentoSegnalazioneGUIState
       children: [
         const Text('Categoria', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
+        DropdownButtonFormField<Category>(
           decoration: TextFieldInputDecoration(context, labelText: 'Categoria'),
-          items: <String>['Categoria 1', 'Categoria 2', 'Categoria 3']
-              .map((value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
+          items: Category.values.map((category) {
+            return DropdownMenuItem<Category>(
+              value: category,
+              child: Text(category.name()),
             );
           }).toList(),
-          onChanged: (newValue) => setState(() => {}), //_categoria = newValue),
+          onChanged: (value) => {
+            setState(() {
+              _categoria = value!;
+            }),
+          },
           validator: FormBuilderValidators.required(),
         ),
       ],
@@ -124,11 +138,14 @@ class _InserimentoSegnalazioneGUIState
         const Text('Città', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
-          controller: _cittaController,
-          decoration: TextFieldInputDecoration(context, labelText: 'Città'),
-          validator: FormBuilderValidators.required(),
-          onSaved: (value) => {}, //_citta = value,
-        ),
+            controller: _cittaController,
+            decoration: TextFieldInputDecoration(context, labelText: 'Città'),
+            validator: FormBuilderValidators.required(),
+            onSaved: (value) => {
+                  setState(() {
+                    _citta = value;
+                  }),
+                }),
       ],
     );
   }
@@ -143,8 +160,18 @@ class _InserimentoSegnalazioneGUIState
           controller: _indirizzoController,
           decoration: TextFieldInputDecoration(context, labelText: 'Indirizzo'),
           validator: FormBuilderValidators.required(),
-          onSaved: (value) => {}//_indirizzo = value,
-        ),
+          onSaved: (value) => {
+            setState(() {
+              _indirizzo = {
+                'street': value!
+                    .split(' ')
+                    .sublist(0, value.split(' ').length - 1)
+                    .join(' '),
+                'number': value.split(' ').last
+              };
+            })
+          },
+        )
       ],
     );
   }
@@ -157,12 +184,15 @@ class _InserimentoSegnalazioneGUIState
             style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
-          decoration:
-              TextFieldInputDecoration(context, labelText: 'Descrizione'),
-          maxLines: 3,
-          validator: FormBuilderValidators.required(),
-          //onSaved: (value) => _descrizione = value,
-        ),
+            decoration:
+                TextFieldInputDecoration(context, labelText: 'Descrizione'),
+            maxLines: 3,
+            validator: FormBuilderValidators.required(),
+            onChanged: (value) => {
+                  setState(() {
+                    _descrizione = value;
+                  }),
+                }),
       ],
     );
   }
@@ -177,10 +207,7 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildSubmitButton() {
     return ElevatedButton(
       onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          _formKey.currentState!.save();
-          // Handle form submission
-        }
+        sendData();
       },
       child: const Text('Invia Segnalazione'),
     );
@@ -225,6 +252,8 @@ class _InserimentoSegnalazioneGUIState
     }
 
     loc.LocationData locationData = await location.getLocation();
+    _location = GeoPoint(
+        locationData.latitude!, locationData.longitude!); //setting posizione
     List<Placemark> placemarks = await placemarkFromCoordinates(
         locationData.latitude!, locationData.longitude!);
     stopwatch.stop();
@@ -234,5 +263,23 @@ class _InserimentoSegnalazioneGUIState
       placemarks[0].street ?? "Strada non disponibile",
       placemarks[0].name ?? "Nome non disponibile"
     ];
+  }
+
+  Future<void> sendData() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      _controller = CitizenReportManagementController(
+          redirectPage: const InserimentoSegnalazioneGUI());
+
+      await _controller.addReport(
+        context,
+        citta: _citta!,
+        titolo: _titolo!,
+        descrizione: _descrizione!,
+        categoria: _categoria,
+        location: _location, // Replace with actual location data
+        indirizzo: _indirizzo,
+      );
+    }
   }
 }
