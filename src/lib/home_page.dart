@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
-  late GenericUser userInfo;
+  GenericUser? userInfo;
   bool isLoading = false;
   Map<String, dynamic> userData = {};
   late UserManagementController userController;
@@ -124,9 +124,9 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundImage: AssetImage(
-                      'assets/images/profile/${userInfo.uid.hashCode % 6}.jpg',
-                    ),
+                    backgroundImage: userInfo != null ? AssetImage(
+                      'assets/images/profile/${userInfo!.uid.hashCode % 6}.jpg',
+                    ) : const AssetImage('assets/images/profile/0.jpg' ),
                   ),
                   const SizedBox(width: 12),
                   Text(userInfo is Citizen ? '${userData['firstName']} ${userData['lastName']}' : userData['municipalityName'], style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
