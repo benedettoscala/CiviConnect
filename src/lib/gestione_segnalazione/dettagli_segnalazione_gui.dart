@@ -1,3 +1,5 @@
+import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../model/report_model.dart';
@@ -120,11 +122,17 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
   }
 
   Widget _author(context) {
+    User user = UserManagementDAO().currentUser!;
     return Container(
       margin: const EdgeInsets.only(top: 20),
       child: Row(
         children: [
-          const Icon(Icons.account_circle, size: 50),
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: user.photoURL != null
+                ? NetworkImage(user.photoURL!)
+                : AssetImage('assets/images/profile/${widget._report.uid.hashCode % 6}.jpg'),
+          ),
           const SizedBox(width: 10),
           Flexible(
             child: Text(
