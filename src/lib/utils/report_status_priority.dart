@@ -60,6 +60,9 @@ enum StatusReport implements Comparable<StatusReport> {
 /// This enum categorizes the priority levels of a report. Each priority level
 /// has a [name], [value], and a [color] associated with it for visual representation.
 enum PriorityReport implements Comparable<PriorityReport> {
+  /// Unset priority level.
+  unset(value: -1, name: 'Non impostata', color: Colors.grey),
+
   /// Low priority level.
   low(value: 0, name: 'Bassa', color: Colors.yellow),
 
