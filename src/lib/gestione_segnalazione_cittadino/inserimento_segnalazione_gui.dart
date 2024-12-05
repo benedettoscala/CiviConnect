@@ -37,7 +37,7 @@ class _InserimentoSegnalazioneGUIState
   }
 
   Future<void> _fetchLocation() async {
-    _location = (await getCoordinates(context)) as GeoPoint;
+    _location = (await getCoordinates(context))!;
     _indirizzoLista = await getLocation(_location);
     setState(() {
       _indirizzoController.text =
@@ -55,9 +55,6 @@ class _InserimentoSegnalazioneGUIState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inserisci Segnalazione'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
