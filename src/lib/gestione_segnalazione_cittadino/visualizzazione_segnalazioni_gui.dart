@@ -2,6 +2,8 @@ import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
@@ -18,66 +20,149 @@ class ReportsViewCitizenGUI extends StatefulWidget {
 class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   late final CitizenReportManagementController _reportController;
   late final ThemeData theme;
-  late final TextStyle textStyle;
-  late GenericUser? userInfo;
+  late final TextStyle _textStyle;
+  GenericUser? _userInfo;
+  late final List<Map<String, dynamic>> _userData = [];
+  bool _isLoadingMore = false;
+  bool _hasMoreData = true;
+  bool _isLoading = true;
+  String _errorText = '';
+  late ScrollController _scrollController;
 
   @override
   void initState() {
+    _userInfo = null;
     super.initState();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        if (_scrollController.position.pixels ==
+                _scrollController.position.maxScrollExtent &&
+            _hasMoreData &&
+            !_isLoadingMore) {
+          _loadUpdateData();
+        }
+      });
     _reportController = CitizenReportManagementController();
     theme = ThemeManager().customTheme;
-    textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
+    _textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
+    _loadInitialData(); // Load initial data
   }
 
+  /// Build the widget
+  /// If there are no data to load, shows a message
+  /// If there is an error, shows an error message
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _loadData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        } else if (snapshot.hasError) {
-          return const Scaffold(
-            body: Center(child: Text('Errore nel caricamento delle informazioni.')),
-          );
-        } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-          return const Scaffold(
-            body: Center(child: Text('Nessun dato utente disponibile.')),
-          );
-        }
+    if (_isLoading) {
+      return _hasMoreData
+          ? const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            )
+          : const Scaffold(
+              body: Center(child: Text('Fine.')),
+            );
+    }
 
-        final userData = snapshot.data!;
-        return _buildScaffold(userData);
-      },
-    );
+    if (_userData.isEmpty) {
+      return const Scaffold(
+        body: Center(child: Text('Nessun dato utente disponibile.')),
+      );
+    }
+    return _buildScaffold();
   }
 
-  Future<List<Map<String, dynamic>>> _loadData() async {
+  Future<void> _loadInitialData() async {
+    setState(() {
+      _isLoading = true;
+      _hasMoreData = true;
+    });
     try {
-      userInfo = await _reportController.citizen;
-      final userReports = await _reportController.getUserReports();
-      return userReports ?? [];
+      _userInfo = await _reportController.citizen;
+      final newData = await _reportController.getUserReports();
+      setState(() {
+        _userData.clear();
+        if (newData != null && newData.isNotEmpty) {
+          _userData.addAll(newData);
+        } else {
+          _hasMoreData = false;
+        }
+      });
     } catch (e) {
-      rethrow;
+      _errorText = 'Errore durante il caricamento iniziale';
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  Widget _buildScaffold(List<Map<String, dynamic>> userData) {
+  void _loadUpdateData() {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoadingMore = true;
+      });
+    });
+
+    if (_isLoadingMore || !_hasMoreData) {
+      return;
+    }
+
+    try {
+      /// Implements loading of new data: fetch data from the controller
+      /// and add it to the list of data
+      /// If no data is returned, set hasMoreData to false
+      _reportController.getUserReports().then((value) {
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          setState(() {
+            if (value == null || value.isEmpty) {
+              _hasMoreData = false;
+            } else {
+              _userData.addAll(value);
+            }
+          });
+        });
+      });
+
+      /// Error handling: set hasMoreData to false and hasError to true to show error message
+    } catch (e) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        setState(() {
+          _hasMoreData = false;
+          _errorText = e.toString();
+        });
+      });
+
+      /// Set isLoadingMore to false to allow loading more data if needed
+    } finally {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        setState(() {
+          _isLoadingMore = false;
+        });
+      });
+    }
+  }
+
+  /// Builds the scaffold of the page
+  Widget _buildScaffold() {
     return Scaffold(
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (scrollInfo) {
-          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-            // Implementa il caricamento aggiuntivo dei dati
-          }
-          return true;
-        },
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildHeader(),
-              _buildReportsList(userData),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _pullRefresh,
+          child: CustomScrollView(
+            controller: _scrollController, // Added scroll controller
+            slivers: [
+              // Non scrollable Header
+              SliverToBoxAdapter(
+                child: _buildHeader(),
+              ),
+
+              // Spacing Box
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 20),
+              ),
+
+              // Scrollable list
+              _buildReportsList(),
             ],
           ),
         ),
@@ -91,7 +176,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       ),
     );
   }
-
+  /// Builds the header of the page
+  /// Contains the user profile picture and the search and filter buttons
 Widget _buildHeader() {
   return Row(
       children: [
@@ -128,25 +214,48 @@ Widget _buildHeader() {
   );
 }
 
-  Widget _buildReportsList(List<Map<String, dynamic>> userData) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: userData.length,
-      itemBuilder: (context, index) {
-        final report = userData[index];
-        return CardWidget(
-          uid: report['uid'],
-          name: '${report['authorFirstName']} ${report['authorLastName']}',
-          description: report['title'],
-          status: StatusReport.getStatus(report['status']) ?? StatusReport.rejected,
-          priority: PriorityReport.getPriority(report['priority']) ?? PriorityReport.unset,
-          imageUrl: '',
-          onTap: () {
-            // TODO: vai alla pagina dei dettagli
-          },
-        );
-      },
+  /// Main Body of the page
+  /// Contains the list of reports
+  Widget _buildReportsList() {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        childCount: _userData.length + (_hasMoreData ? 1 : 0),
+        (context, index) {
+          if (index == _userData.length) {
+            // Mostra un indicatore di caricamento alla fine della lista
+            _loadUpdateData();
+            return (_isLoading)
+                ? const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : const SizedBox(height: 0);
+          }
+          final report = _userData[index];
+          return (_errorText != '')
+              ? Text(_errorText)
+              : CardWidget(
+                  uid: report['uid'],
+                  name: '${report['authorFirstName']} ${report['uid']}',
+                  description: report['title'],
+                  status: StatusReport.getStatus(report['status']) ??
+                      StatusReport.rejected,
+                  priority: PriorityReport.getPriority(report['priority']) ??
+                      PriorityReport.unset,
+                  imageUrl: '',
+                  onTap: () {
+                    // TODO: vai alla pagina dei dettagli
+                  },
+                );
+        },
+      ),
     );
+  }
+
+  /// Refresh the data
+  /// Wait 1 second before refresh
+  Future<void> _pullRefresh() async {
+    _loadInitialData();
+    await Future.delayed(const Duration(seconds: 1));
   }
 }
