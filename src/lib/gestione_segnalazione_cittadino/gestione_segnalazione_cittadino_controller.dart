@@ -68,12 +68,13 @@ class CitizenReportManagementController {
   /// This method retrieves the list of reports associated with the city of the provided citizen.
   /// If the city is not available, it returns an empty list.
   ///
-  ///  - [reset]: A `bool` indicating whether to reset the last document retrieved.
+  /// - [reset]: A `bool` indicating whether to reset the last document retrieved.
   ///   If the [reset] parameter is set to `true`, the method will reset the last document retrieved.
   ///
-  ///  - [Returns]: A [Future] that resolves to a list of maps, where each map contains the report details.
+  /// Returns:
+  /// - A [Future] that resolves to a list of maps, where each map contains the report details.
   Future<List<Map<String, dynamic>>?> getUserReports({bool reset = false}) async {
-    if(_citizen!.city == null){
+    if(_citizen == null || _citizen!.city == null){
       return [];
     }
     if(reset){
