@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +13,6 @@ import 'package:geocoding/geocoding.dart';
 class CitizenReportManagementController {
   final Widget redirectPage;
 
-  late GeoPoint _location;
   CitizenReportManagementController({required this.redirectPage});
   final CitizenReportManagementDAO _reportDAO = CitizenReportManagementDAO();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -104,7 +102,7 @@ Future<List<String>> getLocation(GeoPoint location) async {
 
 //setting posizione
   List<Placemark> placemarks = await placemarkFromCoordinates(
-      locationData.latitude!, locationData.longitude!);
+      locationData.latitude, locationData.longitude);
   stopwatch.stop();
   print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
   return [
