@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
-import 'package:location/location.dart' as loc;
-import 'package:geocoding/geocoding.dart';
+import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 
+import 'gestione_location_failed.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
 class InserimentoSegnalazioneGUI extends StatefulWidget {
@@ -40,7 +40,8 @@ class _InserimentoSegnalazioneGUIState
   }
 
   Future<void> _fetchLocation() async {
-    _indirizzoLista = await getLocation();
+    _location = (await getCoordinates(context)) as GeoPoint;
+    _indirizzoLista = await getLocation(_location);
     setState(() {
       _indirizzoController.text =
           '${_indirizzoLista!.elementAt(1)} ${_indirizzoLista!.elementAt(2)}'; //strada civico
@@ -209,58 +210,6 @@ class _InserimentoSegnalazioneGUIState
       },
       child: const Text('Invia Segnalazione'),
     );
-  }
-
-  Future<List<String>> getLocation() async {
-    final stopwatch = Stopwatch()..start();
-    loc.Location location = loc.Location();
-
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        stopwatch.stop();
-        print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
-        return [
-          'Servizio non abilitato.',
-          'Servizio non abilitato.',
-          'Servizio non abilitato.'
-        ];
-      }
-    }
-
-    loc.PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == loc.PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted == loc.PermissionStatus.denied) {
-        stopwatch.stop();
-        print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
-        return ['Permessi negati.', 'Permessi negati.', 'Permessi negati.'];
-      }
-    }
-
-    if (permissionGranted == loc.PermissionStatus.deniedForever) {
-      stopwatch.stop();
-      print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
-      return [
-        'Permessi negati permanentemente.',
-        'Permessi negati permanentemente.',
-        'Permessi negati permanentemente.'
-      ];
-    }
-
-    loc.LocationData locationData = await location.getLocation();
-    _location = GeoPoint(
-        locationData.latitude!, locationData.longitude!); //setting posizione
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-        locationData.latitude!, locationData.longitude!);
-    stopwatch.stop();
-    print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
-    return [
-      placemarks[0].locality ?? "Località non disponibile",
-      placemarks[0].street ?? "Strada non disponibile",
-      placemarks[0].name ?? "Nome non disponibile"
-    ];
   }
 
   Future<void> sendData() async {
