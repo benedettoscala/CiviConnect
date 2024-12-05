@@ -1,7 +1,9 @@
-import 'package:civiconnect/gestione_admin/admin_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
+
+import 'model/users_model.dart';
 
 /// Home page of the application.
 class HomePage extends StatefulWidget {
@@ -14,17 +16,42 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
+  late GenericUser userInfo;
+  bool isLoading = false;
+  Map<String, dynamic> userData = {};
+  late UserManagementController userController;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    userController = UserManagementController(redirectPage: const HomePage());
+    late Map<String, dynamic> data;
+    try {
+      userInfo = (await UserManagementDAO().determineUserType())!;
+      if (userInfo is Citizen) {
+        data = await userController.getUserData();
+      } else {
+        data = await userController.getMunicipalityData();
+      }
+      setState(() {
+        userData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   final List<Widget> _pages = <Widget>[
     const Placeholder(),
     const Placeholder(),
     const UserProfile(),
-  ];
-
-  final List<String> _title = [
-    'Segnalazioni',
-    'Home',
-    'Area Personale',
   ];
 
   void _onItemTapped(int index) {
@@ -35,42 +62,88 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: UserManagementController().checkIfUserIsAdmin(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return const Center(child: Text('Error checking admin status'));
-        } else if (snapshot.hasData && snapshot.data == true) {
-          return const AdminHomePage();
-        } else {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(_title[_selectedIndex]),
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            label: 'Segnalazioni',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profilo',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    if (_selectedIndex == 2) {
+      return AppBar(
+        title: Text('Area Utente',
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
+        elevation: 10,
+        shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
+      );
+    }
+    return PreferredSize(
+        preferredSize: const Size.fromHeight(75),
+        child: AppBar(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(15),
+              ),
             ),
-            body: _pages[_selectedIndex],
-            bottomNavigationBar: BottomNavigationBar(
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.assignment),
-                  label: 'Segnalazioni',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Profilo',
+            elevation: 10,
+            shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
+            title: Column(
+              children: [
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage(
+                        'assets/images/profile/${userInfo.uid.hashCode % 6}.jpg',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text('${userData['firstName']} ${userData['lastName']}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary)),
+                    const Expanded(child: UnconstrainedBox()),
+                    IconButton(
+                      alignment: Alignment.topLeft,
+                      icon: Icon(
+                        Icons.accessible_forward_sharp,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                      onPressed: () {
+                        // TODO: Implement filter selection method
+                      },
+                    ),
+                  ],
                 ),
               ],
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
-            ),
-          );
-        }
-      },
-    );
+            )));
   }
 }
