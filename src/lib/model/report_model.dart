@@ -133,4 +133,24 @@ class Report {
     this.authorLastName,
     Map<String, String>? address,
   }) : address = Citizen.validateAddress(address);
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'reportId': reportId,
+      'title': title,
+      'description': description,
+      'photo': photo,
+      'city': city,
+      'location': location,
+      'category': category?.name(),
+      'status': status?.name(),
+      'reportDate': reportDate,
+      'endDate': endDate,
+      'priority': priority?.name,
+      'authorFirstName': authorFirstName,
+      'authorLastName': authorLastName,
+      'address': address,
+    };
+  }
 }
