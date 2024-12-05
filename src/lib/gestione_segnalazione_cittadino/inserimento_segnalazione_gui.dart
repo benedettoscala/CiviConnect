@@ -1,3 +1,4 @@
+import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/model/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -212,7 +213,7 @@ class _InserimentoSegnalazioneGUIState
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       _controller = CitizenReportManagementController(
-          redirectPage: const InserimentoSegnalazioneGUI());
+          redirectPage: const HomePage());
 
       await _controller.addReport(
         context,
