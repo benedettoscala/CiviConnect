@@ -137,6 +137,7 @@ class _InserimentoSegnalazioneGUIState
             controller: _cittaController,
             decoration: TextFieldInputDecoration(context, labelText: 'Città'),
             validator: FormBuilderValidators.required(),
+            enabled: false,
             onSaved: (value) => {
                   setState(() {
                     _citta = value;
@@ -156,6 +157,7 @@ class _InserimentoSegnalazioneGUIState
           controller: _indirizzoController,
           decoration: TextFieldInputDecoration(context, labelText: 'Indirizzo'),
           validator: FormBuilderValidators.required(),
+          enabled: false,
           onSaved: (value) => {
             setState(() {
               _indirizzo = {
