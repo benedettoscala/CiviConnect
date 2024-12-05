@@ -33,6 +33,12 @@ class CitizenReportManagementController {
     _loadCitizen();
   }
 
+  /// Loads the current citizen user.
+  ///
+  /// This method determines the user type and initializes the `_citizen` field if the user is a citizen.
+  ///
+  /// Throws:
+  /// - [Exception]: If the user is not logged in or is not a citizen.
   void _loadCitizen() async {
     try {
       final user = await _userManagementDAO.determineUserType();
@@ -53,7 +59,7 @@ class CitizenReportManagementController {
     }
   }
 
-  /// Restituisce il cittadino dopo che è stato inizializzato.
+  /// Returns the current citizen user.
   Future<Citizen> get citizen async => _citizenCompleter.future;
 
 
@@ -62,7 +68,7 @@ class CitizenReportManagementController {
   /// This method retrieves the list of reports associated with the city of the provided citizen.
   /// If the city is not available, it returns an empty list.
   ///
-  /// \return A [Future] that resolves to a list of maps, where each map contains the report details.
+  ///  - [Returns]: A [Future] that resolves to a list of maps, where each map contains the report details.
   Future<List<Map<String, dynamic>>?> getUserReports() async {
     if(_citizen.city == null){
       return [];
