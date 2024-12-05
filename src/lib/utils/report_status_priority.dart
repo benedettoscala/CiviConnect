@@ -12,7 +12,7 @@ enum StatusReport implements Comparable<StatusReport> {
   accepted(name: 'Accettata', value: 1),
 
   /// The report is being worked on to resolve the issue.
-  inProgress(name: 'In lavorazione', value: 2),
+  inProgress(name: 'In Lavorazione', value: 2),
 
   /// The report has been completed.
   completed(name: 'Completata', value: 3),
@@ -43,6 +43,16 @@ enum StatusReport implements Comparable<StatusReport> {
 
   @override
   int compareTo(StatusReport other) => value - other.value;
+
+  /// Returns the status of the report based on the [name].
+  static StatusReport? getStatus(String name) {
+    for(StatusReport status in StatusReport.values) {
+      if(status.name() == name) {
+        return status;
+      }
+    }
+    return null;
+  }
 }
 
 /// Represents the priority of a report.
@@ -88,6 +98,16 @@ enum PriorityReport implements Comparable<PriorityReport> {
   ///
   /// This can be used for display purposes.
   String get name => _name;
+
+  /// Returns the priority of the report based on the [name].
+  static PriorityReport? getPriority(String name) {
+    for(PriorityReport priority in PriorityReport.values) {
+      if(priority.name == name) {
+        return priority;
+      }
+    }
+    return null;
+  }
 
   @override
   int compareTo(PriorityReport other) => _value - other.value;
