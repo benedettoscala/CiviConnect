@@ -1,11 +1,9 @@
+import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../model/users_model.dart';
-import '../user_management/user_management_controller.dart';
-import '../user_management/user_management_dao.dart';
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
@@ -19,123 +17,76 @@ class ReportsViewCitizenGUI extends StatefulWidget {
 }
 
 class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
-
-  // Variable State
-  bool isEditing = false;
-  List<Map<String, dynamic>> userData = [];
-  bool isLoading = true; // If data are loading
-  late ThemeData theme;
-  late TextStyle textStyle;
-  late GenericUser userInfo;
-  late UserManagementDAO userDao;
-  late UserManagementController userController;
+  late final CitizenReportManagementController _reportController;
+  late final ThemeData theme;
+  late final TextStyle textStyle;
+  late GenericUser? userInfo;
 
   @override
   void initState() {
     super.initState();
+    _reportController = CitizenReportManagementController();
     theme = ThemeManager().customTheme;
     textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
-    _loadUpdate();
-  }
-
-  void _loadUpdate() async {
-    CitizenReportManagementController reportController = CitizenReportManagementController();
-    userDao = UserManagementDAO();
-    userInfo = (await userDao.determineUserType())!;
-
-    try{
-      userData = await reportController.getUserReports(userInfo as Citizen) ?? [];
-    } catch (e) {
-      print(e);
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _loadData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(child: Text('Errore nel caricamento delle informazioni.')),
+          );
+        } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+          return const Scaffold(
+            body: Center(child: Text('Nessun dato utente disponibile.')),
+          );
+        }
 
+        final userData = snapshot.data!;
+        return _buildScaffold(userData);
+      },
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> _loadData() async {
+    try {
+      userInfo = await _reportController.citizen;
+      final userReports = await _reportController.getUserReports();
+      return userReports ?? [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Widget _buildScaffold(List<Map<String, dynamic>> userData) {
     return Scaffold(
-        body: SingleChildScrollView(
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (scrollInfo) {
+          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            // Implementa il caricamento aggiuntivo dei dati
+          }
+          return true;
+        },
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: MediaQuery.of(context).size.width / 10),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                                radius: 20,
-                                backgroundImage: AssetImage('assets/images/profile/${userInfo.uid.hashCode % 6}.jpg')
-                            ),
-                            const SizedBox(width: 12),
-                            Text('Benvenuto', style: Theme.of(context).textTheme.titleMedium),
-                            const Expanded(child: UnconstrainedBox()),
-                            IconButton(onPressed: (){}, icon: HugeIcon(icon: HugeIcons.strokeRoundedSearch01, color: Theme.of(context).colorScheme.onPrimaryContainer)),
-                            IconButton(
-                              alignment: Alignment.topLeft,
-                              icon: Icon(Icons.filter_list, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                              onPressed: () {
-                                // TODO: Implement filter selection method
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _buildHeader(),
               const SizedBox(height: 20),
-              // [ReportsList
-              if (userData.isNotEmpty)
-                FutureBuilder<Widget>(
-                  future: _buildReportsList(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Errore nel caricamento delle segnalazioni.');
-                    } else {
-                      return snapshot.data!;
-                    }
-                  },
-                )
-              else
-                  const Text('Nessun dato utente disponibile.')
+              _buildReportsList(userData),
             ],
-          )
+          ),
         ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: go to report creation page
+          // TODO: vai alla pagina di creazione della segnalazione
         },
         backgroundColor: theme.colorScheme.primary,
         child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
@@ -143,30 +94,76 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     );
   }
 
-  Future<Widget> _buildReportsList() async {
-    // Example data, replace with actual data fetching logic
-    final reports = await CitizenReportManagementController().getUserReports(userInfo as Citizen);
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: 10, horizontal: MediaQuery.of(context).size.width / 10),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: userInfo != null ? AssetImage('assets/images/profile/${userInfo!.uid.hashCode % 6}.jpg') : const AssetImage('assets/images/profile/0.jpg'),
+              ),
+              const SizedBox(width: 12),
+              Text('Benvenuto', style: textStyle),
+              const Expanded(child: UnconstrainedBox()),
+              IconButton(
+                onPressed: () {},
+                icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedSearch01,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.filter_list,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+                onPressed: () {
+                  // TODO: Implementa il metodo di selezione del filtro
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReportsList(List<Map<String, dynamic>> userData) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: reports?.length,
+      itemCount: userData.length,
       itemBuilder: (context, index) {
-        final report = reports?[index];
+        final report = userData[index];
         return CardWidget(
-          uid: report?['uid'],
-          name: report?['authorFirstName'] + ' ' + report?['authorLastName'],
-          description: report?['title'],
-          status: StatusReport.getStatus(report?['status']) ?? StatusReport.rejected,
-          priority: PriorityReport.getPriority(report?['priority']) ?? PriorityReport.unset,
+          uid: report['uid'],
+          name: '${report['authorFirstName']} ${report['authorLastName']}',
+          description: report['title'],
+          status: StatusReport.getStatus(report['status']) ?? StatusReport.rejected,
+          priority: PriorityReport.getPriority(report['priority']) ?? PriorityReport.unset,
           imageUrl: '',
           onTap: () {
-            // TODO go to detail page
+            // TODO: vai alla pagina dei dettagli
           },
         );
       },
     );
   }
-
-
-
 }
