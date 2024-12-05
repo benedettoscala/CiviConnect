@@ -14,7 +14,7 @@ class CitizenReportManagementController {
   /// Data Access Object (DAO) for managing citizen reports.
   late final CitizenReportManagementDAO _reportDAO;
   late final UserManagementDAO _userManagementDAO;
-  late final Citizen _citizen;
+  Citizen? _citizen;
   DocumentSnapshot? _lastDocument;
   final Completer<Citizen> _citizenCompleter = Completer<Citizen>();
 
@@ -70,12 +70,12 @@ class CitizenReportManagementController {
   ///
   ///  - [Returns]: A [Future] that resolves to a list of maps, where each map contains the report details.
   Future<List<Map<String, dynamic>>?> getUserReports() async {
-    if(_citizen.city == null){
+    if(_citizen!.city == null){
       return [];
     }
 
      List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
-         city:_citizen.city!,
+         city:_citizen!.city!,
          lastDocument: _lastDocument
      );
     _lastDocument = snapshot?.last['documentSnapshot'];
