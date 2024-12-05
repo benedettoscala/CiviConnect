@@ -127,7 +127,10 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text('${userData['firstName']} ${userData['lastName']}',
+                    Text(
+                        userInfo is Citizen
+                            ? '${userData['firstName']} ${userData['lastName']}'
+                            : userData['municipalityName'],
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary)),
                     const Expanded(child: UnconstrainedBox()),
