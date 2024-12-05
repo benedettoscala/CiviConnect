@@ -78,7 +78,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           child: Column(
             children: [
               _buildHeader(),
-              const SizedBox(height: 20),
               _buildReportsList(userData),
             ],
           ),
@@ -94,56 +93,41 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+Widget _buildHeader() {
+  return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Card(
+            color: Colors.white70,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: 10, horizontal: MediaQuery.of(context).size.width / 10),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: userInfo != null ? AssetImage('assets/images/profile/${userInfo!.uid.hashCode % 6}.jpg') : const AssetImage('assets/images/profile/0.jpg'),
+            elevation: 2,
+            shadowColor: Colors.black.withOpacity(0.5),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                    onPressed: () {
+                      // TODO: Implementa il metodo di selezione del filtro
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Text('Benvenuto', style: textStyle),
-              const Expanded(child: UnconstrainedBox()),
-              IconButton(
-                onPressed: () {},
-                icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedSearch01,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.filter_list,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-                onPressed: () {
-                  // TODO: Implementa il metodo di selezione del filtro
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
+        )
+      ],
+  );
+}
 
   Widget _buildReportsList(List<Map<String, dynamic>> userData) {
     return ListView.builder(
