@@ -55,73 +55,77 @@ class CardWidget extends StatelessWidget {
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                /// Left section containing name, status, and description.
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.65,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+            child: Column(
+              children: [
+                Row(
+                  children: <Widget>[
+                    /// Left section containing name, status, and description.
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.65,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundImage: AssetImage('assets/images/profile/${uid.hashCode % 6}.jpg'),
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage('assets/images/profile/${uid.hashCode % 6}.jpg'),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  name,
+                                  style: textTheme.titleMedium,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              name,
-                              style: textTheme.titleMedium,
+                              description,
+                              style: textTheme.bodyMedium,
                               overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          description,
-                          style: textTheme.bodyMedium,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                    ),
+
+                    /// Right section containing the image.
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.error, size: 50, color: Colors.red),
                         ),
                       ),
-                      const SizedBox(height: 15),
-                      _StatusReport(status: status, priority: priority),
-                    ],
-                  ),
-                ),
-
-                /// Right section containing the image.
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.error, size: 50, color: Colors.red),
                     ),
-                  ),
+                  ],
                 ),
+                const SizedBox(height: 15),
+                _StatusReport(status: status, priority: priority),
               ],
-            ),
+            )
           ),
         ),
       ),
