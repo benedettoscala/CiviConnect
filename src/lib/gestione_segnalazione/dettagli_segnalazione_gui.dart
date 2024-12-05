@@ -2,6 +2,7 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import '../model/report_model.dart';
 
 /// View of single report details.
@@ -45,6 +46,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              _statusPriority(context),
               _header(context),
               Container(
                 height: 300,
@@ -58,14 +60,15 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
                       boundaryMargin: const EdgeInsets.all(100),
                       maxScale: 2,
                       // TODO: capire come mettere le immagini su firebase.
-                      child: Image.network(widget._report.photo ?? '',
+                      child: Image.network(
+                        widget._report.photo ?? '',
                         fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.error),
                       )),
                 ),
               ),
               _author(context),
-              _status(context),
               _descriptionText(context),
               _footer(context),
             ],
@@ -79,7 +82,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
     context,
   ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 20, left: 5),
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -91,29 +94,6 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
               softWrap: false,
-            ),
-          ),
-          Card(
-            elevation: 0.5,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 6,
-                    backgroundColor: Colors.black26,
-                    child: CircleAvatar(
-                      radius: 5,
-                      backgroundColor: widget._report.priority!.color,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    widget._report.priority!.name,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
             ),
           ),
         ],
@@ -131,7 +111,8 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
             radius: 25,
             backgroundImage: user.photoURL != null
                 ? NetworkImage(user.photoURL!)
-                : AssetImage('assets/images/profile/${widget._report.uid.hashCode % 6}.jpg'),
+                : AssetImage(
+                    'assets/images/profile/${widget._report.uid.hashCode % 6}.jpg'),
           ),
           const SizedBox(width: 10),
           Flexible(
@@ -146,16 +127,41 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
     );
   }
 
-  Widget _status(context) {
-    return Container(
-      alignment: Alignment.centerRight,
-      child: Card(
-        elevation: 0.5,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(widget._report.status!.name()),
+  Widget _statusPriority(context) {
+    return Row(
+      children: [
+        Card(
+          elevation: 0.5,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 6,
+                  backgroundColor: Colors.black26,
+                  child: CircleAvatar(
+                    radius: 5,
+                    backgroundColor: widget._report.priority!.color,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  widget._report.priority!.name,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+        Card(
+          elevation: 0.5,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(widget._report.status!.name(),
+                style: Theme.of(context).textTheme.bodySmall),
+          ),
+        ),
+      ],
     );
   }
 
