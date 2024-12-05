@@ -17,7 +17,7 @@ class CitizenReportManagementController{
   /// \param user The [Citizen] object representing the user whose reports are to be fetched.
   ///
   /// \return A [Future] that resolves to a list of maps, where each map contains the report details.
-  Future<List<Map<String, dynamic>>> getUserReports(Citizen user) async {
-    return await _reportDAO.getReportList(user.city ?? '') ?? [];
+  Future<List<Map<String, dynamic>>?> getUserReports(Citizen user) async {
+    return await _reportDAO.getReportList(user.city ?? '');
   }
 }
