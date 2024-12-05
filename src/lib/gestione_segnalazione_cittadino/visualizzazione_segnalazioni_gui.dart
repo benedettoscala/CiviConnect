@@ -1,9 +1,7 @@
-import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
@@ -20,8 +18,6 @@ class ReportsViewCitizenGUI extends StatefulWidget {
 class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   late final CitizenReportManagementController _reportController;
   late final ThemeData theme;
-  late final TextStyle _textStyle;
-  GenericUser? _userInfo;
   late final List<Map<String, dynamic>> _userData = [];
   bool _isLoadingMore = false;
   bool _hasMoreData = true;
@@ -35,7 +31,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// and loads the initial data.
   @override
   void initState() {
-    _userInfo = null;
     super.initState();
     _scrollController = ScrollController()
       ..addListener(() {
@@ -48,7 +43,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       });
     _reportController = CitizenReportManagementController();
     theme = ThemeManager().customTheme;
-    _textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
     _loadInitialData(); // Load initial data
   }
 
@@ -85,7 +79,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _hasMoreData = true;
     });
     try {
-      _userInfo = await _reportController.citizen;
       final newData = await _reportController.getUserReports();
       setState(() {
         _userData.clear();
