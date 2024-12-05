@@ -32,11 +32,11 @@ class CitizenReportManagementDAO {
   ///
   /// Preconditions:
   /// - The user must be logged in and either a `Municipality` with the specified city name or a `Citizen`.
-  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument}) async {
+  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument, bool? reset}) async {
       if(! await _checkForUserValidity(city)) {
         return null;
       }
-      return await _getTenReportsByOffset(city: city, lastDocument: lastDocument);
+      return await _getTenReportsByOffset(city: city, lastDocument: lastDocument, reset: reset);
   }
 
 
@@ -54,7 +54,7 @@ class CitizenReportManagementDAO {
   ///
   /// Throws:
   /// - [Exception]: If there is an error retrieving the data.
-Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city, DocumentSnapshot? lastDocument}) async {
+Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city, DocumentSnapshot? lastDocument, bool? reset}) async {
   Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
     .orderBy('title', descending: true).limit(10);
 
@@ -62,12 +62,17 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     query = query.startAfterDocument(lastDocument);
   }
 
+  if(reset == true){
+    lastDocument = null;
+  }
+
   try {
     final querySnapshot = await query.get();
     if (querySnapshot.docs.isEmpty) {
       return null;
     }
-    final data = querySnapshot.docs.map((doc) => doc.data()).toList();
+    var data = querySnapshot.docs.map((doc) => doc.data()).toList();
+    data.add({'lastDocument' : querySnapshot.docs.last});
     return data;
 
   } catch (e) {
@@ -97,6 +102,9 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
 
 }
 
+
+
+/* ========================================== MOCK CLASS ======================================================= */
 
 /// Constructs a new `MockCitizenReportManagementDAO` instance.
 ///
@@ -145,10 +153,15 @@ class MockCitizenReportManagementDAO extends Mock implements CitizenReportManage
   }
 
   @override
-  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument}) async {
+  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument, bool? reset}) async {
+    if(reset == true){
+      _lastDocument = 0;
+    }
+
     if(_lastDocument == 0){
       _lastDocument = 10;
      return Future.value(reports.sublist(0, 10));
+
     } else {
       if(_lastDocument >= 30){
         return Future.value(null);
