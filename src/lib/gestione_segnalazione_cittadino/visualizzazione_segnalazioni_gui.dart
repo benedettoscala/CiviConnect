@@ -2,7 +2,6 @@ import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
