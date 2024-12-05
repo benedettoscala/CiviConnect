@@ -29,11 +29,11 @@ class CitizenReportManagementDAO {
   ///
   /// Preconditions:
   /// - The user must be logged in and either a `Municipality` with the specified city name or a `Citizen`.
-  Future<List<Map<String, dynamic>>?> getReportList(String city) async {
+  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument}) async {
       if(! await _checkForUserValidity(city)) {
         return null;
       }
-      return await _getTenReportsByOffset(city: city);
+      return await _getTenReportsByOffset(city: city, lastDocument: lastDocument);
   }
 
 
@@ -50,13 +50,22 @@ class CitizenReportManagementDAO {
   ////
 /// Throws:
 /// - [Exception]: If there is an error retrieving the data.
-Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city}) async {
-  final first = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
+Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city, DocumentSnapshot? lastDocument}) async {
+  Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
     .orderBy('title', descending: true).limit(10);
+
+  if (lastDocument != null) {
+    query = query.startAfterDocument(lastDocument);
+  }
+
   try {
-    final querySnapshot = await first.get();
+    final querySnapshot = await query.get();
+    if (querySnapshot.docs.isEmpty) {
+      return null;
+    }
     final data = querySnapshot.docs.map((doc) => doc.data()).toList();
     return data;
+
   } catch (e) {
     throw Exception('Error retrieving data: $e');
   }
