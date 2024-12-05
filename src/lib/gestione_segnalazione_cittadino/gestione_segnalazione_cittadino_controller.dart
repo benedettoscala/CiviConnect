@@ -68,17 +68,31 @@ class CitizenReportManagementController {
   /// This method retrieves the list of reports associated with the city of the provided citizen.
   /// If the city is not available, it returns an empty list.
   ///
+  ///  - [reset]: A `bool` indicating whether to reset the last document retrieved.
+  ///   If the [reset] parameter is set to `true`, the method will reset the last document retrieved.
+  ///
   ///  - [Returns]: A [Future] that resolves to a list of maps, where each map contains the report details.
-  Future<List<Map<String, dynamic>>?> getUserReports() async {
+  Future<List<Map<String, dynamic>>?> getUserReports({bool reset = false}) async {
     if(_citizen!.city == null){
       return [];
     }
+    if(reset){
+      _lastDocument = null;
+    }
 
-     List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
-         city:_citizen!.city!,
-         lastDocument: _lastDocument
-     );
-    _lastDocument = snapshot?.last['documentSnapshot'];
+    List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
+        city:_citizen!.city!,
+        lastDocument: _lastDocument,
+        reset: reset
+    );
+    /// Retrieves the last document from the snapshot and updates the last document field.
+    /// Last DocumentSnapshot is added by the DAO to the last element of the list.
+    /// If the snapshot is empty, the last document is set to null.
+    var lastDocument = snapshot?.last['lastDocument'];
+    if(lastDocument is DocumentSnapshot){
+      snapshot?.removeLast();
+    }
+    _lastDocument = lastDocument;
     return snapshot;
   }
 }
