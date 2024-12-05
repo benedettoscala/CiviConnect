@@ -61,7 +61,7 @@ class CardWidget extends StatelessWidget {
                   children: <Widget>[
                     /// Left section containing name, status, and description.
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.65,
+                      width: MediaQuery.of(context).size.width * 0.55,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -116,7 +116,7 @@ class CardWidget extends StatelessWidget {
                             );
                           },
                           errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.error, size: 50, color: Colors.red),
+                         const Icon(Icons.image, color: Colors.grey, size: 100,),
                         ),
                       ),
                     ),
