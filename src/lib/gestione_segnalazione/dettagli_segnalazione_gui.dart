@@ -15,13 +15,12 @@ class DettagliSegnalazione extends StatefulWidget {
 
 class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
   final _transformationController = TransformationController();
-  late TapDownDetails _doubleTapDetails;
 
-  void _handleDoubleTap() {
+  void _handleDoubleTap(TapDownDetails doubleTapDetails) {
     if (_transformationController.value != Matrix4.identity()) {
       _transformationController.value = Matrix4.identity();
     } else {
-      final position = _doubleTapDetails.localPosition;
+      final position = doubleTapDetails.localPosition;
       _transformationController.value = Matrix4.identity()
         ..translate(-position.dx, -position.dy)
         ..scale(2.5);
@@ -49,8 +48,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
                 height: 300,
                 width: double.infinity,
                 child: GestureDetector(
-                  onDoubleTapDown: (d) => _doubleTapDetails = d,
-                  onDoubleTap: _handleDoubleTap,
+                  onDoubleTapDown: _handleDoubleTap,
                   child: InteractiveViewer(
                       transformationController: _transformationController,
                       panEnabled: true,
@@ -58,7 +56,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
                       boundaryMargin: const EdgeInsets.all(100),
                       maxScale: 2,
                       // TODO: capire come mettere le immagini su firebase.
-                      child: Image.network('',
+                      child: Image.network(widget._report.photo ?? '',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                       )),
@@ -185,17 +183,23 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '${widget._report.city!}, ${widget._report.address!.values.toList().join(', ')}',
-            style: Theme.of(context).textTheme.bodySmall,
+          Flexible(
+            child: Text(
+              '${widget._report.city!}, ${widget._report.address!.values.toList().join(', ')}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
-          Text('${dateTime.day}/${dateTime.month}/${dateTime.year}',
-              style: Theme.of(context).textTheme.bodySmall),
-          Text(
-              endDate != null
-                  ? '${endDate.day}/${endDate.month}/${endDate.year}'
-                  : 'Ancora non completato',
-              style: Theme.of(context).textTheme.bodySmall),
+          Flexible(
+            child: Text('${dateTime.day}/${dateTime.month}/${dateTime.year}',
+                style: Theme.of(context).textTheme.bodySmall),
+          ),
+          Flexible(
+            child: Text(
+                endDate != null
+                    ? '${endDate.day}/${endDate.month}/${endDate.year}'
+                    : 'Ancora non completato',
+                style: Theme.of(context).textTheme.bodySmall),
+          ),
         ],
       ),
     );
