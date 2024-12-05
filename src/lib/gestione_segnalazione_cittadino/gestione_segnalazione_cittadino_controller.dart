@@ -1,14 +1,16 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../home_page.dart';
 import 'gestione_location_failed.dart';
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
 import 'gestione_segnalazione_cittadino_DAO.dart';
 import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
+
+import 'inserimento_segnalazione_gui.dart';
 
 class CitizenReportManagementController {
   final Widget redirectPage;
@@ -52,8 +54,7 @@ class CitizenReportManagementController {
 }
 
 Future<GeoPoint?> getCoordinates(BuildContext context) async {
-  final stopwatch = Stopwatch()
-    ..start();
+  final stopwatch = Stopwatch()..start();
   loc.Location location = loc.Location();
 
   bool serviceEnabled = await location.serviceEnabled();
@@ -62,14 +63,7 @@ Future<GeoPoint?> getCoordinates(BuildContext context) async {
     if (!serviceEnabled) {
       stopwatch.stop();
       print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                LocationPermissionPage(
-                  onRetry: () => getCoordinates(context),
-                )),
-      );
+      _redirectToLocationPermissionPage(context);
       return null;
     }
   }
@@ -80,6 +74,7 @@ Future<GeoPoint?> getCoordinates(BuildContext context) async {
     if (permissionGranted == loc.PermissionStatus.denied) {
       stopwatch.stop();
       print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
+      _redirectToLocationPermissionPage(context);
       return null;
     }
   }
@@ -87,22 +82,20 @@ Future<GeoPoint?> getCoordinates(BuildContext context) async {
   if (permissionGranted == loc.PermissionStatus.deniedForever) {
     stopwatch.stop();
     print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
-
+    _redirectToLocationPermissionPage(context);
     return null;
   }
-
   loc.LocationData locationData = await location.getLocation();
   return GeoPoint(locationData.latitude!, locationData.longitude!);
 }
 
-Future<List<String>> getLocation(GeoPoint location) async {
-  final stopwatch = Stopwatch()
-    ..start();
+Future<List<String>> getLocation(GeoPoint? location) async {
+  final stopwatch = Stopwatch()..start();
   final locationData = location;
 
-//setting posizione
+  //setting posizione
   List<Placemark> placemarks = await placemarkFromCoordinates(
-      locationData.latitude, locationData.longitude);
+      locationData!.latitude, locationData.longitude);
   stopwatch.stop();
   print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
   return [
@@ -110,4 +103,16 @@ Future<List<String>> getLocation(GeoPoint location) async {
     placemarks[0].street ?? "Strada non disponibile",
     placemarks[0].name ?? "Nome non disponibile"
   ];
+}
+
+_redirectToLocationPermissionPage(BuildContext context) {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => LocationPermissionPage(
+        onRetry: () => getCoordinates(context),
+        redirectPage: const HomePage(),
+      ),
+    ),
+  );
 }
