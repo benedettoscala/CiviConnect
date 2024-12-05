@@ -1,6 +1,7 @@
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mockito/mockito.dart';
 
 /// Data Access Object (DAO) for managing citizen reports.
 class CitizenReportManagementDAO {
@@ -81,4 +82,37 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     return (user is Municipality && (user).municipalityName == city) || user is Citizen;
   }
 
+}
+
+
+/// Mock implementation of the `CitizenReportManagementDAO` class.
+class MockCitizenReportManagementDAO extends Mock implements CitizenReportManagementDAO {
+
+  @override
+  Future<List<Map<String, dynamic>>?> getReportList({required String city, DocumentSnapshot? lastDocument}) async {
+    Map<String, dynamic> report = {
+      'reportId': '123',
+      'uid': '456',
+      'title': 'Test Report',
+      'description': 'This is a test report',
+      'photo': 'test.jpg',
+      'address': {
+        'street': 'Main St',
+        'number': '123',
+      },
+      'location': const GeoPoint(0.0, 0.0),
+      'city': 'Test City',
+      'category': 'Illuminazione',
+      'status': 'In Lavorazione',
+      'authorFirstName': 'John',
+      'authorLastName': 'Doe',
+    };
+
+    List<Map<String, dynamic>> reports = [];
+    for(int i = 0; i < 10; i++) {
+      reports.add(report);
+    }
+
+    return Future.value(reports);
+  }
 }
