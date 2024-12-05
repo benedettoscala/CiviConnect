@@ -1,5 +1,5 @@
 import 'package:civiconnect/theme.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -22,11 +22,12 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
   // Variable State
   bool isEditing = false;
-  Map<String, dynamic> userData = {};
+  List<Map<String, dynamic>> userData = [];
   bool isLoading = true; // If data are loading
   late ThemeData theme;
   late TextStyle textStyle;
   late GenericUser userInfo;
+  late UserManagementDAO userDao;
   late UserManagementController userController;
 
   @override
@@ -38,26 +39,19 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   }
 
   void _loadUpdate() async {
-    userInfo = (await UserManagementDAO().determineUserType())!;
-    /*late Map<String, dynamic> data;
-    try {
-      userInfo = (await UserManagementDAO().determineUserType())!;
-      if (userInfo is Citizen) {
-        data = await userController.getUserData();
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      setState(() {
-        userData = data;
-        isLoading = false;
-      });
+    CitizenReportManagementController reportController = CitizenReportManagementController();
+    userDao = UserManagementDAO();
+    userInfo = (await userDao.determineUserType())!;
+
+    try{
+      userData = await reportController.getUserReports(userInfo as Citizen) ?? [];
     } catch (e) {
+      print(e);
+    } finally {
       setState(() {
         isLoading = false;
       });
-    } */
+    }
     setState(() {
       isLoading = false;
     });
@@ -104,7 +98,14 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                             const SizedBox(width: 12),
                             Text('Benvenuto', style: Theme.of(context).textTheme.titleMedium),
                             const Expanded(child: UnconstrainedBox()),
-                            IconButton(onPressed: (){}, icon: HugeIcon(icon: HugeIcons.strokeRoundedSearch01, color: Theme.of(context).colorScheme.onPrimaryContainer))
+                            IconButton(onPressed: (){}, icon: HugeIcon(icon: HugeIcons.strokeRoundedSearch01, color: Theme.of(context).colorScheme.onPrimaryContainer)),
+                            IconButton(
+                              alignment: Alignment.topLeft,
+                              icon: Icon(Icons.filter_list, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                              onPressed: () {
+                                // TODO: Implement filter selection method
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -112,15 +113,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              IconButton(
-                alignment: Alignment.topLeft,
-                icon: Icon(Icons.filter_list_alt, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                onPressed: () {
-                  // TODO: Implement filter selection method
-                },
-              ),
-              const SizedBox(height: 20),
               const SizedBox(height: 20),
               // [ReportsList
               if (userData.isNotEmpty)
@@ -143,7 +135,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
         ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implement action for the button
+          // TODO: go to report creation page
         },
         backgroundColor: theme.colorScheme.primary,
         child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
@@ -154,21 +146,20 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   Future<Widget> _buildReportsList() async {
     // Example data, replace with actual data fetching logic
     final reports = await CitizenReportManagementController().getUserReports(userInfo as Citizen);
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: reports.length,
+      itemCount: reports?.length,
       itemBuilder: (context, index) {
-        final report = reports[index];
+        final report = reports?[index];
         return CardWidget(
-          name: report['name'],
-          description: report['title'],
-          status: report['status'],
-          priority: report['priority'],
+          name: report?['authorFirstName'] + ' ' + report?['authorLastName'],
+          description: report?['title'],
+          status: StatusReport.getStatus(report?['status']) ?? StatusReport.rejected,
+          priority: PriorityReport.getPriority(report?['priority']) ?? PriorityReport.unset,
           imageUrl: '',
           onTap: () {
-            // Handle card tap
+            // TODO go to detail page
           },
         );
       },
