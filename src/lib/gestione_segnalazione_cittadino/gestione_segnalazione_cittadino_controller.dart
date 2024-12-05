@@ -10,8 +10,6 @@ import 'gestione_segnalazione_cittadino_DAO.dart';
 import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
 
-import 'inserimento_segnalazione_gui.dart';
-
 class CitizenReportManagementController {
   final Widget redirectPage;
 
