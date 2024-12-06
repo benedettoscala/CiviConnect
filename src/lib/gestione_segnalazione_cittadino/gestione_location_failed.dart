@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LocationPermissionPage extends StatelessWidget {
   final Widget redirectPage;
 
-  const LocationPermissionPage({super.key, required this.redirectPage});
+  const LocationPermissionPage({required this.redirectPage, super.key});
 
   @override
   Widget build(BuildContext context) {
