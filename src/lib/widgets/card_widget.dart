@@ -12,6 +12,7 @@ class CardWidget extends StatelessWidget {
   /// The [name], [description], [status], [priority], and [imageUrl] parameters are required.
   /// The [onTap] is optional.
   const CardWidget({
+    required this.uid,
     required this.name,
     required this.description,
     required this.status,
@@ -20,6 +21,9 @@ class CardWidget extends StatelessWidget {
     this.onTap,
     super.key,
   });
+
+  /// The unique identifier of the user.
+  final String uid;
 
   /// The name displayed on the card.
   final String name;
@@ -39,81 +43,89 @@ class CardWidget extends StatelessWidget {
   /// Callback triggered when the card is tapped.
   final void Function()? onTap;
 
+
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
 
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
         onTap: onTap,
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                /// Left section containing name, status, and description.
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.65,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+            child: Column(
+              children: [
+                Row(
+                  children: <Widget>[
+                    /// Left section containing name, status, and description.
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.55,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.account_circle, size: 50),
-                          const SizedBox(width: 10),
-                          Expanded(
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage('assets/images/profile/${uid.hashCode % 6}.jpg'),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  name,
+                                  style: textTheme.titleMedium,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              name,
-                              style: textTheme.titleMedium,
+                              description,
+                              style: textTheme.bodyMedium,
                               overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      _StatusReport(status: status, priority: priority),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          description,
-                          style: textTheme.bodyMedium,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                    ),
+
+                    /// Right section containing the image.
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                         const Icon(Icons.image, color: Colors.grey, size: 100,),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                /// Right section containing the image.
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.error, size: 50, color: Colors.red),
                     ),
-                  ),
+                  ],
                 ),
+                const SizedBox(height: 15),
+                _StatusReport(status: status, priority: priority),
               ],
-            ),
+            )
           ),
         ),
       ),
@@ -144,31 +156,42 @@ class _StatusReport extends StatelessWidget {
 
     return Row(
       children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.65 * 0.65,
-          child: Text(
-            status.name(),
-            style: textTheme.bodySmall,
-            textAlign: TextAlign.center,
+        Card(
+          elevation: 0.5,
+          color: Colors.white70,
+          child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 6,
+                    backgroundColor: Colors.black26,
+                    child: CircleAvatar(
+                      radius: 5,
+                      backgroundColor: priority.color,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    priority.name,
+                    style: textTheme.bodySmall,
+                  ),
+                ],
+              ),
           ),
         ),
-        const SizedBox(width: 10),
-        Row(
-          children: [
-            Text(
-              priority.name,
+        const SizedBox(width: 7.5),
+        Card(
+          elevation: 0.5,
+          color: Colors.white70,
+          child: Padding(
+            padding: const EdgeInsets.all(7.0),
+            child: Text(
+              status.name(),
               style: textTheme.bodySmall,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(width: 10),
-            CircleAvatar(
-              radius: 6,
-              backgroundColor: Colors.black26,
-              child: CircleAvatar(
-                radius: 5,
-                backgroundColor: priority.color,
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
