@@ -19,12 +19,14 @@ class _InserimentoSegnalazioneGUIState
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
-  late CitizenReportManagementController _controller;
+  final CitizenReportManagementController _controller = CitizenReportManagementController(
+      redirectPage: const HomePage());
 
   late Category _categoria;
   String? _descrizione;
   String? _titolo;
   String? _citta;
+  String? _selectedImage;
   late Map<String, String>? _indirizzo;
   late GeoPoint _location;
   List<String>? _indirizzoLista;
@@ -71,6 +73,8 @@ class _InserimentoSegnalazioneGUIState
               _buildAddressField(),
               const SizedBox(height: 16),
               _buildDescriptionField(),
+              const SizedBox(height: 20),
+              _buildImageCard(),
               const SizedBox(height: 20),
               _buildSelectPhotoButton(),
               const SizedBox(height: 20),
@@ -195,11 +199,33 @@ class _InserimentoSegnalazioneGUIState
 
   Widget _buildSelectPhotoButton() {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        setState(() {
+          _selectedImage = _controller.shuffleImages(); // Replace with actual image URL or logic to select an image
+        });
+      },
       child: const Text('Seleziona Foto'),
     );
   }
 
+Widget _buildImageCard() {
+  return Card(
+    clipBehavior: Clip.antiAlias, // Ensure the image follows the card's border radius
+    child: Column(
+      children: [
+        if (_selectedImage != null)
+          Image.network(
+            _selectedImage!,
+            width: 450, // Set the desired width
+            height: 325, // Set the desired height
+            fit: BoxFit.cover, // Ensure the image covers the area
+          )
+        else
+          const Text('Nessuna immagine selezionata'),
+      ],
+    ),
+  );
+}
   Widget _buildSubmitButton() {
     return ElevatedButton(
       onPressed: () {
@@ -212,8 +238,6 @@ class _InserimentoSegnalazioneGUIState
   Future<void> sendData() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      _controller = CitizenReportManagementController(
-          redirectPage: const HomePage());
 
       await _controller.addReport(
         context,
