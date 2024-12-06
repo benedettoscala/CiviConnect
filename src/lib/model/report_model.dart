@@ -64,7 +64,7 @@ class Report {
   final Category? category;
 
   /// The status of the report.
-  final StatusReport? status;
+  StatusReport? status;
 
   /// The date when the report was created.
   final Timestamp? reportDate;
@@ -73,7 +73,7 @@ class Report {
   final Timestamp? endDate;
 
   /// The priority level of the report.
-  final PriorityReport? priority;
+  PriorityReport? priority;
 
   /// The first name of the author of the report.
   final String? authorFirstName;

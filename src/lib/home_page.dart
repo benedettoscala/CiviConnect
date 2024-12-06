@@ -1,9 +1,9 @@
-import 'package:civiconnect/gestione_segnalazione/dettagli_segnalazione_gui.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import 'gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
 import 'model/report_model.dart';
 
 /// Home page of the application.
@@ -15,8 +15,32 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class TestingPage extends StatelessWidget {
+class TestingPage extends StatefulWidget {
   const TestingPage({super.key});
+
+  @override
+  State<TestingPage> createState() => _TestingPageState();
+}
+
+class _TestingPageState extends State<TestingPage> {
+  Report report = Report(
+    description:
+    'descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione descrizione descriziosa discrizione indiscreta della descrizione',
+    photo: null,
+    address: {
+      'street': 'Via Benedetto',
+      'number': '69',
+    },
+    city: 'City',
+    uid: 'BILgzGbWKQVMKhVLiVOytoyzOwT2',
+    title: 'Titolo super sexy',
+    status: StatusReport.inProgress,
+    priority: PriorityReport.high,
+    reportDate: Timestamp.now(),
+    authorFirstName: 'Manuel',
+    authorLastName: 'Cieri',
+  );
+
 
   @override
   Widget build(BuildContext context) {
@@ -26,23 +50,8 @@ class TestingPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DettagliSegnalazione(
-                  report: Report(
-                    description: 'descrizione descriziosa discrizione indiscreta della descrizione ',
-                    photo: null,
-                    address: {
-                      'street': 'Via Benedetto',
-                      'number': '69',
-                    },
-                    city: 'City',
-                    uid: 'BILgzGbWKQVMKhVLiVOytoyzOwT2',
-                    title: 'Titolo super sexy',
-                    status: StatusReport.inProgress,
-                    priority: PriorityReport.high,
-                    reportDate: Timestamp.now(),
-                    authorFirstName: 'Manuel',
-                    authorLastName: 'Cieri',
-                  ),
+                builder: (context) => DettagliSegnalazioneComune(
+                  report: report,
                 ),
               ),
             );

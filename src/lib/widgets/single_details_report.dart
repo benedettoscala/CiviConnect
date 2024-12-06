@@ -6,17 +6,23 @@ import 'package:flutter/material.dart';
 import '../model/report_model.dart';
 
 /// View of single report details.
-class DettagliSegnalazione extends StatefulWidget {
+class SingleDetailsReport extends StatefulWidget {
   /// Constructs a new `DettagliSegnalazione` instance.
-  const DettagliSegnalazione({required report, super.key}) : _report = report;
+  const SingleDetailsReport(
+      {required report, onStateButton, onPriorityButton, super.key})
+      : _report = report,
+        _onStateButton = onStateButton,
+        _onPriorityButton = onPriorityButton;
 
   final Report _report;
+  final void Function()? _onStateButton;
+  final void Function()? _onPriorityButton;
 
   @override
-  State<DettagliSegnalazione> createState() => _DettagliSegnalazioneState();
+  State<SingleDetailsReport> createState() => _SingleDetailsReportState();
 }
 
-class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
+class _SingleDetailsReportState extends State<SingleDetailsReport> {
   final _transformationController = TransformationController();
 
   void _handleDoubleTap(TapDownDetails doubleTapDetails) {
@@ -59,7 +65,6 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
                       minScale: 1,
                       boundaryMargin: const EdgeInsets.all(100),
                       maxScale: 2,
-                      // TODO: capire come mettere le immagini su firebase.
                       child: Image.network(
                         widget._report.photo ?? '',
                         fit: BoxFit.contain,
@@ -130,38 +135,52 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
   Widget _statusPriority(context) {
     return Row(
       children: [
-        Card(
-          elevation: 0.5,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 6,
-                  backgroundColor: Colors.black26,
-                  child: CircleAvatar(
-                    radius: 5,
-                    backgroundColor: widget._report.priority!.color,
-                  ),
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  widget._report.priority!.name,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Card(
-          elevation: 0.5,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(widget._report.status!.name(),
-                style: Theme.of(context).textTheme.bodySmall),
-          ),
-        ),
+        widget._onPriorityButton == null
+            ? _priorityCard(context)
+            : InkWell(
+                onTap: widget._onPriorityButton, child: _priorityCard(context)),
+        widget._onStateButton == null
+            ? _statusCard(context)
+            : InkWell(
+                onTap: widget._onStateButton, child: _statusCard(context)),
       ],
+    );
+  }
+
+  Widget _priorityCard(context) {
+    return Card(
+      elevation: 0.5,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 6,
+              backgroundColor: Colors.black26,
+              child: CircleAvatar(
+                radius: 5,
+                backgroundColor: widget._report.priority!.color,
+              ),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              widget._report.priority!.name,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statusCard(context) {
+    return Card(
+      elevation: 0.5,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(widget._report.status!.name(),
+            style: Theme.of(context).textTheme.bodySmall),
+      ),
     );
   }
 
@@ -176,8 +195,6 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
           child: Text(
             widget._report.description!,
             style: Theme.of(context).textTheme.bodyMedium,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
           ),
         ),
       ),
@@ -194,26 +211,27 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazione> {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          Flexible(
-            child: Text(
-              '${widget._report.city!}, ${widget._report.address!.values.toList().join(', ')}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+          Text(
+            '${widget._report.city!}, ${widget._report.address!.values.toList().join(', ')}',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
-          Flexible(
-            child: Text('${dateTime.day}/${dateTime.month}/${dateTime.year}',
-                style: Theme.of(context).textTheme.bodySmall),
-          ),
-          Flexible(
-            child: Text(
-                endDate != null
-                    ? '${endDate.day}/${endDate.month}/${endDate.year}'
-                    : 'Ancora non completato',
-                style: Theme.of(context).textTheme.bodySmall),
-          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                  'Segnalato il: ${dateTime.day}/${dateTime.month}/${dateTime.year}',
+                  style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(width: 50),
+              Text(
+                  endDate != null
+                      ? 'Completato il: ${endDate.day}/${endDate.month}/${endDate.year}'
+                      : 'Ancora non completato',
+                  style: Theme.of(context).textTheme.bodySmall),
+            ],
+          )
         ],
       ),
     );
