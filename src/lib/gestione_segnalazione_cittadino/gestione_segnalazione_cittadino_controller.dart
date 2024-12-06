@@ -115,9 +115,9 @@ Future<List<String>> getLocation(GeoPoint? location) async {
   List<Placemark> placemarks = await placemarkFromCoordinates(
       locationData!.latitude, locationData.longitude);
   return [
-    placemarks[0].locality ?? "Località non disponibile",
-    placemarks[0].street ?? "Strada non disponibile",
-    placemarks[0].name ?? "Nome non disponibile"
+    placemarks[0].locality ?? 'Località non disponibile',
+    placemarks[0].street ?? 'Strada non disponibile',
+    placemarks[0].name ?? 'Nome non disponibile'
   ];
 }
 
