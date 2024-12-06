@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LocationPermissionPage extends StatelessWidget {
-  final VoidCallback onRetry;
   final Widget redirectPage;
 
-  const LocationPermissionPage({super.key, required this.onRetry, required Widget this.redirectPage});
+  const LocationPermissionPage({super.key, required this.redirectPage});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +28,6 @@ class LocationPermissionPage extends StatelessWidget {
             const SizedBox(height: 32),
             ElevatedButton(
   onPressed: () {
-    onRetry();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => redirectPage),
