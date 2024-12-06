@@ -52,7 +52,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   /// Show a dialog to enter the Admin password and municipality email.
-  Future<Map<String, String>?> _showAdminPasswordAndMunicipalityEmailDialog(BuildContext context) async {
+  Future<Map<String, String>?> _showAdminPasswordAndMunicipalityEmailDialog(
+      BuildContext context) async {
     String enteredPassword = '';
     String enteredEmail = '';
     String? passwordErrorMessage;
@@ -63,10 +64,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            bool isPasswordValid = _controller.validatePassword(enteredPassword) == null;
+            bool isPasswordValid =
+                _controller.validatePassword(enteredPassword) == null;
             bool isEmailValid = _controller.validateEmail(enteredEmail) == null;
             return AlertDialog(
-              title: const Center(child: Text('Inserisci l\'email del comune e la password Admin')),
+              title: const Center(
+                  child: Text(
+                      'Inserisci l\'email del comune e la password Admin')),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -94,7 +98,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     onChanged: (value) {
                       setState(() {
                         enteredPassword = value;
-                        passwordErrorMessage = _controller.validatePassword(value);
+                        passwordErrorMessage =
+                            _controller.validatePassword(value);
                       });
                     },
                     decoration: const InputDecoration(
@@ -122,11 +127,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   TextButton(
                     onPressed: isPasswordValid && isEmailValid
                         ? () {
-                      Navigator.of(context).pop({
-                        'password': enteredPassword,
-                        'email': enteredEmail,
-                      }); // Return the password and email
-                    }
+                            Navigator.of(context).pop({
+                              'password': enteredPassword,
+                              'email': enteredEmail,
+                            }); // Return the password and email
+                          }
                         : null, // Disable the button if the password or email is invalid
                     child: const Text('Conferma'),
                   ),
@@ -298,11 +303,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     }
                                     // Show the dialog to enter the Admin password
                                     final result =
-                                        await _showAdminPasswordAndMunicipalityEmailDialog(context);
+                                        await _showAdminPasswordAndMunicipalityEmailDialog(
+                                            context);
 
                                     // Generate credentials if the Admin password and email are not null
-                                    if (result != null && result['password']!.isNotEmpty && result['email']!.isNotEmpty) {
-                                      _generateCredentials(result['password']!, result['email']!);
+                                    if (result != null &&
+                                        result['password']!.isNotEmpty &&
+                                        result['email']!.isNotEmpty) {
+                                      _generateCredentials(result['password']!,
+                                          result['email']!);
                                     }
                                   },
                                   child: const Text('Genera Credenziali'),

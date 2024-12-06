@@ -28,13 +28,14 @@ class _UserProfileState extends State<UserProfile> {
   late TextStyle textStyle;
   late GenericUser userInfo;
   User _user = UserManagementDAO().currentUser!;
-  
+
   @override
   void initState() {
     super.initState();
     theme = ThemeManager().customTheme;
     textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
-    userController = UserManagementController(redirectPage: const UserProfile());
+    userController =
+        UserManagementController(redirectPage: const UserProfile());
     _loadUserData();
   }
 
@@ -56,14 +57,13 @@ class _UserProfileState extends State<UserProfile> {
       setState(() {
         isLoading = false;
       });
-      showMessage(context, isError: true, message: 'Errore durante il caricamento dei dati: $e');
+      showMessage(context,
+          isError: true, message: 'Errore durante il caricamento dei dati: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    
-
     if (isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -358,7 +358,8 @@ class _UserProfileState extends State<UserProfile> {
       showMessage(context, message: 'Dati salvati con successo');
       return true; // Save successful
     } catch (e) {
-      showMessage(context, isError: true, message: 'Errore durante il salvataggio: $e');
+      showMessage(context,
+          isError: true, message: 'Errore durante il salvataggio: $e');
       return false; // Save failed
     }
   }
@@ -372,7 +373,8 @@ class _UserProfileState extends State<UserProfile> {
             radius: 80,
             backgroundImage: user.photoURL != null
                 ? NetworkImage(user.photoURL!)
-                : AssetImage('assets/images/profile/${user.uid.hashCode % 6}.jpg'),
+                : AssetImage(
+                    'assets/images/profile/${user.uid.hashCode % 6}.jpg'),
             //child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
           ),
           const SizedBox(height: 5),

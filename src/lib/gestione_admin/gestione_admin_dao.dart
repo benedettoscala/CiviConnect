@@ -52,7 +52,11 @@ class AdminManagementDAO {
   /// - An exception if the user type is not an admin.
   /// - An exception if the credentials cannot
   ///  be saved to the database.
-  Future<void> saveCredentialsToDatabase(String emailGen, String emailComune,  String passwordGen, String passwordAdmin,
+  Future<void> saveCredentialsToDatabase(
+      String emailGen,
+      String emailComune,
+      String passwordGen,
+      String passwordAdmin,
       Map<String, String> selectedComune) async {
     UserManagementDAO userManagementDAO = UserManagementDAO();
     GenericUser? genericUser = await userManagementDAO.determineUserType();
@@ -93,9 +97,9 @@ class AdminManagementDAO {
         'province': selectedComune['Provincia'],
       });
 
-      // Send email to the municipality
+      // Send email to verify the email
+      // Workaround to send email verification works only with emailComune alredy verified
       await _firebaseAuth.sendPasswordResetEmail(email: emailComune);
-
     } catch (e) {
       throw ('Errore nel salvataggio delle credenziali, $e');
     }

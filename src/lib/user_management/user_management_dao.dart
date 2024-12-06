@@ -76,15 +76,18 @@ class UserManagementDAO {
   Future<bool> createUserWithEmailAndPassword({
     required String email,
     required String password,
-    required Map<String, dynamic>
-    additionalData,
+    required Map<String, dynamic> additionalData,
   }) async {
     try {
       // Crea l'utente con Firebase Authentication.
       UserCredential userCredential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
       String uid = userCredential.user!.uid;
-      await UserManagementDAO()._firebaseFirestore.collection('citizen').doc(uid).set({...additionalData});
+      await UserManagementDAO()
+          ._firebaseFirestore
+          .collection('citizen')
+          .doc(uid)
+          .set({...additionalData});
     } catch (e) {
       throw Exception('Error creating user: $e');
     }
@@ -265,8 +268,10 @@ class UserManagementDAO {
   Future<Map<String, String>> getMunicipalityData() async {
     User? user = _firebaseAuth.currentUser;
     if (user != null) {
-      DocumentSnapshot snapshot =
-          await _firebaseFirestore.collection('municipality').doc(user.uid).get();
+      DocumentSnapshot snapshot = await _firebaseFirestore
+          .collection('municipality')
+          .doc(user.uid)
+          .get();
       return {
         'email': snapshot['email'],
         'municipalityName': snapshot['municipalityName'],

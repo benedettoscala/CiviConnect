@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 /// Show a snackbar message.

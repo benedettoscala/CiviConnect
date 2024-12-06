@@ -128,15 +128,17 @@ class AdminManagementController {
   /// Returns a map containing the email and password.
   /// Throws an exception if an error occurs during the process.
   Future<Map<String, String>> generateCredentials(
-      Map<String, String> selectedMunicipality, String adminPassword, String emailComune) async {
+      Map<String, String> selectedMunicipality,
+      String adminPassword,
+      String emailComune) async {
     String municipalityEmailPart =
         selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
     String emailGen = 'comune.$municipalityEmailPart@anci.gov';
     String passwordGen = generatePassword();
 
     // Save credentials to the database
-    await _daoAdmin.saveCredentialsToDatabase(
-        emailGen, emailComune, passwordGen, adminPassword, selectedMunicipality);
+    await _daoAdmin.saveCredentialsToDatabase(emailGen, emailComune,
+        passwordGen, adminPassword, selectedMunicipality);
 
     return {'email': emailGen, 'password': passwordGen};
   }
