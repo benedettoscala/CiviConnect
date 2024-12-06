@@ -30,6 +30,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: StatusReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
+              // TODO: implement backend usage for update status
               setState(() {
                 widget._report.status = value;
               });
@@ -39,6 +40,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: PriorityReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
+              // TODO: implement backend usage for update priority
               setState(() {
                 widget._report.priority = value;
               });
