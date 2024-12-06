@@ -8,7 +8,7 @@ import '../home_page.dart';
 import 'gestione_location_failed.dart';
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
-import 'gestione_segnalazione_cittadino_DAO.dart';
+import 'gestione_segnalazione_cittadino_dao.dart';
 import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
