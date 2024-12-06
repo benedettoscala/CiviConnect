@@ -6,7 +6,6 @@ class CitizenReportManagementDAO {
 
   Future<bool> addReport(Report reportData) async {
     try {
-      print(reportData.address?['street']);
       await _firebaseFirestore
           .collection('reports')
           .doc(reportData.city?.toLowerCase())
