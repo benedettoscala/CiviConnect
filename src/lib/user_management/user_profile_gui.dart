@@ -27,7 +27,8 @@ class _UserProfileState extends State<UserProfile> {
   late ThemeData theme;
   late TextStyle textStyle;
   late GenericUser userInfo;
-
+  User _user = UserManagementDAO().currentUser!;
+  
   @override
   void initState() {
     super.initState();
@@ -61,7 +62,7 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final user = UserManagementDAO().currentUser;
+    
 
     if (isLoading) {
       return const Scaffold(
@@ -84,7 +85,7 @@ class _UserProfileState extends State<UserProfile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 0),
-                    _buildProfileHeader(theme, user!, userData),
+                    _buildProfileHeader(theme, _user, userData),
                     const SizedBox(height: 30),
                     if (userInfo is Citizen) ..._buildCitizenData(),
                     const SizedBox(height: 20),
@@ -94,7 +95,7 @@ class _UserProfileState extends State<UserProfile> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
-                    _buildAccountData(user, theme),
+                    _buildAccountData(_user, theme),
                     const SizedBox(height: 20),
                     Container(
                       width: double.infinity,
@@ -467,6 +468,12 @@ class _UserProfileState extends State<UserProfile> {
     try {
       await userController.changeEmail(context,
           newEmail: newEmail, currentPassword: currentPassword);
+
+      // Update the user data in the state
+      setState(() {
+        _user = FirebaseAuth.instance.currentUser!;
+      });
+
       showMessage(context, message: 'Email aggiornata con successo');
     } catch (e) {
       _handleAuthException(e as Exception);

@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 /// A Data Access Object (DAO) for managing user authentication and role determination.
 ///
@@ -303,6 +300,16 @@ class UserManagementDAO {
   /// Parameters:
   /// - [newEmail]: The new email to set.
   /// - [currentPassword]: The user's current password (required for re-authentication).
+  /// Updates the email address of the authenticated user.
+  ///
+  /// Parameters:
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password (required for re-authentication).
+  /// Updates the email address of the authenticated user.
+  ///
+  /// Parameters:
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password (required for re-authentication).
   Future<void> updateEmail({
     required String newEmail,
     required String currentPassword,
@@ -315,10 +322,6 @@ class UserManagementDAO {
     await user.reauthenticateWithCredential(credential);
     // ignore: deprecated_member_use
     await user.updateEmail(newEmail);
-    await _firebaseFirestore
-        .collection('citizen')
-        .doc(user.uid)
-        .update({'email': newEmail});
   }
 
   /// Updates the password of the authenticated user.
