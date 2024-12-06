@@ -18,7 +18,6 @@ class CitizenReportManagementDAO {
   /// Specifies it the query offset is at the bottom of the list.
   bool _isEnded = false;
 
-
   /// Constructs a new `CitizenReportManagementDAO` instance.
   ///
   /// Parameters:
@@ -63,6 +62,7 @@ class CitizenReportManagementDAO {
       throw Exception('Failed to add report');
     }
     return true;
+  }
 
   /* --------------------------- PRIVATE METHODS ---------------------------------- */
 
@@ -77,41 +77,41 @@ class CitizenReportManagementDAO {
   ///
   /// Throws:
   /// - [Exception]: If there is an error retrieving the data.
-Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city}) async {
-  Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
-    .orderBy('title', descending: true).limit(10);
+  Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city}) async {
+    Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
+      .orderBy('title', descending: true).limit(10);
 
-  // If the last document is not null, the query starts after the last document of the previous query.
-  if (_lastDocument != null) {
-    query = query.startAfterDocument(_lastDocument!);
-  }
-
-  try {
-    final querySnapshot = await query.get();
-    // If the query is empty or the last document is the same as the previous one, the query is ended.
-    if (_isEnded || querySnapshot.docs.isEmpty || _lastDocument == querySnapshot.docs.last){
-      _isEnded = true;
-      return null;
+    // If the last document is not null, the query starts after the last document of the previous query.
+    if (_lastDocument != null) {
+      query = query.startAfterDocument(_lastDocument!);
     }
 
-    // If the query is less than 10, the query is ended but the last documents are updated.
-    if(querySnapshot.docs.length < 10){
-      _isEnded = true;
+    try {
+      final querySnapshot = await query.get();
+      // If the query is empty or the last document is the same as the previous one, the query is ended.
+      if (_isEnded || querySnapshot.docs.isEmpty || _lastDocument == querySnapshot.docs.last){
+        _isEnded = true;
+        return null;
+      }
+
+      // If the query is less than 10, the query is ended but the last documents are updated.
+      if(querySnapshot.docs.length < 10){
+        _isEnded = true;
+      }
+
+      //Retrieve the data from the query snapshot.
+      var data = querySnapshot.docs.map((doc) => doc.data()).toList();
+      // Update the last document.
+      _lastDocument  = querySnapshot.docs.last;
+
+      return data;
+
+    } catch (e) {
+      throw Exception('Error retrieving data: $e');
     }
-
-    //Retrieve the data from the query snapshot.
-    var data = querySnapshot.docs.map((doc) => doc.data()).toList();
-    // Update the last document.
-    _lastDocument  = querySnapshot.docs.last;
-
-    return data;
-
-  } catch (e) {
-    throw Exception('Error retrieving data: $e');
   }
-}
+
   /* -------------------------------- UTILITY PRIVATE METHODS ----------------------------- */
-
 
   /// Checks if the current user is valid for the given city.
   ///
@@ -130,10 +130,7 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     }
     return (user is Municipality && (user).municipalityName == city) || user is Citizen;
   }
-
 }
-
-
 
 /* ========================================== MOCK CLASS ======================================================= */
 
@@ -180,7 +177,6 @@ class MockCitizenReportManagementDAO extends Mock implements CitizenReportManage
       r['uid'] = i.toString();
       reports.add(r);
     }
-
   }
 
   @override
@@ -197,7 +193,4 @@ class MockCitizenReportManagementDAO extends Mock implements CitizenReportManage
     _lastDocumentIndex = index + 10;
     return Future.value(reports.sublist(index, index + 10));
   }
-
-
-
 }

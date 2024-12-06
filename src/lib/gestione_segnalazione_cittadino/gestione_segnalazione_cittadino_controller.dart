@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:async';
 
 import '../model/users_model.dart';
-import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -170,5 +169,16 @@ Future<List<String>> getLocation(GeoPoint? location) async {
     placemarks[0].street ?? 'Strada non disponibile',
     placemarks[0].name ?? 'Nome non disponibile'
   ];
+}
+
+_redirectToLocationPermissionPage(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const LocationPermissionPage(
+        redirectPage: HomePage(),
+      ),
+    ),
+  );
 }
 
