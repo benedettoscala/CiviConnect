@@ -1,5 +1,10 @@
+import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
+
+import 'gestione_segnalazione_cittadino/visualizzazione_segnalazioni_gui.dart';
+import 'model/users_model.dart';
 
 /// Home page of the application.
 class HomePage extends StatefulWidget {
@@ -12,17 +17,42 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
+  GenericUser? userInfo;
+  bool isLoading = false;
+  Map<String, dynamic> userData = {};
+  late UserManagementController userController;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    userController = UserManagementController(redirectPage: const HomePage());
+    late Map<String, dynamic> data;
+    try {
+      userInfo = (await UserManagementDAO().determineUserType())!;
+      if (userInfo is Citizen) {
+        data = await userController.getUserData();
+      } else {
+        data = await userController.getMunicipalityData();
+      }
+      setState(() {
+        userData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   final List<Widget> _pages = <Widget>[
     const Placeholder(),
-    const Placeholder(),
+    const ReportsViewCitizenGUI(),
     const UserProfile(),
-  ];
-
-  final List<String> _title = [
-    'Segnalazioni',
-    'Home',
-    'Area Personale',
   ];
 
   void _onItemTapped(int index) {
@@ -33,10 +63,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_title[_selectedIndex]),
-      ),
+      appBar: _buildAppBar(),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
@@ -58,5 +91,69 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     //return const TestingPage();
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    if (_selectedIndex == 2) {
+      return AppBar(
+        title: Text('Area Utente',
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
+        elevation: 10,
+        shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
+      );
+    }
+    return PreferredSize(
+        preferredSize: const Size.fromHeight(75),
+        child: AppBar(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(15),
+              ),
+            ),
+            elevation: 10,
+            shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
+            title: Column(
+              children: [
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: userInfo != null
+                          ? AssetImage(
+                              'assets/images/profile/${userInfo!.uid.hashCode % 6}.jpg',
+                            )
+                          : const AssetImage('assets/images/profile/0.jpg'),
+                    ),
+                    const SizedBox(width: 12),
+                    userInfo != null
+                        ? Text(
+                            userInfo is Citizen
+                                ? '${userData['firstName']} ${userData['lastName']}'
+                                : userData['municipalityName'],
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary))
+                        : const Text('Benvenuto Utente',
+                            style: TextStyle(color: Colors.white)),
+                    const Expanded(child: UnconstrainedBox()),
+                    IconButton(
+                      alignment: Alignment.topLeft,
+                      icon: Icon(
+                        Icons.accessible_forward_sharp,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                      onPressed: () {
+                        // TODO: Implement filter selection method
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            )));
   }
 }

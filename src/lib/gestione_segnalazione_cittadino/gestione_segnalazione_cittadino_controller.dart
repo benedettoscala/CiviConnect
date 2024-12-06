@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'dart:async';
 
+import '../model/users_model.dart';
 import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,9 +18,14 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 class CitizenReportManagementController {
   final Widget redirectPage;
 
-  CitizenReportManagementController({required this.redirectPage});
+  CitizenReportManagementController({required this.redirectPage}){
+    _loadCitizen();
+  }
   final CitizenReportManagementDAO _reportDAO = CitizenReportManagementDAO();
+  final UserManagementDAO _userManagementDAO = UserManagementDAO();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  Citizen? _citizen;
+  final Completer<Citizen> _citizenCompleter = Completer<Citizen>();
   final List<String> imageUrls = [
     'https://drive.google.com/uc?export=view&id=17lSJzFbio_dwt5-uV0udgORdKlMlMpVt',
     'https://drive.google.com/uc?export=view&id=1Q2xMOXpqZWsBwFiGr8uxvztjpu_SejbO',
@@ -38,7 +45,6 @@ class CitizenReportManagementController {
       required Category categoria,
       required GeoPoint location,
       Map<String, String>? indirizzo}) async {
-    Citizen? user = (await UserManagementDAO().determineUserType()) as Citizen?;
     imageUrls.shuffle(Random());
     final report = Report(
       uid: _firebaseAuth.currentUser!.uid,
@@ -51,8 +57,8 @@ class CitizenReportManagementController {
       location: location,
       status: StatusReport.inProgress,
       priority: PriorityReport.low,
-      authorFirstName: user?.firstName,
-      authorLastName: user?.lastName,
+      authorFirstName: _citizen?.firstName,
+      authorLastName: _citizen?.lastName,
       photo: shuffleImages(),
       endDate: null,
     );
@@ -64,6 +70,51 @@ class CitizenReportManagementController {
         (route) => false,
       );
     }
+  }
+
+  void _loadCitizen() async {
+    try {
+      final user = await _userManagementDAO.determineUserType();
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+
+      if (user is Citizen) {
+        _citizen = user;
+        _citizenCompleter.complete(user); // Segnala che l'inizializzazione è completa
+
+      } else {
+        throw Exception('User is not a citizen');
+      }
+
+    } catch (e) {
+      _citizenCompleter.completeError('Error determining user type: $e');
+    }
+  }
+  /// Returns the current citizen user.
+  Future<Citizen> get citizen async => _citizenCompleter.future;
+
+  /// Fetches the list of reports for a given citizen.
+  ///
+  /// This method retrieves the list of reports associated with the city of the provided citizen.
+  /// If the city is not available, it returns an empty list.
+  ///
+  /// - [reset]: A `bool` indicating whether to reset the last document retrieved.
+  ///   If the [reset] parameter is set to `true`, the method will reset the last document retrieved.
+  ///
+  /// Returns:
+  /// - A [Future] that resolves to a list of maps, where each map contains the report details.
+  Future<List<Map<String, dynamic>>?> getUserReports({bool reset = false}) async {
+    if(_citizen == null || _citizen!.city == null){
+      return [];
+    }
+
+
+    List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
+        city:_citizen!.city!,
+        reset: reset
+    );
+    return snapshot;
   }
 }
 
@@ -121,14 +172,3 @@ Future<List<String>> getLocation(GeoPoint? location) async {
   ];
 }
 
-
-_redirectToLocationPermissionPage(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const LocationPermissionPage(
-        redirectPage: HomePage(),
-      ),
-    ),
-  );
-}
