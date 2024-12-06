@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +11,7 @@ import '../utils/report_status_priority.dart';
 import 'gestione_segnalazione_cittadino_DAO.dart';
 import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 
 class CitizenReportManagementController {
   final Widget redirectPage;
@@ -15,7 +19,18 @@ class CitizenReportManagementController {
   CitizenReportManagementController({required this.redirectPage});
   final CitizenReportManagementDAO _reportDAO = CitizenReportManagementDAO();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final List<String> imageUrls = [
+    'https://drive.google.com/uc?export=view&id=17lSJzFbio_dwt5-uV0udgORdKlMlMpVt',
+    'https://drive.google.com/uc?export=view&id=1Q2xMOXpqZWsBwFiGr8uxvztjpu_SejbO',
+    'https://drive.google.com/uc?export=view&id=1xfB2i73ywQaYpBqQtFyal006bIzayABD',
+    'https://drive.google.com/uc?export=view&id=1K-SdIJUkjQTeY0Xfw4WS6rqwBCctPZtM',
+    'https://drive.google.com/uc?export=view&id=1W537VHHIyclsbPeysUJcyhCFX0ne5OA0',
+  ];
 
+  String shuffleImages(){
+    imageUrls.shuffle(Random());
+    return imageUrls[0];
+  }
   Future<void> addReport(BuildContext context,
       {required String citta,
       required String titolo,
@@ -23,6 +38,8 @@ class CitizenReportManagementController {
       required Category categoria,
       required GeoPoint location,
       Map<String, String>? indirizzo}) async {
+    Citizen? user = (await UserManagementDAO().determineUserType()) as Citizen?;
+    imageUrls.shuffle(Random());
     final report = Report(
       uid: _firebaseAuth.currentUser!.uid,
       city: citta,
@@ -34,9 +51,9 @@ class CitizenReportManagementController {
       location: location,
       status: StatusReport.inProgress,
       priority: PriorityReport.low,
-      authorFirstName: '',
-      authorLastName: '',
-      photo: '',
+      authorFirstName: user?.firstName,
+      authorLastName: user?.lastName,
+      photo: shuffleImages(),
       endDate: null,
     );
     final bool result = await _reportDAO.addReport(report);
