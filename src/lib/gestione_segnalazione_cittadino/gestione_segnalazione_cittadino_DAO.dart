@@ -13,7 +13,6 @@ class CitizenReportManagementDAO {
           .collection('${reportData.city?.toLowerCase()}_reports')
           .add(reportData.toMap());
     } catch (e) {
-      print('Error adding report: $e');
       throw Exception('Failed to add report');
     }
     return true;
