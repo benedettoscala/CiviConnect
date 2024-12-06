@@ -138,11 +138,10 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     try {
       // Get all city collections
       final cityCollections = await _firestore.collection('reports').get();
-
       for (var cityDoc in cityCollections.docs) {
-        Query<Map<String, dynamic>> query = cityDoc.reference.collection(cityDoc.id)
+        Query<Map<String, dynamic>> query = cityDoc.reference.collection('${cityDoc.id}_reports')
             .where('uid', isEqualTo: userId)
-            .orderBy('title', descending: true)
+            .orderBy('reportDate', descending: false)
             .limit(10);
 
         // If the last document is not null, the query starts after the last document of the previous query.
