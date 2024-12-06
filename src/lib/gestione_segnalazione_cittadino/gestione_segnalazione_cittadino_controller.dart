@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:civiconnect/user_management/user_management_dao.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../model/users_model.dart';
 import 'gestione_segnalazione_cittadino_dao.dart';
@@ -15,7 +14,6 @@ class CitizenReportManagementController {
   late final CitizenReportManagementDAO _reportDAO;
   late final UserManagementDAO _userManagementDAO;
   Citizen? _citizen;
-  DocumentSnapshot? _lastDocument;
   final Completer<Citizen> _citizenCompleter = Completer<Citizen>();
 
   /// Constructs a new `CitizenReportManagementController` instance.
@@ -28,7 +26,7 @@ class CitizenReportManagementController {
     CitizenReportManagementDAO? reportDAO,
     UserManagementDAO? userManagementDAO,
   }) {
-    _reportDAO = reportDAO ?? MockCitizenReportManagementDAO();
+    _reportDAO = reportDAO ?? CitizenReportManagementDAO();
     _userManagementDAO = userManagementDAO ?? UserManagementDAO();
     _loadCitizen();
   }
@@ -77,23 +75,12 @@ class CitizenReportManagementController {
     if(_citizen == null || _citizen!.city == null){
       return [];
     }
-    if(reset){
-      _lastDocument = null;
-    }
+
 
     List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
         city:_citizen!.city!,
-        lastDocument: _lastDocument,
         reset: reset
     );
-    /// Retrieves the last document from the snapshot and updates the last document field.
-    /// Last DocumentSnapshot is added by the DAO to the last element of the list.
-    /// If the snapshot is empty, the last document is set to null.
-    var lastDocument = snapshot?.last['lastDocument'];
-    if(lastDocument is DocumentSnapshot){
-      snapshot?.removeLast();
-    }
-    _lastDocument = lastDocument;
     return snapshot;
   }
 }
