@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
+import '../utils/snackbar_riscontro.dart';
 
 /// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
@@ -54,8 +55,7 @@ class _UserProfileState extends State<UserProfile> {
       setState(() {
         isLoading = false;
       });
-      _showMessage(
-          isError: true, message: 'Errore durante il caricamento dei dati: $e');
+      showMessage(context, isError: true, message: 'Errore durante il caricamento dei dati: $e');
     }
   }
 
@@ -347,29 +347,19 @@ class _UserProfileState extends State<UserProfile> {
     // If there are errors, show a snackbar and return false
     if (errors.isNotEmpty) {
       String errorMessage = errors.join('\n');
-      _showMessage(isError: true, message: errorMessage);
+      showMessage(context, isError: true, message: errorMessage);
       return false; // Save failed
     }
 
     // If there are no errors, save the data
     try {
       await userController.updateUserData(userData);
-      _showMessage(message: 'Dati salvati con successo');
+      showMessage(context, message: 'Dati salvati con successo');
       return true; // Save successful
     } catch (e) {
-      _showMessage(isError: true, message: 'Errore durante il salvataggio: $e');
+      showMessage(context, isError: true, message: 'Errore durante il salvataggio: $e');
       return false; // Save failed
     }
-  }
-
-  void _showMessage({isError = false, message = ''}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        duration: const Duration(seconds: 5),
-      ),
-    );
   }
 
   Widget _buildProfileHeader(
@@ -477,7 +467,7 @@ class _UserProfileState extends State<UserProfile> {
     try {
       await userController.changeEmail(context,
           newEmail: newEmail, currentPassword: currentPassword);
-      _showMessage(message: 'Email aggiornata con successo');
+      showMessage(context, message: 'Email aggiornata con successo');
     } catch (e) {
       _handleAuthException(e as Exception);
     }
@@ -488,7 +478,7 @@ class _UserProfileState extends State<UserProfile> {
     try {
       await userController.changePassword(context,
           currentPassword: currentPassword, newPassword: newPassword);
-      _showMessage(message: 'Password aggiornata con successo');
+      showMessage(context, message: 'Password aggiornata con successo');
     } catch (e) {
       _handleAuthException(e as Exception);
     }
@@ -517,6 +507,6 @@ class _UserProfileState extends State<UserProfile> {
     } else {
       errorMessage = 'Si è verificato un errore: $e';
     }
-    _showMessage(isError: true, message: errorMessage);
+    showMessage(context, isError: true, message: errorMessage);
   }
 }
