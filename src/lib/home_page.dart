@@ -1,3 +1,4 @@
+import 'package:civiconnect/analisi_dati/analisi_dati_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
@@ -53,6 +54,9 @@ class _HomePageState extends State<HomePage> {
     const Placeholder(),
     const ReportsViewCitizenGUI(),
     const UserProfile(),
+    const DataAnalysisGUI(),
+    const Placeholder(),
+    const UserProfile(),
   ];
 
   void _onItemTapped(int index) {
@@ -70,22 +74,37 @@ class _HomePageState extends State<HomePage> {
     }
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _pages[_selectedIndex],
+      body: _pages[userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Segnalazioni',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profilo',
-          ),
-        ],
+        items: userInfo is Citizen
+            ? const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.assignment),
+                  label: 'Segnalazioni',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: 'Profilo',
+                ),
+              ]
+            : const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.analytics),
+                  label: 'Analisi',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.assignment),
+                  label: 'Segnalazioni',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: 'Profilo',
+                ),
+              ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
