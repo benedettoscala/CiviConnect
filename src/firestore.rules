@@ -121,7 +121,7 @@ service cloud.firestore {
     }
 
     // Rules for Single Reports (NOT Queries!!)
-    match /reports/{idReport} {
+    match /reports/{city}/{city_report}/{idReport} {
       // Allow read from citizen or municipality (only same city):
       allow read: if isCitizen() ||
           (isMunicipality() &&
