@@ -16,7 +16,7 @@ import '../widgets/logo_widget.dart';
 class LoginUtenteGUI extends StatefulWidget {
   /// Constructs a new instance of [LoginUtenteGUI].
   LoginUtenteGUI({super.key, UserManagementController? controller})
-      : _controller = (controller == null) ? UserManagementController(redirectPage: const AdminHomePage()) : controller;
+      : _controller = (controller == null) ? UserManagementController(redirectPage: const HomePage()) : controller;
 
   /// The title of the login page.
   final String title = 'Login';

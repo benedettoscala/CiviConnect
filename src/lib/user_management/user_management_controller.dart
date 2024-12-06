@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import '../model/users_model.dart';
 
 /// A controller class responsible for managing user-related operations.
 ///
@@ -13,13 +11,13 @@ import 'package:flutter/services.dart';
 /// navigation within the application.
 class UserManagementController {
   /// The page to navigate to after a successful login.
-  final Widget redirectPage;
+  final Widget? redirectPage;
 
   /// Constructs a `UserManagementController` instance.
   ///
   /// Parameters:
   /// - [redirectPage]: The target page to navigate to after a successful login.
-  UserManagementController({required this.redirectPage});
+  UserManagementController({this.redirectPage});
 
   /// Handles user login.
   ///
@@ -56,7 +54,7 @@ class UserManagementController {
     if (result) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => redirectPage),
+        MaterialPageRoute(builder: (context) => redirectPage!),
         (route) => false,
       );
     }
@@ -191,12 +189,17 @@ class UserManagementController {
     if (result) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => redirectPage),
+        MaterialPageRoute(builder: (context) => redirectPage!),
         (route) => false,
       );
     }
 
     return result;
+  }
+
+  /// Checks if the current user is an administrator.
+  Future<bool> checkIfUserIsAdmin() async {
+    return await UserManagementDAO().determineUserType() is Admin;
   }
 
   /// By Marco: MI MANCA MARTINA :(
