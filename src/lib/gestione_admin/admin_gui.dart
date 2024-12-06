@@ -51,40 +51,61 @@ class _AdminHomePageState extends State<AdminHomePage> {
     }
   }
 
-  /// Show a dialog to enter the Admin password.
-  Future<String?> _showAdminPasswordDialog(BuildContext context) async {
+  /// Show a dialog to enter the Admin password and municipality email.
+  Future<Map<String, String>?> _showAdminPasswordAndMunicipalityEmailDialog(BuildContext context) async {
     String enteredPassword = '';
-    String? errorMessage;
+    String enteredEmail = '';
+    String? passwordErrorMessage;
+    String? emailErrorMessage;
 
-    return showDialog<String>(
+    return showDialog<Map<String, String>>(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            bool isPasswordValid =
-                _controller.validatePassword(enteredPassword) == null;
+            bool isPasswordValid = _controller.validatePassword(enteredPassword) == null;
+            bool isEmailValid = _controller.validateEmail(enteredEmail) == null;
             return AlertDialog(
-              title: const Center(child: Text('Inserisci la password Admin')),
+              title: const Center(child: Text('Inserisci l\'email del comune e la password Admin')),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        enteredEmail = value;
+                        emailErrorMessage = _controller.validateEmail(value);
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Email del Comune',
+                    ),
+                  ),
+                  if (emailErrorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        emailErrorMessage!,
+                        style: const TextStyle(color: Colors.blueGrey),
+                      ),
+                    ),
                   TextField(
                     obscureText: true,
                     onChanged: (value) {
                       setState(() {
                         enteredPassword = value;
-                        errorMessage = _controller.validatePassword(value);
+                        passwordErrorMessage = _controller.validatePassword(value);
                       });
                     },
                     decoration: const InputDecoration(
                       labelText: 'Password Admin',
                     ),
                   ),
-                  if (errorMessage != null)
+                  if (passwordErrorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                        errorMessage!,
+                        passwordErrorMessage!,
                         style: const TextStyle(color: Colors.blueGrey),
                       ),
                     ),
@@ -94,18 +115,19 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context)
-                          .pop(null); // No password if canceled
+                      Navigator.of(context).pop(null); // No data if canceled
                     },
                     child: const Text('Annulla'),
                   ),
                   TextButton(
-                    onPressed: isPasswordValid
+                    onPressed: isPasswordValid && isEmailValid
                         ? () {
-                            Navigator.of(context)
-                                .pop(enteredPassword); // Return the password
-                          }
-                        : null, // Disable the button if the password is invalid
+                      Navigator.of(context).pop({
+                        'password': enteredPassword,
+                        'email': enteredEmail,
+                      }); // Return the password and email
+                    }
+                        : null, // Disable the button if the password or email is invalid
                     child: const Text('Conferma'),
                   ),
                 ])
@@ -118,10 +140,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   /// Generate credentials for the selected municipality.
-  void _generateCredentials(String adminPassword) async {
+  void _generateCredentials(String adminPassword, String comuneEmail) async {
     try {
       Map<String, String> credentials = await _controller.generateCredentials(
-          _selectedMunicipality!, adminPassword);
+          _selectedMunicipality!, adminPassword, comuneEmail);
 
       setState(() {
         _generatedEmail = credentials['email'];
@@ -275,13 +297,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       return;
                                     }
                                     // Show the dialog to enter the Admin password
-                                    final adminPassword =
-                                        await _showAdminPasswordDialog(context);
+                                    final result =
+                                        await _showAdminPasswordAndMunicipalityEmailDialog(context);
 
-                                    // Generate credentials if the Admin password is not null
-                                    if (adminPassword != null &&
-                                        adminPassword.isNotEmpty) {
-                                      _generateCredentials(adminPassword);
+                                    // Generate credentials if the Admin password and email are not null
+                                    if (result != null && result['password']!.isNotEmpty && result['email']!.isNotEmpty) {
+                                      _generateCredentials(result['password']!, result['email']!);
                                     }
                                   },
                                   child: const Text('Genera Credenziali'),

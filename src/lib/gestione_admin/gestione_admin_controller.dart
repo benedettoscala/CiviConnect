@@ -128,17 +128,17 @@ class AdminManagementController {
   /// Returns a map containing the email and password.
   /// Throws an exception if an error occurs during the process.
   Future<Map<String, String>> generateCredentials(
-      Map<String, String> selectedMunicipality, String adminPassword) async {
+      Map<String, String> selectedMunicipality, String adminPassword, String emailComune) async {
     String municipalityEmailPart =
         selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
-    String email = 'comune.$municipalityEmailPart@anci.gov';
-    String password = generatePassword();
+    String emailGen = 'comune.$municipalityEmailPart@anci.gov';
+    String passwordGen = generatePassword();
 
     // Save credentials to the database
     await _daoAdmin.saveCredentialsToDatabase(
-        email, password, selectedMunicipality, adminPassword);
+        emailGen, emailComune, passwordGen, adminPassword, selectedMunicipality);
 
-    return {'email': email, 'password': password};
+    return {'email': emailGen, 'password': passwordGen};
   }
 
   /// Generate a random password for the municipality.
@@ -206,6 +206,13 @@ class AdminManagementController {
     }
     if (!RegExp(r'[!@#$%&*?]').hasMatch(password)) {
       return 'La password deve contenere almeno un carattere speciale';
+    }
+    return null;
+  }
+
+  String? validateEmail(String email) {
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      return 'Inserisci un indirizzo email valido';
     }
     return null;
   }
