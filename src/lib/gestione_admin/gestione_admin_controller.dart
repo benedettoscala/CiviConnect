@@ -7,8 +7,18 @@ import 'package:string_similarity/string_similarity.dart';
 
 import 'gestione_admin_dao.dart';
 
-
-
+/// A controller class responsible for managing Admin-related operations.
+///
+/// This class encapsulates the logic for generating credentials for municipalities.
+/// It interacts with the `AdminManagementDAO` for backend operations.
+///
+/// The controller provides methods for:
+/// - Loading the list of municipalities from a JSON file.
+/// - Filtering the list of municipalities based on a query.
+/// - Checking if a municipality exists in the database.
+/// - Generating credentials for municipalities.
+/// - Generating a random password for the municipality.
+/// - Logging out the current user.
 class AdminManagementController {
   //-------- Generate Credentials for Municipality --------
 
@@ -16,37 +26,60 @@ class AdminManagementController {
   final UserManagementDAO _daoUser = UserManagementDAO();
 
   /// Load the list of municipalities from JSON.
+  /// The JSON file contains a list of municipalities with their provinces.
+  /// The method returns a list of maps containing the municipalities and provinces.
+  /// Throws an exception if an error occurs during the process.
+  /// Returns:
+  /// - A `Future<List<Map<String, String>>>` containing the list of municipalities.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
+  /// - An exception if the JSON file cannot be loaded.
   Future<List<Map<String, String>>> loadMunicipalities() async {
-    String data = await rootBundle.loadString('assets/files/comuni-localita-cap-italia.json');
+    String data = await rootBundle
+        .loadString('assets/files/comuni-localita-cap-italia.json');
     Map<String, dynamic> jsonResult = json.decode(data);
 
-    print('JSON Result: $jsonResult'); // Debug
+    //print('JSON Result: $jsonResult'); // Debug
 
-    List<dynamic> municipalitiesList = jsonResult["Sheet 1 - comuni-localita-cap-i"];
+    List<dynamic> municipalitiesList =
+        jsonResult["Sheet 1 - comuni-localita-cap-i"];
     List<Map<String, String>> allMunicipalities = municipalitiesList
         .map((comune) => {
-      'Comune': comune["Comune Localita’"].toString(),
-      'Provincia': comune["Provincia"].toString(),
-    })
+              'Comune': comune["Comune Localita’"].toString(),
+              'Provincia': comune["Provincia"].toString(),
+            })
         .toSet()
         .toList(); // Remove duplicates
 
     return allMunicipalities;
   }
 
+  /// Filter the list of municipalities based on the query.
+  /// The query is used to search for municipalities by name.
+  /// The search is case-insensitive and uses a similarity score.
+  /// The top 7 most similar municipalities are shown first.
+  /// The remaining municipalities are shown in alphabetical order.
+  /// Returns a list of filtered municipalities.
+  /// Parameters:
+  /// - [allMunicipalities]: The list of all municipalities.
+  /// - [query]: The search query to filter the municipalities.
+  /// Returns:
+  /// - A list of filtered municipalities.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
   List<Map<String, String>> filterMunicipalities(
       List<Map<String, String>> allMunicipalities, String query) {
     if (query.isEmpty) {
       return allMunicipalities;
     }
 
-    // Filtra i comuni che contengono la query (case insensitive)
+    // Filter the municipalities that contain the query (case insensitive)
     List<Map<String, String>> filtered = allMunicipalities
         .where((comune) =>
-        comune['Comune']!.toLowerCase().contains(query.toLowerCase()))
+            comune['Comune']!.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
-    // Calcola il punteggio di similarità per ogni comune rispetto alla query
+    // Calculate the similarity score for each municipality compared to the query
     List<Map<String, dynamic>> scored = filtered.map((comune) {
       String name = comune['Comune']!;
       double similarity = StringSimilarity.compareTwoStrings(
@@ -58,47 +91,60 @@ class AdminManagementController {
       };
     }).toList();
 
-    // Ordina per similarità decrescente e poi per indice originale per stabilità
+    // Levenshtein distance is used to calculate similarity
+    // Order by decreasing similarity and then by original index for stability
     scored.sort((a, b) {
       int cmp = b['similarity'].compareTo(a['similarity']);
       if (cmp != 0) return cmp;
       return a['originalIndex'].compareTo(b['originalIndex']);
     });
 
-    // Prendi i primi 7 più simili
+    // Select the top 7 most similar
     List<Map<String, String>> top7 = scored
         .take(7)
-        .map<Map<String, String>>((item) => item['comune'] as Map<String, String>)
+        .map<Map<String, String>>(
+            (item) => item['comune'] as Map<String, String>)
         .toList();
 
-    // Prendi i comuni filtrati e rimuovi i primi 7
-    filtered = filtered
-        .where((comune) => !top7.contains(comune))
-        .toList();
+    // Take the filtered municipalities and remove the top 7 most similar
+    filtered = filtered.where((comune) => !top7.contains(comune)).toList();
 
-    // Combina i risultati
+    // Combine the top 7 and the filtered results
     return [...top7, ...filtered];
   }
 
   /// Checks if the municipality exists in the database.
+  /// The municipality name is used to check if it exists in the database.
   Future<bool> municipalityExistsInDatabase(String comune) async {
     return await _daoAdmin.municipalityExistsInDatabase(comune);
   }
 
   /// Generates credentials for the selected municipality.
+  /// The credentials include an email and a password.
+  /// The email is generated based on the municipality name.
+  /// The password is randomly generated.
+  /// The credentials are saved to the database.
+  /// The admin password is used to authenticate the operation.
+  /// Returns a map containing the email and password.
+  /// Throws an exception if an error occurs during the process.
   Future<Map<String, String>> generateCredentials(
-      Map<String, String> selectedMunicipality) async {
-    String municipalityEmailPart = selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
+      Map<String, String> selectedMunicipality, String adminPassword) async {
+    String municipalityEmailPart =
+        selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
     String email = 'comune.$municipalityEmailPart@anci.gov';
     String password = generatePassword();
 
     // Save credentials to the database
-    await _daoAdmin.saveCredentialsToDatabase(email, password, selectedMunicipality);
+    await _daoAdmin.saveCredentialsToDatabase(
+        email, password, selectedMunicipality, adminPassword);
 
     return {'email': email, 'password': password};
   }
 
   /// Generate a random password for the municipality.
+  /// The password is 15 characters long and contains uppercase, lowercase, numbers, and special characters.
+  /// The password is shuffled for added security.
+  /// Returns the generated password.
   String generatePassword() {
     const length = 15;
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -106,7 +152,7 @@ class AdminManagementController {
     const numbers = '0123456789';
     const special = '!@#\$%&*?';
 
-    final allChars = uppercase + lowercase + numbers + special;
+    const allChars = uppercase + lowercase + numbers + special;
     final rand = Random.secure();
 
     String password = '';
@@ -125,8 +171,61 @@ class AdminManagementController {
     return passwordChars.join();
   }
 
-  /// Logout the current user.
-  Future<void> logOut() async{
+  /// Validate the password.
+  /// The password must contain at least 8 characters.
+  /// The password must contain at most 255 characters.
+  /// The password must contain only letters, numbers, and special characters.
+  /// The password must contain at least one uppercase letter.
+  /// The password must contain at least one lowercase letter.
+  /// The password must contain at least one number.
+  /// The password must contain at least one special character.
+  /// Returns an error message if the password is invalid.
+  /// Parameters:
+  /// - [password]: The password to validate.
+  /// Returns:
+  /// - An error message if the password is invalid.
+  /// - An empty string if the password is valid.
+  String? validatePassword(String password) {
+    if (password.length < 8) {
+      return 'La password deve contenere almeno 8 caratteri';
+    }
+    if (password.length > 255) {
+      return 'La password deve contenere al massimo 255 caratteri';
+    }
+    if (!RegExp(r'[A-Za-z0-9!@#\$%&*?]').hasMatch(password)) {
+      return 'La password deve contenere solo lettere, numeri e caratteri speciali';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      return 'La password deve contenere almeno una lettera maiuscola';
+    }
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      return 'La password deve contenere almeno una lettera minuscola';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      return 'La password deve contenere almeno un numero';
+    }
+    if (!RegExp(r'[!@#$%&*?]').hasMatch(password)) {
+      return 'La password deve contenere almeno un carattere speciale';
+    }
+    return null;
+  }
+
+  /// Validate the admin password.
+  /// The admin password is used to authenticate the operation.
+  /// Returns a boolean indicating whether the password is correct.
+  /// Parameters:
+  /// - [password]: The admin password to validate.
+  /// Returns:
+  /// - A `Future<bool>` indicating whether the password is correct.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
+  /// - An exception if the password is incorrect.
+  Future<bool> validateAdminPassword(String password) {
+    return _daoAdmin.validateAdminPassword(password);
+  }
+
+  /// Logout the current Admin.
+  Future<void> logOut() async {
     _daoUser.logOut();
   }
 }
