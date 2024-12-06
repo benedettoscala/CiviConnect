@@ -141,7 +141,6 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
       for (var cityDoc in cityCollections.docs) {
         Query<Map<String, dynamic>> query = cityDoc.reference.collection('${cityDoc.id}_reports')
             .where('uid', isEqualTo: userId)
-            .orderBy('reportDate', descending: false)
             .limit(10);
 
         // If the last document is not null, the query starts after the last document of the previous query.
