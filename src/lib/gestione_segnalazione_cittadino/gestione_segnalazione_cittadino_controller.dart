@@ -50,18 +50,24 @@ class CitizenReportManagementController {
   }
 }
 
-Future<GeoPoint?> getCoordinates(BuildContext context) async {
-  final stopwatch = Stopwatch()..start();
+/// Requests location permissions from the user.
+///
+/// This function checks if the location service is enabled and if the necessary
+/// permissions are granted. If the service is not enabled or the permissions are
+/// denied, it redirects the user to the `LocationPermissionPage`.
+///
+/// \param context The build context.
+/// \return A `Future` that resolves to a `loc.Location` object if the permissions
+///         are granted and the service is enabled, otherwise `null`.
+
+Future<loc.Location> requestLocationPermissions(BuildContext context) async {
   loc.Location location = loc.Location();
 
   bool serviceEnabled = await location.serviceEnabled();
   if (!serviceEnabled) {
     serviceEnabled = await location.requestService();
     if (!serviceEnabled) {
-      stopwatch.stop();
-      print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
       _redirectToLocationPermissionPage(context);
-      return null;
     }
   }
 
@@ -69,32 +75,28 @@ Future<GeoPoint?> getCoordinates(BuildContext context) async {
   if (permissionGranted == loc.PermissionStatus.denied) {
     permissionGranted = await location.requestPermission();
     if (permissionGranted == loc.PermissionStatus.denied) {
-      stopwatch.stop();
-      print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
       _redirectToLocationPermissionPage(context);
-      return null;
     }
   }
 
   if (permissionGranted == loc.PermissionStatus.deniedForever) {
-    stopwatch.stop();
-    print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
     _redirectToLocationPermissionPage(context);
-    return null;
   }
-  loc.LocationData locationData = await location.getLocation();
-  return GeoPoint(locationData.latitude!, locationData.longitude!);
+  return location;
 }
 
+Future<GeoPoint?> getCoordinates(BuildContext context) async {
+  loc.Location location = await requestLocationPermissions(context);
+  loc.LocationData locationData = await location.getLocation();
+  return GeoPoint(locationData.latitude!, locationData.longitude!);
+  }
+
 Future<List<String>> getLocation(GeoPoint? location) async {
-  final stopwatch = Stopwatch()..start();
   final locationData = location;
 
   //setting posizione
   List<Placemark> placemarks = await placemarkFromCoordinates(
       locationData!.latitude, locationData.longitude);
-  stopwatch.stop();
-  print('Tempo impiegato: ${stopwatch.elapsedMilliseconds} ms');
   return [
     placemarks[0].locality ?? "Località non disponibile",
     placemarks[0].street ?? "Strada non disponibile",
@@ -102,13 +104,13 @@ Future<List<String>> getLocation(GeoPoint? location) async {
   ];
 }
 
+
 _redirectToLocationPermissionPage(BuildContext context) {
-  Navigator.pushReplacement(
+  Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => LocationPermissionPage(
-        onRetry: () => getCoordinates(context),
-        redirectPage: const HomePage(),
+      builder: (context) => const LocationPermissionPage(
+        redirectPage: HomePage(),
       ),
     ),
   );
