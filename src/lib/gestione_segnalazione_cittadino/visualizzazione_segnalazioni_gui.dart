@@ -66,8 +66,10 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
     if (_userData.isEmpty) {
       return const Scaffold(
-        body: Center(child: Text(
-            'Nessun dato disponibile. Controlla la tua connessione.'),),
+        body: Center(
+          child: Text(
+            'Nessun dato disponibile. Controlla la tua connessione.'),
+        ),
       );
     }
     return _buildScaffold();
@@ -78,32 +80,32 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// This method fetches the current citizen user and their reports,
   /// and updates the state with the retrieved data.
   Future<void> _loadInitialData() async {
-    setState(() {
-      _isLoading = true;
-      _hasMoreData = true;
-    });
-
+      setState(() {
+        _isLoading = true;
+        _hasMoreData = true;
+      });
     try {
       _reportController.citizen.then((value) {
         _reportController.getUserReports(reset: true).then((value) {
+          _userData.clear();
           setState(() {
-            _userData.clear();
             if (value != null && value.isNotEmpty) {
               _userData.addAll(value);
             } else {
               _hasMoreData = false;
             }
+            _isLoading = false;
           });
         });
       });
     } catch (e) {
       _errorText = 'Errore durante il caricamento iniziale: $e';
-    } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
+
 
   /// Loads additional data when the user scrolls to the bottom of the list.
   ///
@@ -249,7 +251,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
               ? Text(_errorText)
               : CardWidget(
             uid: report['uid'],
-            name: '${report['authorFirstName']} ${report['uid']}',
+            name: '${report['authorFirstName']} ${report['authorLastName']}',
             description: report['title'],
             status: StatusReport.getStatus(report['status']) ??
                 StatusReport.rejected,
