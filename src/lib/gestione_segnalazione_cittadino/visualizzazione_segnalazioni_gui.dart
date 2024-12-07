@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           _loadUpdateData();
         }
       });
-    _reportController = CitizenReportManagementController();
+    _reportController = CitizenReportManagementController(redirectPage: const HomePage());
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
   }
