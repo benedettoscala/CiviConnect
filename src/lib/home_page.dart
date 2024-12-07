@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     const Placeholder(),
     const ReportsViewCitizenGUI(),
     const UserProfile(),
-    const DataAnalysisGUI(),
+    DataAnalysisGUI(),
     const Placeholder(),
     const UserProfile(),
   ];
