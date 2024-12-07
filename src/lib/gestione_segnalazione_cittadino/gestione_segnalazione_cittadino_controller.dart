@@ -44,7 +44,6 @@ class CitizenReportManagementController {
       required Category categoria,
       required GeoPoint location,
       Map<String, String>? indirizzo}) async {
-    imageUrls.shuffle(Random());
     final report = Report(
       uid: _firebaseAuth.currentUser!.uid,
       city: citta,
@@ -171,7 +170,7 @@ Future<List<String>> getLocation(GeoPoint? location) async {
   ];
 }
 
-_redirectToLocationPermissionPage(BuildContext context) {
+void _redirectToLocationPermissionPage(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
