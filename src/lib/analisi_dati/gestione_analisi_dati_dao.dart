@@ -15,6 +15,9 @@ class DataAnalysisManagementDAO {
   /// Whe DAO is used to retrieve the data, the data is stored in this variable to cache it.
   List<WeightedLatLng>? _data;
 
+  /// The default point to use if no data is available.
+  /// This point is the coordinates of Fisciano City.
+  final _defaultPoint = const GeoPoint(40.773837, 14.7884);
 
   /// Retrieves the data for the HeatMap from the database.
   /// - [city]: The name of the city for which to retrieve the data.
@@ -34,15 +37,13 @@ class DataAnalysisManagementDAO {
     if(docs.isEmpty){
       return null;
     }
-    print(docs.first.data()['location']);
     // The data is stored in a list of WeightedLatLng objects.
     _data = docs.map((doc) { GeoPoint point;
       try {
-        point = doc.data()['location'] ?? const GeoPoint(0, 0);
-      } on Exception catch (e) {
-        point = const GeoPoint(0, 0);
+        point = doc.data()['location'] ??_defaultPoint;
+      } on Exception {
+        point = _defaultPoint;
       }
-      print(point.latitude);
         return WeightedLatLng(
         LatLng(point.latitude, point.longitude),
         PriorityReport.getPriority(doc.data()['priority']?? 'Non impostata')!.value.ceilToDouble());}
@@ -61,9 +62,9 @@ class DataAnalysisManagementDAO {
     return _firestore.collection('reports').doc(city).collection('${city}_reports').get().then((querySnapshot) {
       final docs = querySnapshot.docs;
       if(docs.isEmpty){
-        return const LatLng(40.773837, 14.7884);
+        return LatLng(_defaultPoint.latitude, _defaultPoint.longitude);
       }
-      final point = docs.first.data()['location'] ?? const GeoPoint(40.773837, 14.7884);
+      final point = docs.first.data()['location'] ?? _defaultPoint;
       return LatLng(point.latitude, point.longitude);
     });
   }
