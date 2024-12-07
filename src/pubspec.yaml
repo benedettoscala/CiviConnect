@@ -53,6 +53,7 @@ dependencies:
   flutter_map: 6.2.1 # Per utilizzare OpenStreetMap
   flutter_map_heatmap: any
   latlong2: 0.9.1 # Per gestire le coordinate geografiche
+  flutter_map_cancellable_tile_provider: ^2.0.0
 flutter_icons:
   image_path: "assets/images/logo_image.png"
   android: true
