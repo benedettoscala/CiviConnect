@@ -1,14 +1,25 @@
 import 'package:civiconnect/analisi_dati/gestione_analisi_dati_dao.dart';
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
+import 'package:latlong2/latlong.dart';
 
-
+/// Controller for managing data analysis.
+/// The controller is used to retrieve data from the database
+/// to be used in the data analysis for the municipality.
 class DataAnalysisManagementController {
   final DataAnalysisManagementDAO _analysisDAO;
   final UserManagementDAO _userDAO;
   Municipality? _municipality;
+  LatLng? _cityCoordinates;
 
-  DataAnalysisManagementController( DataAnalysisManagementDAO? analysisDAO, UserManagementDAO? userDAO) :
+  /// Constructs a new `DataAnalysisManagementController` instance.
+  /// Parameters:
+  /// - [analysisDAO]: An optional instance of `DataAnalysisManagementDAO`.
+  /// If not provided, a new instance of `DataAnalysisManagementDAO` will be created.
+  /// - [userDAO]: An optional instance of `UserManagementDAO`.
+  /// If not provided, a new instance of `UserManagementDAO` will be created.
+  DataAnalysisManagementController({DataAnalysisManagementDAO? analysisDAO, UserManagementDAO? userDAO}) :
         _analysisDAO = analysisDAO ?? DataAnalysisManagementDAO(),
         _userDAO = userDAO ?? UserManagementDAO();
 
@@ -32,7 +43,29 @@ class DataAnalysisManagementController {
     if(_municipality == null) {
       retrieveUser();
     }
-    return _municipality?.municipalityName;
+    return _municipality?.municipalityName?.toLowerCase();
+  }
+
+  /// Retrieves the data for the HeatMap from the database.
+  /// - [city]: The name of the city for which to retrieve the data.
+  /// Returns:
+  /// - A `Future<List<WeightedLatLng>?>` containing the data for the HeatMap,
+  /// or `null` if no data is available.
+  Future<List<WeightedLatLng>?> dataHeatMap() async {
+    final List<WeightedLatLng>? data = await _analysisDAO.retrieveDataHeatMap(city: cityOfMunicipality());
+    _cityCoordinates = data?.first.latLng;
+    return data;
+  }
+
+  /// Retrieves the coordinates of the city of the municipality.
+  /// Returns:
+  /// - A `Future<Coordinates>` containing the coordinates of the city.
+  Future<LatLng?> retrieveCityCoordinates() async {
+    if(_cityCoordinates == null) {
+      final city = await _analysisDAO.retrieveFirstReportLocation(city: cityOfMunicipality());
+      _cityCoordinates = city;
+    }
+    return _cityCoordinates;
   }
 
 }
