@@ -48,7 +48,9 @@ dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.14.1
   flutter_native_splash: ^2.4.3
-
+  geolocator: ^13.0.2
+  geocoding: ^2.0.0
+  location: ^5.0.0
 flutter_icons:
   image_path: "assets/images/logo_image.png"
   android: true

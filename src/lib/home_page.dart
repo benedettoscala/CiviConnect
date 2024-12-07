@@ -1,7 +1,12 @@
 import 'package:civiconnect/gestione_admin/admin_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
+import 'package:civiconnect/utils/report_status_priority.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import 'gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
+import 'model/report_model.dart';
 
 /// Home page of the application.
 class HomePage extends StatefulWidget {

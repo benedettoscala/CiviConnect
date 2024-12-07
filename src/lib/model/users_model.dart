@@ -104,7 +104,7 @@ class Citizen extends GenericUser {
     this.city,
     this.cap,
     Map<String, String>? address,
-  }) : address = _validateAddress(address);
+  }) : address = validateAddress(address);
 
   /// Validates the provided address map.
   ///
@@ -124,7 +124,7 @@ class Citizen extends GenericUser {
   /// \param address The address map to validate, which can be null.
   ///
   /// \return The original map if valid, or `null` if invalid.
-  static Map<String, String>? _validateAddress(Map<String, String>? address) {
+  static Map<String, String>? validateAddress(Map<String, String>? address) {
     if (address == null) {
       return null;
     }
@@ -133,7 +133,7 @@ class Citizen extends GenericUser {
         address.keys.length == _addressKeys.length) {
       return address;
     }
-
+ 
     return null;
   }
 }
