@@ -21,8 +21,6 @@ class DettagliSegnalazioneComune extends StatefulWidget {
 class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<State> key = GlobalKey();
-
     return SingleDetailsReport(
         report: widget._report,
         onStateButton: () => _onChangeValue(
