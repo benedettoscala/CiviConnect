@@ -4,14 +4,40 @@ import 'package:civiconnect/gestione_admin/gestione_admin_controller.dart';
 import '../user_management/login_utente_gui.dart';
 import '../utils/snackbar_riscontro.dart';
 
+/// The Admin Home Page widget.
+/// This page allows the Admin to generate credentials for municipalities.
+/// The Admin can search for a municipality and generate credentials for it.
+/// The page also provides a logout button to log out the Admin.
+/// The page uses the `AdminManagementController` to handle the business logic.
+/// The page displays a list of municipalities that can be searched using an autocomplete field.
+/// The Admin can select a municipality from the list and generate credentials for it.
+/// The page also displays the generated email and password for the municipality.
+/// The page shows an error message if the municipality is already present in the database.
+/// The page shows a success message if the credentials are generated successfully.
+/// The page uses the `showMessage` function to display messages.
+/// The page uses the `showAdminPasswordAndMunicipalityEmailDialog` function to show a dialog for entering the Admin password and municipality email.
+/// The page uses the `_onMunicipalitySelected` function to handle the selection of a municipality from the autocomplete list.
+/// The page uses the `_generateCredentials` function to generate credentials for the selected municipality.
+/// The page uses the `_loadMunicipalities` function to load the list of municipalities from a JSON file.
+/// The page uses the `_controller` to interact with the `AdminManagementController`.
+/// The page uses the `_textEditingControllerAutocomplete` to control the autocomplete text field.
+/// The page uses the `_allMunicipalities` to store the list of municipalities.
+/// The page uses the `_selectedMunicipality` to store the selected municipality.
+/// The page uses the `_generatedEmail` and `_generatedPassword` to store the generated email and password.
+/// The page uses the `_isMunicipalityExisting` to store whether the municipality is already present in the database.
+/// The page uses the `_showAdminPasswordAndMunicipalityEmailDialog` function to show a dialog for entering the Admin password and municipality email.
 class AdminHomePage extends StatefulWidget {
-  const AdminHomePage({Key? key}) : super(key: key);
+  /// Creates an Admin Home Page widget.
+  const AdminHomePage({super.key});
 
   @override
-  _AdminHomePageState createState() => _AdminHomePageState();
+  AdminHomePageState createState() => AdminHomePageState();
 }
 
-class _AdminHomePageState extends State<AdminHomePage> {
+/// The state of the Admin Home Page widget.
+/// This state manages the state of the Admin Home Page widget.
+/// The state uses the `AdminManagementController` to handle the business logic.
+class AdminHomePageState extends State<AdminHomePage> {
   final AdminManagementController _controller = AdminManagementController();
   // Controller fo searched field
   TextEditingController? _textEditingControllerAutocomplete;
@@ -61,7 +87,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
     return showDialog<Map<String, String>>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             bool isPasswordValid =
@@ -194,7 +220,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 child: Column(
                   children: [
                     Autocomplete<Map<String, String>>(
-                      optionsBuilder: (TextEditingValue textEditingValue) {
+                      optionsBuilder: (textEditingValue) {
                         if (textEditingValue.text.isEmpty) {
                           return const Iterable<Map<String, String>>.empty();
                         } else {
@@ -202,13 +228,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               _allMunicipalities, textEditingValue.text);
                         }
                       },
-                      displayStringForOption: (Map<String, String> comune) =>
+                      displayStringForOption: (comune) =>
                           comune['Comune']!,
                       fieldViewBuilder: (
-                        BuildContext context,
-                        TextEditingController textEditingController,
-                        FocusNode focusNode,
-                        VoidCallback onFieldSubmitted,
+                        context,
+                        textEditingController,
+                        focusNode,
+                        onFieldSubmitted,
                       ) {
                         _textEditingControllerAutocomplete =
                             textEditingController;
@@ -239,13 +265,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           ),
                         );
                       },
-                      onSelected: (Map<String, String> selectedComune) {
+                      onSelected: (selectedComune) {
                         _onMunicipalitySelected(selectedComune);
                       },
                       optionsViewBuilder: (
-                        BuildContext context,
-                        AutocompleteOnSelected<Map<String, String>> onSelected,
-                        Iterable<Map<String, String>> options,
+                        context,
+                        onSelected,
+                        options,
                       ) {
                         final List<Map<String, String>> optionsList =
                             options.toList();
@@ -259,7 +285,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                 padding: EdgeInsets.zero,
                                 shrinkWrap: true,
                                 itemCount: optionsList.length,
-                                itemBuilder: (BuildContext context, int index) {
+                                itemBuilder: (context, index) {
                                   final Map<String, String> option =
                                       optionsList[index];
                                   bool isTop7 = index < 7;

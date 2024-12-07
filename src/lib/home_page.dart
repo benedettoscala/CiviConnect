@@ -1,6 +1,5 @@
 import 'package:civiconnect/gestione_admin/admin_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
-import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
       future: UserManagementController().checkIfUserIsAdmin(),
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {

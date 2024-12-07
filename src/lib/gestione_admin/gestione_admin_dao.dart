@@ -32,7 +32,7 @@ class AdminManagementDAO {
           .get();
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
-      print('Comune già presente nel database: $e');
+      // Municipality already exists
       return false;
     }
   }

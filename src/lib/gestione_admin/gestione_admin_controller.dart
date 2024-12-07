@@ -42,11 +42,11 @@ class AdminManagementController {
     //print('JSON Result: $jsonResult'); // Debug
 
     List<dynamic> municipalitiesList =
-        jsonResult["Sheet 1 - comuni-localita-cap-i"];
+        jsonResult['Sheet 1 - comuni-localita-cap-i'];
     List<Map<String, String>> allMunicipalities = municipalitiesList
         .map((comune) => {
-              'Comune': comune["Comune Localita’"].toString(),
-              'Provincia': comune["Provincia"].toString(),
+              'Comune': comune['Comune Localita’'].toString(),
+              'Provincia': comune['Provincia'].toString(),
             })
         .toSet()
         .toList(); // Remove duplicates
@@ -95,7 +95,9 @@ class AdminManagementController {
     // Order by decreasing similarity and then by original index for stability
     scored.sort((a, b) {
       int cmp = b['similarity'].compareTo(a['similarity']);
-      if (cmp != 0) return cmp;
+      if (cmp != 0) {
+        return cmp;
+      }
       return a['originalIndex'].compareTo(b['originalIndex']);
     });
 
@@ -194,7 +196,7 @@ class AdminManagementController {
     if (password.length > 255) {
       return 'La password deve contenere al massimo 255 caratteri';
     }
-    if (!RegExp(r'[A-Za-z0-9!@#\$%&*?]').hasMatch(password)) {
+    if (!RegExp(r'[A-Za-z0-9!@#$%&*?]').hasMatch(password)) {
       return 'La password deve contenere solo lettere, numeri e caratteri speciali';
     }
     if (!RegExp(r'[A-Z]').hasMatch(password)) {
@@ -212,8 +214,18 @@ class AdminManagementController {
     return null;
   }
 
+  /// Validate the email address.
+  /// The email address must be in a valid format.
+  /// Returns an error message if the email is invalid.
+  /// Parameters:
+  /// - [email]: The email address to validate.
+  /// Returns:
+  /// - An error message if the email is invalid.
+  /// - An empty string if the email is valid.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
   String? validateEmail(String email) {
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+    if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       return 'Inserisci un indirizzo email valido';
     }
     return null;
@@ -234,6 +246,12 @@ class AdminManagementController {
   }
 
   /// Logout the current Admin.
+  /// The method logs out the current Admin user.
+  /// Throws an exception if an error occurs during the process.
+  /// Returns:
+  /// - A `Future<void>` indicating the completion of the operation.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
   Future<void> logOut() async {
     _daoUser.logOut();
   }
