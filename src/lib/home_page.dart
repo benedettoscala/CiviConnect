@@ -4,6 +4,7 @@ import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
 
 import 'gestione_admin/admin_gui.dart';
+import 'gestione_segnalazione_cittadino/visualizzazione_segnalazioni_gui.dart';
 import 'model/users_model.dart';
 
 /// Home page of the application.
@@ -22,6 +23,12 @@ class _HomePageState extends State<HomePage> {
   Map<String, dynamic> userData = {};
   late UserManagementController userController;
 
+  final List<Widget> _pages = <Widget>[
+    const Placeholder(),
+    const Placeholder(),
+    const UserProfile(),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +41,8 @@ class _HomePageState extends State<HomePage> {
     try {
       _userInfo = (await UserManagementDAO().determineUserType())!;
       if (_userInfo is Citizen) {
+        // if is citizen the home page is this reports view
+        _pages[1] = const ReportsViewCitizenGUI();
         data = await userController.getUserData();
       } else {
         data = await userController.getMunicipalityData();
@@ -48,12 +57,6 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
-  final List<Widget> _pages = <Widget>[
-    const Placeholder(),
-    const Placeholder(),
-    const UserProfile(),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
