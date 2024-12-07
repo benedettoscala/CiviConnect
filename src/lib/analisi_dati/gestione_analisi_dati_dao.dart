@@ -38,12 +38,8 @@ class DataAnalysisManagementDAO {
       return null;
     }
     // The data is stored in a list of WeightedLatLng objects.
-    _data = docs.map((doc) { GeoPoint point;
-      try {
-        point = doc.data()['location'] ??_defaultPoint;
-      } on Exception {
-        point = _defaultPoint;
-      }
+    _data = docs.map((doc) {
+      GeoPoint point = doc.data()['location'] ??_defaultPoint;
         return WeightedLatLng(
         LatLng(point.latitude, point.longitude),
         PriorityReport.getPriority(doc.data()['priority']?? 'Non impostata')!.value.ceilToDouble());}
