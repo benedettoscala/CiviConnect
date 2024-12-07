@@ -3,6 +3,7 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
 
+import 'gestione_admin/admin_gui.dart';
 import 'model/users_model.dart';
 
 /// Home page of the application.
@@ -67,6 +68,11 @@ class _HomePageState extends State<HomePage> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
+    if (_userInfo is Admin) {
+      return const AdminHomePage();
+    }
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: _pages[_selectedIndex],
