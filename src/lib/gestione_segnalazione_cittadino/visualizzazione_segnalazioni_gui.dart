@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:civiconnect/gestione_segnalazione_cittadino/inserimento_segnalazione_gui.dart';
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
@@ -180,7 +181,12 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: vai alla pagina di creazione della segnalazione
+          // Send to the report creation page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const InserimentoSegnalazioneGUI()),
+          );
         },
         backgroundColor: theme.colorScheme.primary,
         child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
