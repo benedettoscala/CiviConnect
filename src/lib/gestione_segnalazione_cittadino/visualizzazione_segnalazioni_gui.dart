@@ -191,42 +191,42 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// Contains the user profile picture and the search and filter buttons
   Widget _buildHeader() {
     return Row(
-      children: [
-        /// Search bar
-        _searchBar(),
+  children: [
+    /// Search bar
+    Expanded(child: _searchBar()),
 
-        /// Filter button
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Card(
-            color: Colors.white70,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 2,
-            shadowColor: Colors.black.withOpacity(0.5),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.filter_list,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
-                    onPressed: () {
-                      // TODO: Implementa il metodo di selezione del filtro
-                    },
-                  ),
-                ],
+    /// Filter button
+    Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Card(
+        color: Colors.white70,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.5),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.filter_list,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+                onPressed: () {
+                  // TODO: Implementa il metodo di selezione del filtro
+                },
               ),
-            ),
+            ],
           ),
-        )
-      ],
-    );
+        ),
+      ),
+    )
+  ],
+);
   }
 
   /// Main Body of the page
@@ -283,47 +283,46 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// The search icon does not have any functionality implemented yet.
   Widget _searchBar() {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Card(
-        color: Colors.white70,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.5),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              IconButton(
-                icon: Icon(
-                  HugeIcons.strokeRoundedSearch02,
-                  size: 24,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-                onPressed: () { // TODO - Implement search functionality
-                },
-              ),
-              SizedBox(
-                width: max(MediaQuery.of(context).size.width * 0.5, 200),
-                child: const TextField(
-                  decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                        borderSide: BorderSide.none,
-                      ),
-                      hintText: 'Cerca segnalazione...'),
-                ),
-              ),
-            ],
+  padding: const EdgeInsets.all(10.0),
+  child: Card(
+    color: Colors.white70,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    elevation: 2,
+    shadowColor: Colors.black.withOpacity(0.5),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          IconButton(
+            icon: Icon(
+              HugeIcons.strokeRoundedSearch02,
+              size: 24,
+              color: theme.colorScheme.onPrimaryContainer,
+            ),
+            onPressed: () { // TODO - Implement search functionality
+            },
           ),
-        ),
+          const Flexible(
+            child: const TextField(
+              decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide.none,
+                  ),
+                  hintText: 'Cerca segnalazione...'),
+            ),
+          ),
+        ],
       ),
-    );
+    ),
+  ),
+);
   }
 
 
