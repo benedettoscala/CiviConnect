@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
+import 'package:image_picker/image_picker.dart';
 
 class InserimentoSegnalazioneGUI extends StatefulWidget {
   const InserimentoSegnalazioneGUI({super.key});
@@ -19,14 +20,14 @@ class _InserimentoSegnalazioneGUIState
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
-  final CitizenReportManagementController _controller = CitizenReportManagementController(
-      redirectPage: const HomePage());
+  final CitizenReportManagementController _controller =
+      CitizenReportManagementController(redirectPage: const HomePage());
 
   late Category _categoria;
   String? _descrizione;
   String? _titolo;
   String? _citta;
-  String? _selectedImage;
+  File? _selectedImage;
   late Map<String, String>? _indirizzo;
   late GeoPoint _location;
   List<String>? _indirizzoLista;
@@ -194,13 +195,13 @@ class _InserimentoSegnalazioneGUIState
             style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
-            decoration:
-                TextFieldInputDecoration(context, labelText: 'Descrizione'),
-            maxLines: 3,
-            validator: FormBuilderValidators.compose(
-              [
-                FormBuilderValidators.required(),
-                (value) => _checkBadWords(value),
+          decoration:
+              TextFieldInputDecoration(context, labelText: 'Descrizione'),
+          maxLines: 3,
+          validator: FormBuilderValidators.compose(
+            [
+              FormBuilderValidators.required(),
+              (value) => _checkBadWords(value),
             ],
           ),
           onChanged: (value) => {
@@ -214,34 +215,37 @@ class _InserimentoSegnalazioneGUIState
   }
 
   Widget _buildSelectPhotoButton() {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          _selectedImage = _controller.shuffleImages(); // Replace with actual image URL or logic to select an image
-        });
-      },
-      child: const Text('Seleziona Foto'),
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () => _pickImageFromCamera(),
+          child: const Text('Scatta Foto'),
+        ),
+        const SizedBox(height: 10),
+      ],
     );
   }
 
-Widget _buildImageCard() {
-  return Card(
-    clipBehavior: Clip.antiAlias, // Ensure the image follows the card's border radius
-    child: Column(
-      children: [
-        if (_selectedImage != null)
-          Image.network(
-            _selectedImage!,
-            width: 450, // Set the desired width
-            height: 325, // Set the desired height
-            fit: BoxFit.cover, // Ensure the image covers the area
-          )
-        else
-          const Text('Nessuna immagine selezionata'),
-      ],
-    ),
-  );
-}
+  Widget _buildImageCard() {
+    return Card(
+      clipBehavior:
+          Clip.antiAlias, // Ensure the image follows the card's border radius
+      child: Column(
+        children: [
+          if (_selectedImage != null)
+            Image.file(
+              _selectedImage!,
+              width: 450, // Set the desired width
+              height: 325, // Set the desired height
+              fit: BoxFit.cover, // Ensure the image covers the area
+            )
+          else
+            const Text('Nessuna immagine selezionata'),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSubmitButton() {
     return ElevatedButton(
       onPressed: () {
@@ -269,14 +273,22 @@ Widget _buildImageCard() {
 
   /// Validates the description field to check for bad words.
   String? _checkBadWords(String? value) {
-    if(_badWords == null || value == null || value.isEmpty) {
+    if (_badWords == null || value == null || value.isEmpty) {
       return null;
     }
     if (_controller.containsBadWords(value, _badWords!)) {
-        return 'La descrizione contiene parole non consentite';
+      return 'La descrizione contiene parole non consentite';
     }
     return null;
   }
 
-
+  Future<void> _pickImageFromCamera() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
 }
