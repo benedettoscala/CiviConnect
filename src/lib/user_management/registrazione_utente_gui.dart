@@ -74,7 +74,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         ]),
                         name: 'email',
                         maxLength: 255,
-                        decoration: TextFieldInputDecoration(context, labelText: 'Email'),
+                        decoration: TextFieldInputDecoration(context,
+                            labelText: 'Email'),
                         onChanged: (value) {
                           setState(() {
                             email = value!;
@@ -92,8 +93,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         name: 'password',
                         maxLength: 4096,
                         decoration: TextFieldInputDecoration(context,
-                          labelText: 'Password',
-                          obscureText: obscureText, onObscure: () {
+                            labelText: 'Password',
+                            obscureText: obscureText, onObscure: () {
                           setState(() {
                             obscureText = !obscureText;
                           });
@@ -123,7 +124,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         ]),
                         name: 'firstName',
                         maxLength: 255,
-                        decoration: TextFieldInputDecoration(context, labelText: 'Nome'),
+                        decoration: TextFieldInputDecoration(context,
+                            labelText: 'Nome'),
                         onChanged: (value) {
                           setState(() {
                             firstName = value!;
@@ -144,7 +146,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         ]),
                         name: 'lastName',
                         maxLength: 255,
-                        decoration: TextFieldInputDecoration(context, labelText: 'Cognome'),
+                        decoration: TextFieldInputDecoration(context,
+                            labelText: 'Cognome'),
                         onChanged: (value) {
                           setState(() {
                             lastName = value!;
@@ -165,7 +168,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         ]),
                         name: 'City',
                         maxLength: 255,
-                        decoration: TextFieldInputDecoration(context, labelText: 'Città'),
+                        decoration: TextFieldInputDecoration(context,
+                            labelText: 'Città'),
                         onChanged: (value) {
                           setState(() {
                             city = value!;
@@ -183,7 +187,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         ]),
                         name: 'cap',
                         maxLength: 5,
-                        decoration: TextFieldInputDecoration(context, labelText: 'CAP'),
+                        decoration:
+                            TextFieldInputDecoration(context, labelText: 'CAP'),
                         onChanged: (value) async {
                           setState(() {
                             cap = value!;
@@ -205,7 +210,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               ]),
                               name: 'street',
                               maxLength: 255,
-                              decoration: TextFieldInputDecoration(context, labelText: 'Via'),
+                              decoration: TextFieldInputDecoration(context,
+                                  labelText: 'Via'),
                               onChanged: (value) {
                                 setState(() {
                                   address['street'] = value!;
@@ -219,8 +225,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                             child: FormBuilderTextField(
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
-                                    errorText:
-                                        'N. Civico obbligatorio'),
+                                    errorText: 'N. Civico obbligatorio'),
                                 FormBuilderValidators.match(RegExp(r'^\d+$'),
                                     errorText:
                                         'Il numero civico può contenere solo cifre'),
@@ -230,7 +235,8 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                               ]),
                               name: 'number',
                               maxLength: 10,
-                              decoration: TextFieldInputDecoration(context, labelText: 'Civico'),
+                              decoration: TextFieldInputDecoration(context,
+                                  labelText: 'Civico'),
                               onChanged: (value) {
                                 setState(() {
                                   address['number'] = value!;
