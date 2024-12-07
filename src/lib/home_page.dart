@@ -122,13 +122,14 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    CircleAvatar(
+                    userInfo != null
+                        ? CircleAvatar(
                       radius: 20,
-                      backgroundImage: userInfo != null
-                          ? AssetImage(
-                              'assets/images/profile/${userInfo!.uid.hashCode % 6}.jpg',
-                            )
-                          : const AssetImage('assets/images/profile/0.jpg'),
+                      backgroundImage: AssetImage(
+                        'assets/images/profile/${userInfo!.uid.hashCode % 6}.jpg',
+                      ),
+                    ) : const CircularProgressIndicator(
+                      color: Colors.white,
                     ),
                     const SizedBox(width: 12),
                     userInfo != null
@@ -138,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                                 : userData['municipalityName'],
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.onPrimary))
-                        : const Text('Benvenuto Utente',
+                        : const Text('Caricamento...',
                             style: TextStyle(color: Colors.white)),
                     const Expanded(child: UnconstrainedBox()),
                     IconButton(
