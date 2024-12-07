@@ -43,12 +43,14 @@ class AdminManagementDAO {
   /// The method also logs in as the admin and logs out after saving the credentials.
   /// The method throws an exception if an error occurs during the process.
   /// Parameters:
-  /// - [email]: The email address of the municipality.
-  /// - [passwordComune]: The password for the municipality.
-  /// - [selectedComune]: A map containing the selected municipality's name and province.
+  /// - [emailGen]: The email for the municipality user.
+  /// - [emailComune]: The email for the municipality.
+  /// - [passwordGen]: The password for the municipality user.
   /// - [passwordAdmin]: The password for the admin user.
+  /// - [selectedComune]: A map containing the name of the municipality and its province.
   /// Throws:
   /// - An exception if an error occurs during the process.
+  /// - An exception if the admin password is incorrect.
   /// - An exception if the user type is not an admin.
   /// - An exception if the credentials cannot
   ///  be saved to the database.
