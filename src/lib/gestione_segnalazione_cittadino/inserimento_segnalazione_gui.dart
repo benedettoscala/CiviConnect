@@ -269,16 +269,10 @@ Widget _buildImageCard() {
 
   /// Validates the description field to check for bad words.
   String? _checkBadWords(String? value) {
-    if(_badWords == null){
-      print('No bad words list found');
-    }
-    debugPrint("QUI: $_badWords");
     if(_badWords == null || value == null || value.isEmpty) {
       return null;
     }
-
     if (_controller.containsBadWords(value, _badWords!)) {
-      print('Bad words found in description');
         return 'La descrizione contiene parole non consentite';
     }
     return null;

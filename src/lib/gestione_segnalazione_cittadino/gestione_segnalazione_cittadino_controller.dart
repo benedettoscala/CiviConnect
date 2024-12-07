@@ -135,16 +135,12 @@ class CitizenReportManagementController {
 
       var box = Hive.box('settings');
       await box.put('bad_words', words);
-
-      // Save in SharedPreferences
-      //await prefs.setStringList('bad_words', words);
     }
   }
 
   /// Retrieves the list of bad words from the SharedPreferences.
   /// If the list is not present in the SharedPreferences, it is downloaded from the internet.
   Future<List<String>> getBadWords() async {
-    //final prefs = await SharedPreferences.getInstance();
     var box = Hive.box('settings');
     if(!box.containsKey('bad_words')){
       await _downloadBadWords();
