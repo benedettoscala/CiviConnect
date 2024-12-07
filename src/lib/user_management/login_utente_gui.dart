@@ -15,7 +15,9 @@ import '../widgets/logo_widget.dart';
 class LoginUtenteGUI extends StatefulWidget {
   /// Constructs a new instance of [LoginUtenteGUI].
   LoginUtenteGUI({super.key, UserManagementController? controller})
-      : _controller = (controller == null) ? UserManagementController(redirectPage: const HomePage()) : controller;
+      : _controller = (controller == null)
+            ? UserManagementController(redirectPage: const HomePage())
+            : controller;
 
   /// The title of the login page.
   final String title = 'Login';
@@ -35,9 +37,9 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
   final _emailKey = GlobalKey<FormBuilderFieldState>();
   late final UserManagementController _controller;
 
-
   _LoginUtenteGUIState(UserManagementController? controller) {
-    _controller = controller ?? UserManagementController(redirectPage: const HomePage());
+    _controller =
+        controller ?? UserManagementController(redirectPage: const HomePage());
   }
 
   @override
@@ -94,9 +96,11 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                                     FormBuilderValidators.maxLength(255),
                                     FormBuilderValidators.email(),
                                     FormBuilderValidators.required(),
-                                    FormBuilderValidators.match( // Note: order of validators is important
+                                    FormBuilderValidators.match(
+                                      // Note: order of validators is important
                                       RegExp(r'^[a-zA-Z0-9.+@_\-]+$'),
-                                      errorText: 'Inserito carattere non valido',
+                                      errorText:
+                                          'Inserito carattere non valido',
                                     ),
                                   ]),
                                   name: 'email',
@@ -160,7 +164,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              onPressed: () => _sendData(_controller, email, password),
+                              onPressed: () =>
+                                  _sendData(_controller, email, password),
                               child: const Text(
                                 'Login',
                               ),
@@ -185,7 +190,8 @@ class _LoginUtenteGUIState extends State<LoginUtenteGUI> {
   /// Method to send the login data to the controller.
   /// This method validates the form and sends the email and password to the controller.
   /// If the user is not valid, a snackbar is displayed.
-  void _sendData(UserManagementController controller, String email, String password) async {
+  void _sendData(UserManagementController controller, String email,
+      String password) async {
     String motivation = 'Invalid email or password';
     final formState = _formKey.currentState;
     bool validUser = false;

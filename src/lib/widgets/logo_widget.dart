@@ -9,7 +9,6 @@ import 'package:flutter_svg/svg.dart';
 /// The logo is displayed as an SVG image.
 /// The widget is customizable optional with a `borderRadius` parameter.
 class LogoWidget extends StatelessWidget {
-
   /// The border radius of the logo widget
   /// Default value is 0.0
   /// If set, the logo will be clipped with the circular specified border radius.
