@@ -5,6 +5,8 @@ import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 /// Controller for managing data analysis.
 /// The controller is used to retrieve data from the database
@@ -66,11 +68,56 @@ Future<String?> cityOfMunicipality() async {
   /// Returns:
   /// - A `Future<Coordinates>` containing the coordinates of the city.
   Future<LatLng?> retrieveCityCoordinates() async {
-    if(_cityCoordinates == null) {
-      final city = await _analysisDAO.retrieveFirstReportLocation(city: await cityOfMunicipality());
-      _cityCoordinates = city;
+    // Controlla se le coordinate sono già state recuperate e memorizzate nella cache
+    if (_cityCoordinates != null) {
+      return _cityCoordinates;
     }
-    return _cityCoordinates;
+
+    try {
+      // Recupera il nome della città associato al municipio
+      final cityName = await cityOfMunicipality();
+
+      if (cityName == null) {
+        return null;
+      }
+
+      // Costruisce l'URL per la chiamata a Nominatim
+      const String url = 'https://nominatim.openstreetmap.org/search';
+      final Map<String, String> queryParameters = {
+        'q': cityName,
+        'format': 'json',
+        'limit': '1',
+      };
+
+      // Costruisce il URI con i parametri
+      final uri = Uri.parse(url).replace(queryParameters: queryParameters);
+
+      // Effettua la richiesta GET
+      final response = await http.get(uri, headers: {
+          'User-Agent': 'CiviConnect/1.0 (civiconnect.unisa@gmail.com)' // Specifica un User-Agent
+      });
+
+      // Controlla se la risposta è valida
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        if (data.isNotEmpty) {
+          // Estrai latitudine e longitudine
+          final double latitude = double.parse(data[0]['lat']);
+          final double longitude = double.parse(data[0]['lon']);
+
+          // Memorizza le coordinate nella cache
+          _cityCoordinates = LatLng(latitude, longitude);
+          return _cityCoordinates;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 
 }

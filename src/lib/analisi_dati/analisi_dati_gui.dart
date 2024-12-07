@@ -82,6 +82,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
 
     setState(() {
       _cityCoordinates = city;
+      print('City Coordinates: $_cityCoordinates');
     });
   }
 
@@ -230,39 +231,38 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
             height: MediaQuery.of(context).size.height * 0.5,
-            child: FlutterMap(
-              options: MapOptions(
-                onMapReady: () => _waitForLoading(ready: true),
-                initialCenter: (_cityCoordinates != null)
-                    ? LatLng(
-                        _cityCoordinates!.latitude, _cityCoordinates!.longitude)
-                    : const LatLng(40.755931, 14.808357),
-                // Start from (Fisciano)
-                initialZoom: 13.0,
-              ),
-              children: [
-                (_isMapReady)
-                    ? TileLayer(
-                        errorTileCallback: (tile, error, stack) =>
-                            _errorMap(error),
-                        urlTemplate:
-                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        tileProvider: CancellableNetworkTileProvider(),
-                      )
-                    : _buildErrorMap(),
-                if (_dataHeatMap != null && _dataHeatMap!.isNotEmpty)
-                  HeatMapLayer(
-                    heatMapDataSource:
-                        InMemoryHeatMapDataSource(data: _dataHeatMap!),
-                    heatMapOptions: HeatMapOptions(
-                        gradient: HeatMapOptions.defaultGradient,
-                        radius: 50,
-                        layerOpacity: 0.8,
-                        minOpacity: 0.1
-                    ),
+            child: (_cityCoordinates != null)
+                ? FlutterMap(
+                  options: MapOptions(
+                    onMapReady: () => _waitForLoading(ready: true),
+                    initialCenter:
+                            _cityCoordinates !,
+                    // Start from (Fisciano)
+                    initialZoom: 13.0,
                   ),
-              ],
-            ),
+                  children: [
+                    (_isMapReady)
+                        ? TileLayer(
+                            errorTileCallback: (tile, error, stack) =>
+                                _errorMap(error),
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            tileProvider: CancellableNetworkTileProvider(),
+                          )
+                        : _buildErrorMap(),
+                    if (_dataHeatMap != null && _dataHeatMap!.isNotEmpty)
+                      HeatMapLayer(
+                        heatMapDataSource:
+                            InMemoryHeatMapDataSource(data: _dataHeatMap!),
+                        heatMapOptions: HeatMapOptions(
+                            gradient: HeatMapOptions.defaultGradient,
+                            radius: 50,
+                            layerOpacity: 0.8,
+                            minOpacity: 0.1
+                        ),
+                      ),
+                  ],
+                ) : _buildErrorMap(),
           ), // : _buildErrorMap(), // Print Error or loading map
         ],
       ),
