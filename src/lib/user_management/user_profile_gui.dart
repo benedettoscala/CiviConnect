@@ -473,7 +473,7 @@ class _UserProfileState extends State<UserProfile> {
 
       // Update the user data in the state
       setState(() {
-        _user = FirebaseAuth.instance.currentUser!;
+        _user = UserManagementDAO().currentUser!;
       });
 
       showMessage(context, message: 'Email aggiornata con successo');
