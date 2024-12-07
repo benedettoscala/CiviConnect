@@ -1,6 +1,4 @@
 class DataAnalysisManagementDAO {
-  DataAnalysisManagementDAO(){
+  DataAnalysisManagementDAO();
 
-
-  }
 }

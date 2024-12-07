@@ -32,7 +32,7 @@ class DataAnalysisManagementController {
     if(_municipality == null) {
       retrieveUser();
     }
-    return _municipality?.city;
+    return _municipality?.municipalityName;
   }
 
 }
