@@ -114,7 +114,13 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     }
 
     //Retrieve the data from the query snapshot.
-    var data = querySnapshot.docs.map((doc) => doc.data()).toList();
+    var data = querySnapshot.docs.map((doc) {
+        // Add the reportId to the data.
+        final d = doc.data();
+        d['reportId'] = doc.id;
+        return d;
+    }
+    ).toList();
     // Update the last document.
     _lastDocument  = querySnapshot.docs.last;
 
