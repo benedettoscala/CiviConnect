@@ -334,25 +334,57 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   key: _pieChartKey,
                   dataMap: _pieData ?? {},
                   animationDuration: const Duration(milliseconds: 800),
-            chartLegendSpacing: 32,
-            chartRadius: MediaQuery.of(context).size.width / 2.7,
-            colorList: const [
-              Colors.red,
-              Colors.green,
-              Colors.blue,
-              Colors.yellow,
-              Colors.purple,
-              Colors.orange,
-              Colors.pink,
-              Colors.teal,
-              Colors.brown,
-              Colors.cyan,
-            ],
-            initialAngleInDegree: 0,
-            chartType: ChartType.disc,
-        )
-            : const CircularProgressIndicator(),
-      ]
-    );
+                  chartLegendSpacing: 32,
+                  chartRadius: MediaQuery.of(context).size.width / 2.7,
+                  colorList: const [
+                    Colors.red,
+                    Colors.green,
+                    Colors.blue,
+                    Colors.yellow,
+                    Colors.purple,
+                    Colors.orange,
+                    Colors.pink,
+                    Colors.teal,
+                    Colors.brown,
+                    Colors.cyan,
+                  ],
+                  initialAngleInDegree: 0,
+                  chartType: ChartType.disc,
+                )
+              : const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: CircularProgressIndicator(),
+                ),
+          const SizedBox(height: 20),
+          Text(
+            'Analisi Dati - Report',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 10),
+          if (_pieData != null)
+            Table(
+              border: TableBorder.all(color: Colors.black),
+              children: [
+                for (var entry in _pieData!.entries)
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(entry.key),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(entry.value.toStringAsFixed(2)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                            '${(entry.value / _pieData!.values.reduce((a, b) => a + b) * 100).toStringAsFixed(2)}%'),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+        ]);
   }
 }
