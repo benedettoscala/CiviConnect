@@ -36,9 +36,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadUserData();
-    //TODO MOMENTANEO PER TESTING
-    MunicipalityReportManagementController reportController =
-    MunicipalityReportManagementController();
   }
 
   void _loadUserData() async {

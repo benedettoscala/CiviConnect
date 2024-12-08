@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:civiconnect/model/users_model.dart';
+
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../user_management/user_management_dao.dart';
+
 
 /// Data Access Object (DAO) for managing municipality reports.
 class MunicipalityReportManagementDAO {

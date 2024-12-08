@@ -1,4 +1,3 @@
-import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
 //TODO MOMENTANEO, DA TOGLIERE POI
 import 'package:civiconnect/gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
 import 'package:civiconnect/theme.dart';
