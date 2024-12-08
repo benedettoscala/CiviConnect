@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 /// A Data Access Object (DAO) for managing user authentication and role determination.
 ///
@@ -191,11 +190,7 @@ class UserManagementDAO {
           return _user!;
         }
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error checking admin: $e');
-      }
-    }
+    } catch (_) {}
 
     try {
       DocumentSnapshot municipalityDoc =
@@ -208,11 +203,7 @@ class UserManagementDAO {
         );
         return _user!;
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error checking municipality: $e');
-      }
-    }
+    } catch (_) {}
 
     try {
       DocumentSnapshot citizenDoc =
@@ -231,11 +222,7 @@ class UserManagementDAO {
         );
         return _user!;
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error checking citizen: $e');
-      }
-    }
+    } catch (_) {}
 
     return null;
   }
