@@ -1,11 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pie_chart/pie_chart.dart';
 
 import 'gestione_analisi_dati_controller.dart';
+import 'gestione_analisi_dati_dao.dart';
 
 /// Widget stateful for viewing and editing user profile data.
 class DataAnalysisGUI extends StatefulWidget {
@@ -44,6 +48,12 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
 
   /// The coordinates of the city.
   LatLng? _cityCoordinates;
+
+  /// The data for the Pie Chart.
+  Map<String, double>? _pieData;
+  
+  /// Pie Chart key to manage the state of the widget.
+  GlobalKey _pieChartKey = GlobalKey();
 
   /// Widget stateful for viewing and editing user profile data.
   /// - [controller]: The controller for managing data analysis.
@@ -133,7 +143,8 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                 const SizedBox(
                   height: 20,
                 ),
-                ExpansionTile(
+                _buildPieChart(),
+                /*ExpansionTile(
                   title: const Text('Grafici'),
                   iconColor: Colors.black,
                   collapsedIconColor: Colors.black,
@@ -141,7 +152,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   children: [
                     _buildPieChart()
                   ],
-                ),
+                ),*/
               ],
             ),
           )
@@ -152,7 +163,17 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
 
   /// Refreshes the data displayed in the widget.
   Future<void> _refreshData() async {
-    return Future<void>.value();
+    setState(() {
+      _isMapReady = false;
+      _isErrorMap = false;
+      _errorText = null;
+      _dataHeatMap = null;
+      _cityCoordinates = null;
+      _pieData = null;
+    });
+
+    await _loadData();
+    _waitForLoading();
   }
 
   /// Waits for the map to be ready then sets the [_isMapReady] flag.
