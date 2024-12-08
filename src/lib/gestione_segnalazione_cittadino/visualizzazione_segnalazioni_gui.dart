@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../model/report_model.dart';
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
@@ -38,7 +40,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent &&
+                _scrollController.position.maxScrollExtent &&
             _hasMoreData &&
             !_isLoadingMore) {
           _loadUpdateData();
@@ -57,18 +59,17 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     if (_isLoading) {
       return _hasMoreData
           ? const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      )
+              body: Center(child: CircularProgressIndicator()),
+            )
           : const Scaffold(
-        body: Center(child: Text('Fine.')),
-      );
+              body: Center(child: Text('Fine.')),
+            );
     }
 
     if (_userData.isEmpty) {
       return const Scaffold(
         body: Center(
-          child: Text(
-            'Nessun dato disponibile. Controlla la tua connessione.'),
+          child: Text('Nessun dato disponibile. Controlla la tua connessione.'),
         ),
       );
     }
@@ -80,10 +81,10 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// This method fetches the current citizen user and their reports,
   /// and updates the state with the retrieved data.
   Future<void> _loadInitialData() async {
-      setState(() {
-        _isLoading = true;
-        _hasMoreData = true;
-      });
+    setState(() {
+      _isLoading = true;
+      _hasMoreData = true;
+    });
     try {
       _reportController.citizen.then((value) {
         _reportController.getUserReports(reset: true).then((value) {
@@ -105,7 +106,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       });
     }
   }
-
 
   /// Loads additional data when the user scrolls to the bottom of the list.
   ///
@@ -235,33 +235,50 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-            (context, index) {
+        (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
-          return (_errorText != '')
-              ? Text(_errorText)
-              : CardWidget(
+          Report _store = Report(
+            title: report['title'],
             uid: report['uid'],
-            name: '${report['authorFirstName']} ${report['authorLastName']}',
+            authorFirstName: '${report['authorFirstName']}',
+            authorLastName: '${report['authorLastName']}',
             description: report['title'],
             status: StatusReport.getStatus(report['status']) ??
                 StatusReport.rejected,
             priority: PriorityReport.getPriority(report['priority']) ??
                 PriorityReport.unset,
-            imageUrl: '',
-            onTap: () {
-              // TODO: vai alla pagina dei dettagli
-            },
+            reportDate: report['reportDate'],
+            address: report['address'] == null
+                ? {'street': 'N/A', 'number': 'N/A'}
+                : {
+                    'street': report['address']['street'] ?? 'N/A',
+                    'number': report['address']['number'] ?? 'N/A',
+                  },
+            city: report['city'],
           );
+          return (_errorText != '')
+              ? Text(_errorText)
+              : CardWidget(
+                  report: _store,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              DettagliSegnalazioneCittadino(report: _store)),
+                    );
+                  },
+                );
         },
       ),
     );
@@ -274,7 +291,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _loadInitialData();
     await Future.delayed(const Duration(seconds: 1));
   }
-
 
   /// Builds the search bar
   /// /// Builds the search bar widget.
@@ -303,7 +319,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                   size: 24,
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
-                onPressed: () { // TODO - Implement search functionality
+                onPressed: () {
+                  // TODO - Implement search functionality
                 },
               ),
               SizedBox(
@@ -325,8 +342,4 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       ),
     );
   }
-
-
-
-
 }
