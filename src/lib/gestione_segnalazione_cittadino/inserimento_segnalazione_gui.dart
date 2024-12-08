@@ -244,7 +244,7 @@ class _InserimentoSegnalazioneGUIState
               fit: BoxFit.cover, // Ensure the image covers the area
             )
           : Container(
-              height: 250,
+              height: 325,
               color: Colors.grey.shade200,
               child: const Center(
                 child: Text(
