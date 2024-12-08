@@ -274,6 +274,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
             ),
           ],
         ),
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -370,6 +371,11 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
           if (_pieData != null)
             Table(
               border: TableBorder.all(color: Colors.black),
+              columnWidths: const {
+                0: FlexColumnWidth(2),
+                1: FlexColumnWidth(1),
+                2: FlexColumnWidth(1),
+              },
               children: [
                  const TableRow(
                   children: [
@@ -416,6 +422,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   ),
               ],
             ),
+          const SizedBox(height: 15),
         ]
     );
   }
