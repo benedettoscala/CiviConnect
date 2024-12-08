@@ -35,7 +35,7 @@ class MunicipalityReportManagementDAO {
           .doc(reportId)
           .update({'priority': newPriority.name});
     } catch (e) {
-      //TODO messaggio temporaneo per testing
+      //messaggio temporaneo per testing
       print('city: ${city?.toLowerCase()}\nreportId ${reportId}\nnewPriority ${newPriority}');
     }
   }

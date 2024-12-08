@@ -43,7 +43,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: PriorityReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
-              // TODO: implement showMessage if it works
+              //implement showMessage if it works
               reportController.editReportPriority(
                   city: widget._report.city,
                   reportId: widget._report.reportId,

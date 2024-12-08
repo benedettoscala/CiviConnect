@@ -1,4 +1,4 @@
-//TODO MOMENTANEO, DA TOGLIERE POI
+//MOMENTANEO, DA TOGLIERE POI
 import 'package:civiconnect/gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
@@ -281,7 +281,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                       MaterialPageRoute(
                           builder: (context) =>
                               //DettagliSegnalazioneCittadino(report: store)),
-                          //TODO MOMENTANO, COSI' L'UTENTE CITTADINO PUO' MODIFICARE LA PRIORITA'
+
+                          //COSI' L'UTENTE CITTADINO PUO' MODIFICARE LA PRIORITA'
                           //i permessi glielo negano, ma serve solo a far vedere
                           // che stampa i dati corretti per la query quando la farà un amministratore
                               DettagliSegnalazioneComune(report: store)),

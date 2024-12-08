@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Column( //TODO MOMENTANEO SOLO PER TESTING
+      body: Column( //MOMENTANEO SOLO PER TESTING
         children: [
           Expanded(child: _pages[_selectedIndex]),
           Padding(
