@@ -7,7 +7,6 @@ import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
 import 'gestione_segnalazione_cittadino/visualizzazione_segnalazioni_gui.dart';
-import 'gestione_segnalazione_comune/gestione_segnalazione_comune_controller.dart';
 import 'model/users_model.dart';
 
 /// Home page of the application.
