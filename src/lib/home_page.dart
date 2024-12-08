@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
   GenericUser? _userInfo;
   bool isLoading = true;
-  Map<String, dynamic> userData = {};
+  Map<String, dynamic>? userData;
   late UserManagementController userController;
 
   final List<Widget> _pages = <Widget>[
@@ -139,9 +139,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(width: 12),
                     Text(
+                        (userData == null) ? 'Benvenuto Utente' :
                         _userInfo is Citizen
-                            ? '${userData['firstName']} ${userData['lastName']}'
-                            : userData['municipalityName'],
+                            ? '${userData?['firstName']} ${userData?['lastName']}'
+                            : userData?['municipalityName'],
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary)),
                     const Expanded(child: UnconstrainedBox()),
