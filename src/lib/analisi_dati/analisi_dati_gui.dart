@@ -301,20 +301,37 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
           ? Theme.of(context).colorScheme.inversePrimary
           : Theme.of(context).colorScheme.primaryContainer,
         children: [
-          const DropdownMenu(
-            label: Text('Seleziona la partizione dei dati'),
-            dropdownMenuEntries: [
-              DropdownMenuEntry(
-                  label: 'Status', value: DataPartition.status),
+          const Text('Seleziona la partizione dei dati'),
+          const SizedBox(height: 10),
+          DropdownMenu(
+            onSelected: (value) {
+              if (value is DataPartition) {
+                _controller.retrieveDataForAnalysis(value)
+                    .then((data) {
+                  setState(() {
+                    _pieData = data;
+                    _pieChartKey = GlobalKey();
+                  });
+                });
+              }
+            },
+            width: min(MediaQuery.of(context).size.width * 0.5, 200),
+            label: const Text('Partizione dati'),
+            initialSelection: DataPartition.category,
+            dropdownMenuEntries: const [
               DropdownMenuEntry(
                   label: 'Category', value: DataPartition.category),
+              DropdownMenuEntry(
+                  label: 'Status', value: DataPartition.status),
               DropdownMenuEntry(
                   label: 'Priority', value: DataPartition.priority),
             ],
           ),
-          const Text('Pie Chart'),
+          const SizedBox(height: 20),
+          Text('Pie Chart', style: Theme.of(context).textTheme.titleSmall),
           (_pieData != null && _pieData!.isNotEmpty)
               ? PieChart(
+                  key: _pieChartKey,
                   dataMap: _pieData ?? {},
                   animationDuration: const Duration(milliseconds: 800),
             chartLegendSpacing: 32,
