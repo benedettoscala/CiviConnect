@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
@@ -66,13 +64,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
             );
     }
 
-    if (_userData.isEmpty) {
-      return const Scaffold(
-        body: Center(
-          child: Text('Nessun dato disponibile. Controlla la tua connessione.'),
-        ),
-      );
-    }
     return _buildScaffold();
   }
 
@@ -170,9 +161,21 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
               SliverToBoxAdapter(
                 child: _buildHeader(),
               ),
+              (_userData.isEmpty)
+                    // Check if there are any reports to show
+                    // Show a message if there are no reports
+                  ? SliverFillRemaining(
+                      child: Center(
+                        child: Text(
+                          'Nessuna segnalazione trovata.',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    ) :
 
-              // Scrollable list
-              _buildReportsList(),
+                  /// Show the list of reports if there are any
+                  // Scrollable list
+                  _buildReportsList(),
             ],
           ),
         ),
@@ -247,7 +250,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
-          Report _store = Report(
+          Report store = Report(
             title: report['title'],
             uid: report['uid'],
             authorFirstName: '${report['authorFirstName']}',
@@ -269,13 +272,13 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-                  report: _store,
+                  report: store,
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              DettagliSegnalazioneCittadino(report: _store)),
+                              DettagliSegnalazioneCittadino(report: store)),
                     );
                   },
                 );
@@ -323,7 +326,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
             },
           ),
           const Flexible(
-            child: const TextField(
+            child: TextField(
               decoration: InputDecoration(
                   fillColor: Colors.white,
                   filled: true,
