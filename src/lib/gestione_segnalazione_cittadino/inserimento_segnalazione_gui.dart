@@ -9,6 +9,8 @@ import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../theme.dart';
+
 class InserimentoSegnalazioneGUI extends StatefulWidget {
   const InserimentoSegnalazioneGUI({super.key});
 
@@ -19,6 +21,7 @@ class InserimentoSegnalazioneGUI extends StatefulWidget {
 
 class _InserimentoSegnalazioneGUIState
     extends State<InserimentoSegnalazioneGUI> {
+  final theme = ThemeManager().customTheme;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
@@ -34,6 +37,7 @@ class _InserimentoSegnalazioneGUIState
   late GeoPoint _location;
   List<String>? _indirizzoLista;
   List<String>? _badWords;
+  late bool _isLoading = false;
 
   @override
   void initState() {
@@ -63,12 +67,22 @@ class _InserimentoSegnalazioneGUIState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Inserimento Segnalazione',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: theme.colorScheme.primary,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
+              _buildHeader(),
+              const SizedBox(height: 20),
               _buildTitleField(),
               const SizedBox(height: 16),
               _buildCategoryField(),
@@ -84,6 +98,8 @@ class _InserimentoSegnalazioneGUIState
               _buildSelectPhotoButton(),
               const SizedBox(height: 20),
               _buildSubmitButton(),
+              const SizedBox(height: 20),
+              _buildFooter(),
             ],
           ),
         ),
@@ -216,52 +232,117 @@ class _InserimentoSegnalazioneGUIState
     );
   }
 
-  Widget _buildSelectPhotoButton() {
-    return Column(
-      children: [
-        ElevatedButton(
-          onPressed: () => _pickImageFromCamera(),
-          child: const Text('Scatta Foto'),
-        ),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
-
   Widget _buildImageCard() {
     return Card(
-      clipBehavior:
-          Clip.antiAlias, // Ensure the image follows the card's border radius
-      child: Column(
-        children: [
-          if (_selectedImage != null)
-            Image.file(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 4,
+      child: _selectedImage != null
+          ? Image.file(
               _selectedImage!,
               width: 450, // Set the desired width
               height: 325, // Set the desired height
               fit: BoxFit.cover, // Ensure the image covers the area
             )
-          else
-            const Text('Nessuna immagine selezionata'),
-        ],
+          : Container(
+              height: 250,
+              color: Colors.grey.shade200,
+              child: const Center(
+                child: Text(
+                  'Nessuna immagine selezionata',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+    );
+  }
+
+  Widget _buildSelectPhotoButton() {
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: _pickImageFromCamera,
+        icon: const Icon(Icons.camera_alt, color: Colors.white),
+        label: const Text('Scatta Foto',
+            style: TextStyle(fontSize: 16, color: Colors.white)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.primaryColor,
+          padding: const EdgeInsets.all(14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
       ),
     );
   }
 
   Widget _buildSubmitButton() {
-    return ElevatedButton(
-      onPressed: () {
-        sendData();
-      },
-      child: const Text('Invia Segnalazione'),
+    return Center(
+        child: ElevatedButton.icon(
+          onPressed: _isLoading ? null : _onSubmit,
+          icon: const Icon(Icons.send, color: Colors.white),
+          label: const Text('Invia Segnalazione',
+              style: TextStyle(fontSize: 16, color: Colors.white)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.buttonTheme.colorScheme!.primary,
+            padding: const EdgeInsets.all(14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ));
+  }
+
+  Widget _buildHeader() {
+    return const Column(
+      children: [
+        Icon(Icons.report_problem, size: 48, color: Colors.red),
+        SizedBox(height: 12),
+        Text(
+          'Inserisci una nuova segnalazione',
+          style: TextStyle(
+              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Compila i campi sottostanti per inviare una nuova segnalazione.',
+          style: TextStyle(fontSize: 16, color: Colors.black),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
-  Future<void> sendData() async {
+  Widget _buildFooter() {
+    return const Column(
+      children: [
+        Divider(),
+        SizedBox(height: 8),
+        Text(
+          'Grazie per il tuo contributo!',
+          style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+        ),
+      ],
+    );
+  }
+
+  void _onSubmit() async {
+    setState(() => _isLoading = true);
+    bool result = await sendData();
+    setState(() => _isLoading = false);
+
+    final message = result
+        ? 'Invio effettuato con successo!'
+        : 'Errore durante l\'invio della segnalazione';
+    final color = result ? Colors.green : Colors.red;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: color),
+    );
+  }
+
+
+  Future<bool> sendData() async {
+    bool result = false;
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      await _controller.addReport(
+        result = await _controller.addReport(
         context,
         citta: _citta!,
         titolo: _titolo!,
@@ -269,8 +350,10 @@ class _InserimentoSegnalazioneGUIState
         categoria: _categoria,
         location: _location, // Replace with actual location data
         indirizzo: _indirizzo,
+          photo: _selectedImage,
       );
     }
+    return result;
   }
 
   /// Validates the description field to check for bad words.
