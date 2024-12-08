@@ -13,12 +13,13 @@ class CardWidget extends StatelessWidget {
   /// The [name], [description], [status], [priority], and [imageUrl] parameters are required.
   /// The [onTap] is optional.
   const CardWidget({
-    required this.report,
+    required report,
     this.onTap,
     super.key,
-  });
+  }) : _report = report;
 
-  final Report report;
+  /// keep the report object
+  final Report _report;
 
   /// Callback triggered when the card is tapped.
   final void Function()? onTap;
@@ -49,12 +50,12 @@ class CardWidget extends StatelessWidget {
                                 CircleAvatar(
                                   radius: 20,
                                   backgroundImage: AssetImage(
-                                      'assets/images/profile/${report.uid.hashCode % 6}.jpg'),
+                                      'assets/images/profile/${_report.uid.hashCode % 6}.jpg'),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    '${report.authorFirstName} ${report.authorLastName}',
+                                    '${_report.authorFirstName} ${_report.authorLastName}',
                                     style: textTheme.titleMedium,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -65,7 +66,7 @@ class CardWidget extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                report.description!,
+                                _report.description!,
                                 style: textTheme.bodyMedium,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 2,
@@ -80,7 +81,7 @@ class CardWidget extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.network(
-                            report.photo ?? '',
+                            _report.photo ?? '',
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) {
@@ -109,8 +110,8 @@ class CardWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 15),
                   _StatusReport(
-                      status: report.status ?? StatusReport.underReview,
-                      priority: report.priority ?? PriorityReport.unset),
+                      status: _report.status ?? StatusReport.underReview,
+                      priority: _report.priority ?? PriorityReport.unset),
                 ],
               )),
         ),
