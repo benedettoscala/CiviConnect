@@ -28,9 +28,6 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
   /// The controller for managing data analysis.
   final DataAnalysisManagementController _controller;
 
-  /// Flag to check if the HeatMap Panel is expanded.
-  bool _isExpandedHM = false;
-
   /// Flag to check if the Pie Chart Panel is expanded.
   bool _isExpandedPC = false;
 
@@ -51,7 +48,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
 
   /// The data for the Pie Chart.
   Map<String, double>? _pieData;
-  
+
   /// Pie Chart key to manage the state of the widget.
   GlobalKey _pieChartKey = GlobalKey();
 
@@ -102,49 +99,47 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: _refreshData,
-          child: Card(
-            margin: const EdgeInsets.all(10),
-            color: Colors.white,
-            elevation: 5.0,
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                const Text(
-                  'Analisi Dati - Report',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+            onRefresh: _refreshData,
+            child: Card(
+              margin: const EdgeInsets.all(10),
+              color: Colors.white,
+              elevation: 5.0,
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  const Text(
+                    'Analisi Dati - Report',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text(
-                  'Benvenuto nell\'area di analisi dati dei report inviati presso il tuo comune.\n\n'
-                      'In questa sezione troverai strumenti utili per analizzare e comprendere la distribuzione delle segnalazioni attraverso diverse statistiche.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(
+                    height: 10,
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                ExpansionTile(
-                  title: const Text('HeatMap'),
-                  iconColor: Colors.black,
-                  collapsedIconColor: Colors.black,
-                  backgroundColor: Colors.white70,
-                  children: [
-                    _buildHeatMap()
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                _buildPieChart(),
-                /*ExpansionTile(
+                  const Text(
+                    'Benvenuto nell\'area di analisi dati dei report inviati presso il tuo comune.\n\n'
+                    'In questa sezione troverai strumenti utili per analizzare e comprendere la distribuzione delle segnalazioni attraverso diverse statistiche.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  ExpansionTile(
+                    title: const Text('HeatMap'),
+                    iconColor: Colors.black,
+                    collapsedIconColor: Colors.black,
+                    backgroundColor: Colors.white70,
+                    children: [_buildHeatMap()],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _buildPieChart(),
+                  /*ExpansionTile(
                   title: const Text('Grafici'),
                   iconColor: Colors.black,
                   collapsedIconColor: Colors.black,
@@ -153,10 +148,9 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                     _buildPieChart()
                   ],
                 ),*/
-              ],
-            ),
-          )
-        ),
+                ],
+              ),
+            )),
       ),
     );
   }
@@ -225,10 +219,10 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
               ),
             ],
           )
-        :
-    Center(
-      child: Text(_errorText ?? 'Errore nella visualizzazione della mappa'),
-    );
+        : Center(
+            child:
+                Text(_errorText ?? 'Errore nella visualizzazione della mappa'),
+          );
   }
 
   /// Builds the HeatMap Expansion Panel.
@@ -236,17 +230,16 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
   /// If the data is available, it shows the HeatMap.
   Widget _buildHeatMap() {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.5,
-            child: (_cityCoordinates != null)
-                ? FlutterMap(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: (_cityCoordinates != null)
+              ? FlutterMap(
                   options: MapOptions(
                     onMapReady: () => _waitForLoading(ready: true),
-                    initialCenter:
-                            _cityCoordinates !,
+                    initialCenter: _cityCoordinates!,
                     // Start from (Fisciano)
                     initialZoom: 13.0,
                   ),
@@ -268,46 +261,53 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                             gradient: HeatMapOptions.defaultGradient,
                             radius: 50,
                             layerOpacity: 0.8,
-                            minOpacity: 0.1
-                        ),
+                            minOpacity: 0.1),
                       ),
                   ],
-                ) : _buildErrorMap(),
-          ), // : _buildErrorMap(), // Print Error or loading map
-        ],
-      );
+                )
+              : _buildErrorMap(),
+        ), // : _buildErrorMap(), // Print Error or loading map
+      ],
+    );
   }
 
-
   /// Builds the Pie Chart Expansion Panel.
+  /// If the data is not available, it shows a loading indicator.
+  /// If the data is available, it shows the Pie Chart and the data analysis.
+  /// The user can select the data partition to analyze.
+  /// The data is retrieved from the database.
+  /// The data is stored in the [_pieData] variable.
   ///
+  /// Prints also the data analysis in a table.
   ExpansionTile _buildPieChart() {
     return ExpansionTile(
-      title: const Text('Grafici'),
-      subtitle: const Text('Visualizza i grafici e le statistiche'),
-      trailing: (_isExpandedPC) ? const Icon(Icons.pie_chart) : const Icon(Icons.pie_chart_outline_outlined),
-      onExpansionChanged: (isExpanded) {
-        setState(() {
-          if(_pieData == null) {
-            _controller.retrieveDataForAnalysis(DataPartition.category)
-                .then((data) {
-              _pieData = data;
-            });
-          }
-          _isExpandedPC = isExpanded;
-        });
-      },
-      backgroundColor: _isExpandedPC
-          ? Theme.of(context).colorScheme.inversePrimary
-          : Theme.of(context).colorScheme.primaryContainer,
+        title: const Text('Grafici'),
+        subtitle: const Text('Visualizza i grafici e le statistiche'),
+        trailing: (_isExpandedPC)
+            ? const Icon(Icons.pie_chart)
+            : const Icon(Icons.pie_chart_outline_outlined),
+        onExpansionChanged: (isExpanded) {
+          setState(() {
+            if (_pieData == null) {
+              _controller
+                  .retrieveDataForAnalysis(DataPartition.category)
+                  .then((data) {
+                _pieData = data;
+              });
+            }
+            _isExpandedPC = isExpanded;
+          });
+        },
+        backgroundColor: _isExpandedPC
+            ? Theme.of(context).colorScheme.inversePrimary
+            : Theme.of(context).colorScheme.primaryContainer,
         children: [
           const Text('Seleziona la partizione dei dati'),
           const SizedBox(height: 10),
           DropdownMenu(
             onSelected: (value) {
               if (value is DataPartition) {
-                _controller.retrieveDataForAnalysis(value)
-                    .then((data) {
+                _controller.retrieveDataForAnalysis(value).then((data) {
                   setState(() {
                     _pieData = data;
                     _pieChartKey = GlobalKey();
@@ -321,8 +321,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
             dropdownMenuEntries: const [
               DropdownMenuEntry(
                   label: 'Category', value: DataPartition.category),
-              DropdownMenuEntry(
-                  label: 'Status', value: DataPartition.status),
+              DropdownMenuEntry(label: 'Status', value: DataPartition.status),
               DropdownMenuEntry(
                   label: 'Priority', value: DataPartition.priority),
             ],
@@ -388,3 +387,5 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
         ]);
   }
 }
+
+// Filiberto likes this page
