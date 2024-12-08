@@ -75,34 +75,45 @@ class _InserimentoSegnalazioneGUIState
         centerTitle: true,
         backgroundColor: theme.colorScheme.primary,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 20),
-              _buildTitleField(),
-              const SizedBox(height: 16),
-              _buildCategoryField(),
-              const SizedBox(height: 20),
-              _buildCityField(),
-              const SizedBox(height: 20),
-              _buildAddressField(),
-              const SizedBox(height: 16),
-              _buildDescriptionField(),
-              const SizedBox(height: 20),
-              _buildImageCard(),
-              const SizedBox(height: 20),
-              _buildSelectPhotoButton(),
-              const SizedBox(height: 20),
-              _buildSubmitButton(),
-              const SizedBox(height: 20),
-              _buildFooter(),
-            ],
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 20),
+                  _buildTitleField(),
+                  const SizedBox(height: 16),
+                  _buildCategoryField(),
+                  const SizedBox(height: 20),
+                  _buildCityField(),
+                  const SizedBox(height: 20),
+                  _buildAddressField(),
+                  const SizedBox(height: 16),
+                  _buildDescriptionField(),
+                  const SizedBox(height: 20),
+                  _buildImageCard(),
+                  const SizedBox(height: 20),
+                  _buildSelectPhotoButton(),
+                  const SizedBox(height: 20),
+                  _buildSubmitButton(),
+                  const SizedBox(height: 20),
+                  _buildFooter(),
+                ],
+              ),
+            ),
           ),
-        ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }
