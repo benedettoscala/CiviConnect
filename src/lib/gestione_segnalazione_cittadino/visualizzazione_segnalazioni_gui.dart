@@ -251,6 +251,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           }
           final report = _userData[index];
           Report store = Report(
+            reportId: report['reportId'],
             title: report['title'],
             uid: report['uid'],
             authorFirstName: '${report['authorFirstName']}',
