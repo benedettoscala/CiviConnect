@@ -1,5 +1,6 @@
-import 'dart:math';
+import 'dart:io';
 import 'dart:async';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import '../model/users_model.dart';
@@ -18,33 +19,24 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 class CitizenReportManagementController {
   final Widget redirectPage;
 
-  CitizenReportManagementController({required this.redirectPage}){
+  CitizenReportManagementController({required this.redirectPage}) {
     _loadCitizen();
   }
+
   final CitizenReportManagementDAO _reportDAO = CitizenReportManagementDAO();
   final UserManagementDAO _userManagementDAO = UserManagementDAO();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   Citizen? _citizen;
   final Completer<Citizen> _citizenCompleter = Completer<Citizen>();
-  final List<String> imageUrls = [
-    'https://drive.google.com/uc?export=view&id=17lSJzFbio_dwt5-uV0udgORdKlMlMpVt',
-    'https://drive.google.com/uc?export=view&id=1Q2xMOXpqZWsBwFiGr8uxvztjpu_SejbO',
-    'https://drive.google.com/uc?export=view&id=1xfB2i73ywQaYpBqQtFyal006bIzayABD',
-    'https://drive.google.com/uc?export=view&id=1K-SdIJUkjQTeY0Xfw4WS6rqwBCctPZtM',
-    'https://drive.google.com/uc?export=view&id=1W537VHHIyclsbPeysUJcyhCFX0ne5OA0',
-  ];
 
-  String shuffleImages(){
-    imageUrls.shuffle(Random());
-    return imageUrls[0];
-  }
-  Future<void> addReport(BuildContext context,
+  Future<bool> addReport(BuildContext context,
       {required String citta,
       required String titolo,
       required String descrizione,
       required Category categoria,
       required GeoPoint location,
-      Map<String, String>? indirizzo}) async {
+      Map<String, String>? indirizzo,
+      File? photo}) async {
     final report = Report(
       uid: _firebaseAuth.currentUser!.uid,
       city: citta,
@@ -55,10 +47,10 @@ class CitizenReportManagementController {
       address: indirizzo,
       location: location,
       status: StatusReport.inProgress,
-      priority: PriorityReport.low,
+      priority: PriorityReport.unset,
       authorFirstName: _citizen?.firstName,
       authorLastName: _citizen?.lastName,
-      photo: shuffleImages(),
+      photo: await _uploadImageToStorage(photo),
       endDate: null,
     );
     final bool result = await _reportDAO.addReport(report);
@@ -69,6 +61,21 @@ class CitizenReportManagementController {
         (route) => false,
       );
     }
+    return result;
+  }
+
+  Future<String> _uploadImageToStorage(File? image) async {
+    if (image == null) {
+      return '';
+    }
+
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    final uploadTask = storageRef.putFile(image);
+    final snapshot = await uploadTask.whenComplete(() => {});
+    final downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
   }
 
   void _loadCitizen() async {
@@ -81,15 +88,14 @@ class CitizenReportManagementController {
       if (user is Citizen) {
         _citizen = user;
         _citizenCompleter.complete(user); // Segnala che l'inizializzazione è completa
-
       } else {
         throw Exception('User is not a citizen');
       }
-
     } catch (e) {
       _citizenCompleter.completeError('Error determining user type: $e');
     }
   }
+
   /// Returns the current citizen user.
   Future<Citizen> get citizen async => _citizenCompleter.future;
 
@@ -104,18 +110,16 @@ class CitizenReportManagementController {
   /// Returns:
   /// - A [Future] that resolves to a list of maps, where each map contains the report details.
   Future<List<Map<String, dynamic>>?> getUserReports({bool reset = false}) async {
-    if(_citizen == null || _citizen!.city == null){
+    if (_citizen == null || _citizen!.city == null) {
       return [];
     }
 
-
     List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
-        city:_citizen!.city!,
-        reset: reset
+      city: _citizen!.city!,
+      reset: reset,
     );
     return snapshot;
   }
-
 
   /* ========================================== BAD WORDS DETECTION ======================================================= */
 
@@ -125,10 +129,11 @@ class CitizenReportManagementController {
   /// If the list is already present in the SharedPreferences, it is not downloaded again.
   Future<void> _downloadBadWords() async {
     var box = Hive.box('settings');
-    if(box.containsKey('bad_words')){
+    if (box.containsKey('bad_words')) {
       return;
     }
-    const url = 'https://raw.githubusercontent.com/napolux/paroleitaliane/master/paroleitaliane/lista_badwords.txt';
+    const url =
+        'https://raw.githubusercontent.com/napolux/paroleitaliane/master/paroleitaliane/lista_badwords.txt';
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final words = response.body.split('\n')..map((e) => e.trim()).toList();
@@ -142,7 +147,7 @@ class CitizenReportManagementController {
   /// If the list is not present in the SharedPreferences, it is downloaded from the internet.
   Future<List<String>> getBadWords() async {
     var box = Hive.box('settings');
-    if(!box.containsKey('bad_words')){
+    if (!box.containsKey('bad_words')) {
       await _downloadBadWords();
     }
     return box.get('bad_words', defaultValue: []) as List<String>;
@@ -162,13 +167,7 @@ class CitizenReportManagementController {
     }
     return false;
   }
-
 }
-
-
-
-/* ---------------------------------------------------- */
-
 
 /// Requests location permissions from the user.
 ///
@@ -179,7 +178,6 @@ class CitizenReportManagementController {
 /// \param context The build context.
 /// \return A `Future` that resolves to a `loc.Location` object if the permissions
 ///         are granted and the service is enabled, otherwise `null`.
-
 Future<loc.Location> requestLocationPermissions(BuildContext context) async {
   loc.Location location = loc.Location();
 
@@ -205,11 +203,20 @@ Future<loc.Location> requestLocationPermissions(BuildContext context) async {
   return location;
 }
 
+/// Retrieves the current coordinates of the user.
+///
+/// This function requests location permissions from the user and then
+/// fetches the current location data. It returns a `GeoPoint` object
+/// containing the latitude and longitude of the user's location.
+///
+/// \param context The build context.
+/// \return A `Future` that resolves to a `GeoPoint` object if the location
+///         is successfully retrieved, otherwise `null`.
 Future<GeoPoint?> getCoordinates(BuildContext context) async {
   loc.Location location = await requestLocationPermissions(context);
   loc.LocationData locationData = await location.getLocation();
   return GeoPoint(locationData.latitude!, locationData.longitude!);
-  }
+}
 
 Future<List<String>> getLocation(GeoPoint? location) async {
   final locationData = location;
@@ -224,6 +231,8 @@ Future<List<String>> getLocation(GeoPoint? location) async {
   ];
 }
 
+// Redirects the user to the LocationPermissionPage.
+// This function navigates to the LocationPermissionPage, which prompts the user to enable location services or grant location permissions.
 void _redirectToLocationPermissionPage(BuildContext context) {
   Navigator.push(
     context,
