@@ -24,6 +24,9 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
   /// The controller for managing data analysis.
   final DataAnalysisManagementController _controller;
 
+  /// Flag to check if the HeatMap Panel is expanded.
+  bool _isExpandedHM = false;
+
   /// Flag to check if the Pie Chart Panel is expanded.
   bool _isExpandedPC = false;
 
@@ -257,7 +260,61 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
 
   /// Builds the Pie Chart Expansion Panel.
   ///
-  Widget _buildPieChart() {
-    return const Text('Pie Chart');
+  ExpansionTile _buildPieChart() {
+    return ExpansionTile(
+      title: const Text('Grafici'),
+      subtitle: const Text('Visualizza i grafici e le statistiche'),
+      trailing: (_isExpandedPC) ? const Icon(Icons.pie_chart) : const Icon(Icons.pie_chart_outline_outlined),
+      onExpansionChanged: (isExpanded) {
+        setState(() {
+          if(_pieData == null) {
+            _controller.retrieveDataForAnalysis(DataPartition.category)
+                .then((data) {
+              _pieData = data;
+            });
+          }
+          _isExpandedPC = isExpanded;
+        });
+      },
+      backgroundColor: _isExpandedPC
+          ? Theme.of(context).colorScheme.inversePrimary
+          : Theme.of(context).colorScheme.primaryContainer,
+        children: [
+          const DropdownMenu(
+            label: Text('Seleziona la partizione dei dati'),
+            dropdownMenuEntries: [
+              DropdownMenuEntry(
+                  label: 'Status', value: DataPartition.status),
+              DropdownMenuEntry(
+                  label: 'Category', value: DataPartition.category),
+              DropdownMenuEntry(
+                  label: 'Priority', value: DataPartition.priority),
+            ],
+          ),
+          const Text('Pie Chart'),
+          (_pieData != null && _pieData!.isNotEmpty)
+              ? PieChart(
+                  dataMap: _pieData ?? {},
+                  animationDuration: const Duration(milliseconds: 800),
+            chartLegendSpacing: 32,
+            chartRadius: MediaQuery.of(context).size.width / 2.7,
+            colorList: const [
+              Colors.red,
+              Colors.green,
+              Colors.blue,
+              Colors.yellow,
+              Colors.purple,
+              Colors.orange,
+              Colors.pink,
+              Colors.teal,
+              Colors.brown,
+              Colors.cyan,
+            ],
+            initialAngleInDegree: 0,
+            chartType: ChartType.disc,
+        )
+            : const CircularProgressIndicator(),
+      ]
+    );
   }
 }
