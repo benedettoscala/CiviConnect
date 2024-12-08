@@ -136,7 +136,7 @@ class DataAnalysisManagementDAO {
   Map<String, double> _analyzeDataBy(String characteristic) {
     final mapData = <String, double>{};
     for (var doc in _docs!) {
-      final key = doc.data()[characteristic] ?? 'Non impostato';
+      final key = doc.data()[characteristic].toLowerCase() ?? 'Non impostato';
       mapData[key] = (mapData[key] ?? 0) + 1;
     }
     return mapData;

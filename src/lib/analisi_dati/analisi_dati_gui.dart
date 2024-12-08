@@ -128,13 +128,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   const SizedBox(
                     height: 30,
                   ),
-                  ExpansionTile(
-                    title: const Text('HeatMap'),
-                    iconColor: Colors.black,
-                    collapsedIconColor: Colors.black,
-                    backgroundColor: Colors.white70,
-                    children: [_buildHeatMap()],
-                  ),
+                  _buildHeatMap(),
                   const SizedBox(
                     height: 20,
                   ),
@@ -229,44 +223,57 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
   /// If the data is not available, it shows a loading indicator.
   /// If the data is available, it shows the HeatMap.
   Widget _buildHeatMap() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return ExpansionTile(
+      title: const Text(
+          'HeatMap',
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
+      ),
+      subtitle: const Text('Visualizza la distribuzione delle segnalazioni sul territorio.'),
+      trailing: const Icon(Icons.add_chart),
+      collapsedIconColor: Colors.black,
+      backgroundColor: Colors.white,
       children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height * 0.5,
-          child: (_cityCoordinates != null)
-              ? FlutterMap(
-                  options: MapOptions(
-                    onMapReady: () => _waitForLoading(ready: true),
-                    initialCenter: _cityCoordinates!,
-                    // Start from (Fisciano)
-                    initialZoom: 13.0,
-                  ),
-                  children: [
-                    (_isMapReady)
-                        ? TileLayer(
-                            errorTileCallback: (tile, error, stack) =>
-                                _errorMap(error),
-                            urlTemplate:
-                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            tileProvider: CancellableNetworkTileProvider(),
-                          )
-                        : _buildErrorMap(),
-                    if (_dataHeatMap != null && _dataHeatMap!.isNotEmpty)
-                      HeatMapLayer(
-                        heatMapDataSource:
-                            InMemoryHeatMapDataSource(data: _dataHeatMap!),
-                        heatMapOptions: HeatMapOptions(
-                            gradient: HeatMapOptions.defaultGradient,
-                            radius: 50,
-                            layerOpacity: 0.8,
-                            minOpacity: 0.1),
-                      ),
-                  ],
-                )
-              : _buildErrorMap(),
-        ), // : _buildErrorMap(), // Print Error or loading map
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: (_cityCoordinates != null)
+                  ? FlutterMap(
+                options: MapOptions(
+                  onMapReady: () => _waitForLoading(ready: true),
+                  initialCenter: _cityCoordinates!,
+                  initialZoom: 13.0,
+                ),
+                children: [
+                  (_isMapReady)
+                      ? TileLayer(
+                    errorTileCallback: (tile, error, stack) =>
+                        _errorMap(error),
+                    urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    tileProvider: CancellableNetworkTileProvider(),
+                  )
+                      : _buildErrorMap(),
+                  if (_dataHeatMap != null && _dataHeatMap!.isNotEmpty)
+                    HeatMapLayer(
+                      heatMapDataSource:
+                      InMemoryHeatMapDataSource(data: _dataHeatMap!),
+                      heatMapOptions: HeatMapOptions(
+                          gradient: HeatMapOptions.defaultGradient,
+                          radius: 50,
+                          layerOpacity: 0.8,
+                          minOpacity: 0.1),
+                    ),
+                ],
+              ) : _buildErrorMap(),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -281,7 +288,13 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
   /// Prints also the data analysis in a table.
   ExpansionTile _buildPieChart() {
     return ExpansionTile(
-        title: const Text('Grafici'),
+        title: const Text(
+            'Grafici',
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+            ),
+        ),
         subtitle: const Text('Visualizza i grafici e le statistiche'),
         trailing: (_isExpandedPC)
             ? const Icon(Icons.pie_chart)
@@ -298,9 +311,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
             _isExpandedPC = isExpanded;
           });
         },
-        backgroundColor: _isExpandedPC
-            ? Theme.of(context).colorScheme.inversePrimary
-            : Theme.of(context).colorScheme.primaryContainer,
+        backgroundColor: Colors.white,
         children: [
           const Text('Seleziona la partizione dei dati'),
           const SizedBox(height: 10),
@@ -320,10 +331,10 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
             initialSelection: DataPartition.category,
             dropdownMenuEntries: const [
               DropdownMenuEntry(
-                  label: 'Category', value: DataPartition.category),
+                  label: 'Categoria', value: DataPartition.category),
               DropdownMenuEntry(label: 'Status', value: DataPartition.status),
               DropdownMenuEntry(
-                  label: 'Priority', value: DataPartition.priority),
+                  label: 'Priorità', value: DataPartition.priority),
             ],
           ),
           const SizedBox(height: 20),
@@ -355,15 +366,36 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   child: CircularProgressIndicator(),
                 ),
           const SizedBox(height: 20),
-          Text(
-            'Analisi Dati - Report',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
           const SizedBox(height: 10),
           if (_pieData != null)
             Table(
               border: TableBorder.all(color: Colors.black),
               children: [
+                 const TableRow(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Valori',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Frequenza',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Percentuale',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
                 for (var entry in _pieData!.entries)
                   TableRow(
                     children: [
@@ -373,7 +405,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(entry.value.toStringAsFixed(2)),
+                        child: Text(entry.value.toStringAsFixed(0)),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -384,7 +416,8 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   ),
               ],
             ),
-        ]);
+        ]
+    );
   }
 }
 
