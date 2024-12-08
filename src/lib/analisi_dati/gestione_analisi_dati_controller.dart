@@ -120,4 +120,16 @@ Future<String?> cityOfMunicipality() async {
     }
   }
 
+  /// Retrieves the data for the analysis.
+  /// The data is retrieved from the database and analyzed based on the data partition.
+  /// - [dataPartition]: The data partition to use for the analysis.
+  /// Returns:
+  /// - A `Future<Map<String, double>?>` containing the partitioned data.
+  /// - If no data is available, returns `null`.
+  Future<Map<String, double>?> retrieveDataForAnalysis(
+      DataPartition dataPartition) async {
+    final data = await _analysisDAO.retrieveDataForAnalysis(
+        city: await cityOfMunicipality(), dataPartition: dataPartition);
+    return data;
+  }
 }
