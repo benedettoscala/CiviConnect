@@ -5,7 +5,6 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
 
-import 'gestione_admin/admin_gui.dart';
 import 'gestione_segnalazione_cittadino/visualizzazione_segnalazioni_gui.dart';
 import 'model/users_model.dart';
 
