@@ -132,7 +132,10 @@ class DataAnalysisManagementDAO {
     return docs;
   }
 
-
+  /// Analyzes the data based on a specific characteristic.
+  /// - [characteristic]: The characteristic to use for the analysis.
+  /// Returns:
+  /// - A `Map<String, double>` containing the analyzed data.
   Map<String, double> _analyzeDataBy(String characteristic) {
     final mapData = <String, double>{};
     for (var doc in _docs!) {

@@ -380,7 +380,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                  const TableRow(
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 3.0),
                       child: Text(
                         'Valori',
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -406,7 +406,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   TableRow(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 3.0),
                         child: Text(entry.key),
                       ),
                       Padding(
