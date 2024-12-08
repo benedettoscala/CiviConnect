@@ -339,7 +339,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
             ],
           ),
           const SizedBox(height: 20),
-          Text('Pie Chart', style: Theme.of(context).textTheme.titleSmall),
+          Text('Grafico a Torta', style: Theme.of(context).textTheme.titleSmall),
           (_pieData != null && _pieData!.isNotEmpty)
               ? PieChart(
                   key: _pieChartKey,
@@ -406,7 +406,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   TableRow(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
                         child: Text(entry.key),
                       ),
                       Padding(
