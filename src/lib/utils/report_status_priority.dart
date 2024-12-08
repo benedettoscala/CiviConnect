@@ -44,6 +44,9 @@ enum StatusReport implements Comparable<StatusReport> {
   @override
   int compareTo(StatusReport other) => value - other.value;
 
+  @override
+  String toString() => _name;
+
   /// Returns the status of the report based on the [name].
   static StatusReport? getStatus(String? name) {
     for(StatusReport status in StatusReport.values) {
@@ -114,4 +117,7 @@ enum PriorityReport implements Comparable<PriorityReport> {
 
   @override
   int compareTo(PriorityReport other) => _value - other.value;
+
+  @override
+  String toString() => _name;
 }

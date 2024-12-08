@@ -51,6 +51,32 @@ class CitizenReportManagementDAO {
   }
 
 
+  /// Retrieves a list of reports created by a specific user.
+  ///
+  /// Parameters:
+  /// - [userId]: The ID of the user for which to retrieve the reports.
+  /// - [reset]: A `bool` indicating whether to reset the last document retrieved (optional).
+  ///
+  /// Returns:
+  /// - A `Future<List<Map<String, dynamic>>?>` containing the list of reports created by the specified user, or `null` if the user is not valid.
+  ///
+  /// Throws:
+  /// - [Exception]: If the user is not logged in.
+  Future<List<Map<String, dynamic>>?> getUserReportList({required String userId, bool? reset}) async {
+    if (reset == true) {
+      _isEnded = false;
+      _lastDocument = null;
+    }
+
+    if (!await _checkForUserValidity(null) || _isEnded) {
+      return null;
+    }
+
+    return await _getTenReportsByUser(userId: userId);
+  }
+
+
+
 
   /* --------------------------- PRIVATE METHODS ---------------------------------- */
 
@@ -98,6 +124,48 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     throw Exception('Error retrieving data: $e');
   }
 }
+
+
+  ///
+  /// Parameters:
+  /// - \[userId\]: The ID of the user for which to retrieve the reports.
+  /// - \[reset\]: A \`bool\` indicating whether to reset the last document retrieved (optional).
+  ///
+  /// Returns:
+  /// - A \`Future<List<Map<String, dynamic>>?>\` containing the next ten reports created by the specified user, or \`null\` if the user is not valid.
+  Future<List<Map<String, dynamic>>?> _getTenReportsByUser({required String userId}) async {
+    List<Map<String, dynamic>> allReports = [];
+    try {
+      // Get all city collections
+      final cityCollections = await _firestore.collection('reports').get();
+      for (var cityDoc in cityCollections.docs) {
+        Query<Map<String, dynamic>> query = cityDoc.reference.collection('${cityDoc.id}_reports')
+            .where('uid', isEqualTo: userId)
+            .limit(10);
+
+        // If the last document is not null, the query starts after the last document of the previous query.
+        if (_lastDocument != null) {
+          query = query.startAfterDocument(_lastDocument!);
+        }
+
+        final querySnapshot = await query.get();
+        if (querySnapshot.docs.isNotEmpty) {
+          allReports.addAll(querySnapshot.docs.map((doc) => doc.data()).toList());
+          _lastDocument = querySnapshot.docs.last;
+        }
+      }
+
+      if (allReports.isEmpty) {
+        _isEnded = true;
+        return null;
+      }
+
+      return allReports;
+
+    } catch (e) {
+      throw Exception('Error retrieving data: $e');
+    }
+  }
   /* -------------------------------- UTILITY PRIVATE METHODS ----------------------------- */
 
 

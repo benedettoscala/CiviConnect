@@ -83,5 +83,4 @@ class DefaultFirebaseOptions {
     authDomain: 'civiconnect-13aeb.firebaseapp.com',
     storageBucket: 'civiconnect-13aeb.firebasestorage.app',
   );
-
 }
