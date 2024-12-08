@@ -95,7 +95,7 @@ class AdminManagementDAO {
           .collection('municipality')
           .doc(userCredential.user!.uid)
           .set({
-        'municipalityName': selectedComune['Comune'],
+        'municipalityName': selectedComune['Comune']!.toLowerCase(),
         'province': selectedComune['Provincia'],
       });
 

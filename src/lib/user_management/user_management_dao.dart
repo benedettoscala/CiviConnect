@@ -261,13 +261,22 @@ class UserManagementDAO {
           .get();
       return {
         'email': snapshot['email'],
-        'municipalityName': snapshot['municipalityName'],
+        'municipalityName': capitalize(snapshot['municipalityName']),
         'province': snapshot['province'],
       };
     } else {
       throw Exception('No authenticated user found.');
     }
   }
+
+  /// Capitalizes the first letter of a string and converts the rest to lowercase.
+  ///
+  /// Parameters:
+  /// - [s]: The string to capitalize.
+  ///
+  /// Returns:
+  /// - The capitalized string.
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1).toLowerCase();
 
   /// Updates the authenticated user's data in Firestore.
   ///
