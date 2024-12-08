@@ -1,10 +1,7 @@
-//import 'dart:math';
-
 import 'package:civiconnect/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../utils/report_status_priority.dart';
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
@@ -205,14 +202,7 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-            uid: report['uid'],
-            name: '${report['authorFirstName']} ${report['authorLastName']}',
-            description: report['title'],
-            status: StatusReport.getStatus(report['status']) ??
-                StatusReport.rejected,
-            priority: PriorityReport.getPriority(report['priority']) ??
-                PriorityReport.unset,
-            imageUrl: '',
+            report: report,
             onTap: () {
               // TODO: vai alla pagina dei dettagli
             },
