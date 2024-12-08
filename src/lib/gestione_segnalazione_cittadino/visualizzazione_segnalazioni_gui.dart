@@ -1,4 +1,6 @@
 import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
+//TODO MOMENTANEO, DA TOGLIERE POI
+import 'package:civiconnect/gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
@@ -256,7 +258,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
             uid: report['uid'],
             authorFirstName: '${report['authorFirstName']}',
             authorLastName: '${report['authorLastName']}',
-            description: report['title'],
+            description: report['description'],
             status: StatusReport.getStatus(report['status']) ??
                 StatusReport.rejected,
             priority: PriorityReport.getPriority(report['priority']) ??
@@ -279,7 +281,12 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              DettagliSegnalazioneCittadino(report: store)),
+                              //DettagliSegnalazioneCittadino(report: store)),
+                          //TODO MOMENTANO, COSI' L'UTENTE CITTADINO PUO' MODIFICARE LA PRIORITA'
+                          //i permessi glielo negano, ma serve solo a far vedere
+                          // che stampa i dati corretti per la query quando la farà un amministratore
+                              DettagliSegnalazioneComune(report: store)),
+
                     );
                   },
                 );
