@@ -1,3 +1,5 @@
+import 'package:civiconnect/gestione_segnalazione_cittadino/my_segnalazioni_gui.dart';
+import 'package:civiconnect/gestione_admin/admin_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
@@ -24,8 +26,8 @@ class _HomePageState extends State<HomePage> {
   late UserManagementController userController;
 
   final List<Widget> _pages = <Widget>[
-    const Placeholder(),
-    const Placeholder(),
+    const MyReportsViewGUI(),
+    const ReportsViewCitizenGUI(),
     const UserProfile(),
   ];
 

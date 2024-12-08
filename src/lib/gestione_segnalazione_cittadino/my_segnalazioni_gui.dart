@@ -1,26 +1,26 @@
-import 'dart:math';
+//import 'dart:math';
 
-import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
 import 'package:civiconnect/theme.dart';
-import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:hugeicons/hugeicons.dart';
 
-import '../model/report_model.dart';
+import '../utils/report_status_priority.dart';
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
-/// Gui to visualize reports list of citizen city
-class ReportsViewCitizenGUI extends StatefulWidget {
-  /// Constructor of [ReportsViewCitizenGUI]
-  const ReportsViewCitizenGUI({super.key});
+/// A widget that displays the user's reports.
+///
+/// This widget is a stateful widget that manages the state of the user's reports
+/// and provides functionality to load and display the reports.
+class MyReportsViewGUI extends StatefulWidget {
+  /// Constructor of [MyReportsViewGUI]
+  const MyReportsViewGUI({super.key});
 
   @override
-  State<ReportsViewCitizenGUI> createState() => _ReportsListCitizenState();
+  State<MyReportsViewGUI> createState() => _MyReportsListState();
 }
 
-class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
+class _MyReportsListState extends State<MyReportsViewGUI> {
   late final CitizenReportManagementController _reportController;
   late final ThemeData theme;
   late final List<Map<String, dynamic>> _userData = [];
@@ -40,7 +40,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels ==
-                _scrollController.position.maxScrollExtent &&
+            _scrollController.position.maxScrollExtent &&
             _hasMoreData &&
             !_isLoadingMore) {
           _loadUpdateData();
@@ -59,17 +59,18 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     if (_isLoading) {
       return _hasMoreData
           ? const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            )
+        body: Center(child: CircularProgressIndicator()),
+      )
           : const Scaffold(
-              body: Center(child: Text('Fine.')),
-            );
+        body: Center(child: Text('Fine.')),
+      );
     }
 
     if (_userData.isEmpty) {
       return const Scaffold(
         body: Center(
-          child: Text('Nessun dato disponibile. Controlla la tua connessione.'),
+          child: Text(
+              'Nessun dato disponibile. Controlla la tua connessione.'),
         ),
       );
     }
@@ -87,7 +88,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     });
     try {
       _reportController.citizen.then((value) {
-        _reportController.getUserReports(reset: true).then((value) {
+        _reportController.getMyReports(reset: true).then((value) {
           _userData.clear();
           setState(() {
             if (value != null && value.isNotEmpty) {
@@ -106,6 +107,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       });
     }
   }
+
 
   /// Loads additional data when the user scrolls to the bottom of the list.
   ///
@@ -166,11 +168,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           child: CustomScrollView(
             controller: _scrollController, // Added scroll controller
             slivers: [
-              // Non scrollable Header
-              SliverToBoxAdapter(
-                child: _buildHeader(),
-              ),
-
               // Scrollable list
               _buildReportsList(),
             ],
@@ -187,98 +184,39 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     );
   }
 
-  /// Builds the header of the page
-  /// Contains the user profile picture and the search and filter buttons
-  Widget _buildHeader() {
-    return Row(
-  children: [
-    /// Search bar
-    Expanded(child: _searchBar()),
-
-    /// Filter button
-    Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Card(
-        color: Colors.white70,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.5),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.filter_list,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-                onPressed: () {
-                  // TODO: Implementa il metodo di selezione del filtro
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    )
-  ],
-);
-  }
-
   /// Main Body of the page
   /// Contains the list of reports
   Widget _buildReportsList() {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-        (context, index) {
+            (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
-          Report _store = Report(
-            title: report['title'],
+          return (_errorText != '')
+              ? Text(_errorText)
+              : CardWidget(
             uid: report['uid'],
-            authorFirstName: '${report['authorFirstName']}',
-            authorLastName: '${report['authorLastName']}',
+            name: '${report['authorFirstName']} ${report['authorLastName']}',
             description: report['title'],
             status: StatusReport.getStatus(report['status']) ??
                 StatusReport.rejected,
             priority: PriorityReport.getPriority(report['priority']) ??
                 PriorityReport.unset,
-            reportDate: report['reportDate'],
-            address: report['address'] == null
-                ? {'street': 'N/A', 'number': 'N/A'}
-                : {
-                    'street': report['address']['street'] ?? 'N/A',
-                    'number': report['address']['number'] ?? 'N/A',
-                  },
-            city: report['city'],
+            imageUrl: '',
+            onTap: () {
+              // TODO: vai alla pagina dei dettagli
+            },
           );
-          return (_errorText != '')
-              ? Text(_errorText)
-              : CardWidget(
-                  report: _store,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              DettagliSegnalazioneCittadino(report: _store)),
-                    );
-                  },
-                );
         },
       ),
     );
@@ -292,52 +230,4 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     await Future.delayed(const Duration(seconds: 1));
   }
 
-  /// Builds the search bar
-  /// /// Builds the search bar widget.
-  ///
-  /// This widget contains a search icon and a text field for searching reports.
-  /// The search icon does not have any functionality implemented yet.
-  Widget _searchBar() {
-    return Padding(
-  padding: const EdgeInsets.all(10.0),
-  child: Card(
-    color: Colors.white70,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    elevation: 2,
-    shadowColor: Colors.black.withOpacity(0.5),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          IconButton(
-            icon: Icon(
-              HugeIcons.strokeRoundedSearch02,
-              size: 24,
-              color: theme.colorScheme.onPrimaryContainer,
-            ),
-            onPressed: () { // TODO - Implement search functionality
-            },
-          ),
-          const Flexible(
-            child: const TextField(
-              decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    borderSide: BorderSide.none,
-                  ),
-                  hintText: 'Cerca segnalazione...'),
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-);
-  }
 }
