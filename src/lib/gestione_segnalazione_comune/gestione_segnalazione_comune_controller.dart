@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 import '../utils/report_status_priority.dart';
+import '../utils/snackbar_riscontro.dart';
 import 'gestione_segnalazione_comune_dao.dart';
 
 /// The `MunicipalityReportManagementController` class provides a controller
@@ -35,7 +38,8 @@ import 'gestione_segnalazione_comune_dao.dart';
 /// @Version: 1.0.0
 class MunicipalityReportManagementController {
   /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
-  late final MunicipalityReportManagementDAO _reportDAO;
+  final MunicipalityReportManagementDAO _reportDAO;
+  final BuildContext? _context;
 
   /// Constructs a `MunicipalityReportManagementController`.
   ///
@@ -45,10 +49,11 @@ class MunicipalityReportManagementController {
   /// ### Parameters:
   /// - `reportDAO`: An optional instance of `MunicipalityReportManagementDAO`
   ///   to be used by this controller. If not provided, a default instance is created.
-  MunicipalityReportManagementController(
-      {MunicipalityReportManagementDAO? reportDAO}) {
-    _reportDAO = reportDAO ?? MunicipalityReportManagementDAO();
-  }
+  /// - `context`: An optional `BuildContext` to be used for UI operations.
+  ///  This is required for displaying messages or dialogs.
+  MunicipalityReportManagementController({reportDAO, context})
+      : _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(),
+        _context = context;
 
   /// Edits the status of a specific report.
   ///
@@ -77,8 +82,25 @@ class MunicipalityReportManagementController {
     required String reportId,
     required StatusReport newStatus,
   }) async {
-    await _reportDAO.editReportStatus(
-        city: city, reportId: reportId, newStatus: newStatus);
+    try {
+      await _reportDAO.editReportStatus(
+          city: city, reportId: reportId, newStatus: newStatus);
+      if (_context != null) {
+        showMessage(
+          _context,
+          message: 'Stato aggiornato correttamente',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      if (_context != null) {
+        showMessage(
+          _context,
+          message: 'Errore durante l\'aggiornamento dello stato',
+          isError: true,
+        );
+      }
+    }
   }
 
   /// Edits the priority of a specific report.
@@ -108,7 +130,23 @@ class MunicipalityReportManagementController {
     required String reportId,
     required PriorityReport newPriority,
   }) async {
-    await _reportDAO.editReportPriority(
-        city: city, reportId: reportId, newPriority: newPriority);
+    try {
+      await _reportDAO.editReportPriority(
+          city: city, reportId: reportId, newPriority: newPriority);
+      if (_context != null) {
+        showMessage(
+          _context,
+          message: 'Priorità segnalazione cambiata',
+        );
+      }
+    } catch (e) {
+      if (_context != null) {
+        showMessage(
+          _context,
+          message: 'Errore durante l\'aggiornamento della priorità',
+          isError: true,
+        );
+      }
+    }
   }
 }
