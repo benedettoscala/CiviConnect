@@ -190,6 +190,28 @@ final Widget redirectPage;
       }
     }
     return false;
+
+
+  /// Fetches the list of reports for the current logged-in user.
+  ///
+  /// This method retrieves the list of reports associated with the current user.
+  /// If the user is not available, it returns an empty list.
+  ///
+  /// - [reset]: A `bool` indicating whether to reset the last document retrieved.
+  ///   If the [reset] parameter is set to `true`, the method will reset the last document retrieved.
+  ///
+  /// Returns:
+  /// - A [Future] that resolves to a list of maps, where each map contains the report details.
+  Future<List<Map<String, dynamic>>?> getMyReports({bool reset = false}) async {
+    if (_citizen == null) {
+      return [];
+    }
+
+    List<Map<String, dynamic>>? snapshot = await _reportDAO.getUserReportList(
+      userId: _citizen!.uid,
+      reset: reset,
+    );
+    return snapshot;
   }
 }
 

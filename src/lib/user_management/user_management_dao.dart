@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:civiconnect/model/users_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 /// A Data Access Object (DAO) for managing user authentication and role determination.
 ///
@@ -76,15 +75,18 @@ class UserManagementDAO {
   Future<bool> createUserWithEmailAndPassword({
     required String email,
     required String password,
-    required Map<String, dynamic>
-    additionalData,
+    required Map<String, dynamic> additionalData,
   }) async {
     try {
       // Crea l'utente con Firebase Authentication.
       UserCredential userCredential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
       String uid = userCredential.user!.uid;
-      await UserManagementDAO()._firebaseFirestore.collection('citizen').doc(uid).set({...additionalData});
+      await UserManagementDAO()
+          ._firebaseFirestore
+          .collection('citizen')
+          .doc(uid)
+          .set({...additionalData});
     } catch (e) {
       throw Exception('Error creating user: $e');
     }
@@ -188,11 +190,7 @@ class UserManagementDAO {
           return _user!;
         }
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error checking admin: $e');
-      }
-    }
+    } catch (_) {}
 
     try {
       DocumentSnapshot municipalityDoc =
@@ -205,11 +203,7 @@ class UserManagementDAO {
         );
         return _user!;
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error checking municipality: $e');
-      }
-    }
+    } catch (_) {}
 
     try {
       DocumentSnapshot citizenDoc =
@@ -228,11 +222,7 @@ class UserManagementDAO {
         );
         return _user!;
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error checking citizen: $e');
-      }
-    }
+    } catch (_) {}
 
     return null;
   }
@@ -265,17 +255,37 @@ class UserManagementDAO {
   Future<Map<String, String>> getMunicipalityData() async {
     User? user = _firebaseAuth.currentUser;
     if (user != null) {
-      DocumentSnapshot snapshot =
-          await _firebaseFirestore.collection('municipality').doc(user.uid).get();
+      DocumentSnapshot snapshot = await _firebaseFirestore
+          .collection('municipality')
+          .doc(user.uid)
+          .get();
+
+      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+      String email = data.containsKey('email') ? data['email'] : '';
+      String municipalityName = data.containsKey('municipalityName')
+          ? capitalize(data['municipalityName'])
+          : '';
+      String province = data.containsKey('province') ? data['province'] : '';
+
       return {
-        'email': snapshot['email'],
-        'municipalityName': snapshot['municipalityName'],
-        'province': snapshot['province'],
+        'email': email,
+        'municipalityName': municipalityName,
+        'province': province,
       };
     } else {
       throw Exception('No authenticated user found.');
     }
   }
+
+  /// Capitalizes the first letter of a string and converts the rest to lowercase.
+  ///
+  /// Parameters:
+  /// - [s]: The string to capitalize.
+  ///
+  /// Returns:
+  /// - The capitalized string.
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1).toLowerCase();
 
   /// Updates the authenticated user's data in Firestore.
   ///
@@ -300,6 +310,16 @@ class UserManagementDAO {
   /// Parameters:
   /// - [newEmail]: The new email to set.
   /// - [currentPassword]: The user's current password (required for re-authentication).
+  /// Updates the email address of the authenticated user.
+  ///
+  /// Parameters:
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password (required for re-authentication).
+  /// Updates the email address of the authenticated user.
+  ///
+  /// Parameters:
+  /// - [newEmail]: The new email to set.
+  /// - [currentPassword]: The user's current password (required for re-authentication).
   Future<void> updateEmail({
     required String newEmail,
     required String currentPassword,
@@ -312,10 +332,6 @@ class UserManagementDAO {
     await user.reauthenticateWithCredential(credential);
     // ignore: deprecated_member_use
     await user.updateEmail(newEmail);
-    await _firebaseFirestore
-        .collection('citizen')
-        .doc(user.uid)
-        .update({'email': newEmail});
   }
 
   /// Updates the password of the authenticated user.

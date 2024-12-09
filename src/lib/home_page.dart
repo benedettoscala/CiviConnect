@@ -1,3 +1,5 @@
+import 'package:civiconnect/gestione_segnalazione_cittadino/my_segnalazioni_gui.dart';
+import 'package:civiconnect/gestione_admin/admin_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
@@ -17,10 +19,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
-  GenericUser? userInfo;
-  bool isLoading = false;
-  Map<String, dynamic> userData = {};
+  GenericUser? _userInfo;
+  bool isLoading = true;
+  Map<String, dynamic>? userData;
   late UserManagementController userController;
+
+  final List<Widget> _pages = <Widget>[
+    const MyReportsViewGUI(),
+    const ReportsViewCitizenGUI(),
+    const UserProfile(),
+  ];
 
   @override
   void initState() {
@@ -32,8 +40,10 @@ class _HomePageState extends State<HomePage> {
     userController = UserManagementController(redirectPage: const HomePage());
     late Map<String, dynamic> data;
     try {
-      userInfo = (await UserManagementDAO().determineUserType())!;
-      if (userInfo is Citizen) {
+      _userInfo = (await UserManagementDAO().determineUserType())!;
+      if (_userInfo is Citizen) {
+        // if is citizen the home page is this reports view
+        _pages[1] = const ReportsViewCitizenGUI();
         data = await userController.getUserData();
       } else {
         data = await userController.getMunicipalityData();
@@ -49,12 +59,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  final List<Widget> _pages = <Widget>[
-    const Placeholder(),
-    const ReportsViewCitizenGUI(),
-    const UserProfile(),
-  ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -68,6 +72,11 @@ class _HomePageState extends State<HomePage> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
+    if (_userInfo is Admin) {
+      return const AdminHomePage();
+    }
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: _pages[_selectedIndex],
@@ -90,7 +99,6 @@ class _HomePageState extends State<HomePage> {
         onTap: _onItemTapped,
       ),
     );
-    //return const TestingPage();
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -126,21 +134,18 @@ class _HomePageState extends State<HomePage> {
                         ? CircleAvatar(
                       radius: 20,
                       backgroundImage: AssetImage(
-                        'assets/images/profile/${userInfo!.uid.hashCode % 6}.jpg',
+
+                        'assets/images/profile/${_userInfo!.uid.hashCode % 6}.jpg',
                       ),
-                    ) : const CircularProgressIndicator(
-                      color: Colors.white,
                     ),
                     const SizedBox(width: 12),
-                    userInfo != null
-                        ? Text(
-                            userInfo is Citizen
-                                ? '${userData['firstName']} ${userData['lastName']}'
-                                : userData['municipalityName'],
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary))
-                        : const Text('Caricamento...',
-                            style: TextStyle(color: Colors.white)),
+                    Text(
+                        (userData == null) ? 'Benvenuto Utente' :
+                        _userInfo is Citizen
+                            ? '${userData?['firstName']} ${userData?['lastName']}'
+                            : userData?['municipalityName'],
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary)),
                     const Expanded(child: UnconstrainedBox()),
                     IconButton(
                       alignment: Alignment.topLeft,

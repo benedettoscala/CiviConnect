@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
+import '../utils/snackbar_riscontro.dart';
 
 /// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
@@ -26,13 +27,15 @@ class _UserProfileState extends State<UserProfile> {
   late ThemeData theme;
   late TextStyle textStyle;
   late GenericUser userInfo;
+  User _user = UserManagementDAO().currentUser!;
 
   @override
   void initState() {
     super.initState();
     theme = ThemeManager().customTheme;
     textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
-    userController = UserManagementController(redirectPage: const UserProfile());
+    userController =
+        UserManagementController(redirectPage: const UserProfile());
     _loadUserData();
   }
 
@@ -54,15 +57,13 @@ class _UserProfileState extends State<UserProfile> {
       setState(() {
         isLoading = false;
       });
-      _showMessage(
+      showMessage(context,
           isError: true, message: 'Errore durante il caricamento dei dati: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = UserManagementDAO().currentUser;
-
     if (isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -84,7 +85,7 @@ class _UserProfileState extends State<UserProfile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 0),
-                    _buildProfileHeader(theme, user!, userData),
+                    _buildProfileHeader(theme, _user, userData),
                     const SizedBox(height: 30),
                     if (userInfo is Citizen) ..._buildCitizenData(),
                     const SizedBox(height: 20),
@@ -94,7 +95,7 @@ class _UserProfileState extends State<UserProfile> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
-                    _buildAccountData(user, theme),
+                    _buildAccountData(_user, theme),
                     const SizedBox(height: 20),
                     Container(
                       width: double.infinity,
@@ -347,29 +348,20 @@ class _UserProfileState extends State<UserProfile> {
     // If there are errors, show a snackbar and return false
     if (errors.isNotEmpty) {
       String errorMessage = errors.join('\n');
-      _showMessage(isError: true, message: errorMessage);
+      showMessage(context, isError: true, message: errorMessage);
       return false; // Save failed
     }
 
     // If there are no errors, save the data
     try {
       await userController.updateUserData(userData);
-      _showMessage(message: 'Dati salvati con successo');
+      showMessage(context, message: 'Dati salvati con successo');
       return true; // Save successful
     } catch (e) {
-      _showMessage(isError: true, message: 'Errore durante il salvataggio: $e');
+      showMessage(context,
+          isError: true, message: 'Errore durante il salvataggio: $e');
       return false; // Save failed
     }
-  }
-
-  void _showMessage({isError = false, message = ''}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        duration: const Duration(seconds: 5),
-      ),
-    );
   }
 
   Widget _buildProfileHeader(
@@ -381,7 +373,8 @@ class _UserProfileState extends State<UserProfile> {
             radius: 80,
             backgroundImage: user.photoURL != null
                 ? NetworkImage(user.photoURL!)
-                : AssetImage('assets/images/profile/${user.uid.hashCode % 6}.jpg'),
+                : AssetImage(
+                    'assets/images/profile/${user.uid.hashCode % 6}.jpg'),
             //child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
           ),
           const SizedBox(height: 5),
@@ -477,7 +470,13 @@ class _UserProfileState extends State<UserProfile> {
     try {
       await userController.changeEmail(context,
           newEmail: newEmail, currentPassword: currentPassword);
-      _showMessage(message: 'Email aggiornata con successo');
+
+      // Update the user data in the state
+      setState(() {
+        _user = UserManagementDAO().currentUser!;
+      });
+
+      showMessage(context, message: 'Email aggiornata con successo');
     } catch (e) {
       _handleAuthException(e as Exception);
     }
@@ -488,7 +487,7 @@ class _UserProfileState extends State<UserProfile> {
     try {
       await userController.changePassword(context,
           currentPassword: currentPassword, newPassword: newPassword);
-      _showMessage(message: 'Password aggiornata con successo');
+      showMessage(context, message: 'Password aggiornata con successo');
     } catch (e) {
       _handleAuthException(e as Exception);
     }
@@ -517,6 +516,6 @@ class _UserProfileState extends State<UserProfile> {
     } else {
       errorMessage = 'Si è verificato un errore: $e';
     }
-    _showMessage(isError: true, message: errorMessage);
+    showMessage(context, isError: true, message: errorMessage);
   }
 }

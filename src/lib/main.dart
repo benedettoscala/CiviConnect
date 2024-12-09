@@ -6,6 +6,7 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/widgets/logo_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -16,6 +17,7 @@ Future<void> main() async {
   //Firebase Initialization example code
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
+    name: 'civiconnect-13aeb',
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
@@ -58,6 +60,10 @@ class _FirstPage extends StatefulWidget {
 class _FirstPageState extends State<_FirstPage> {
   @override
   Widget build(BuildContext context) {
+    // Change color navgationbar
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      systemNavigationBarColor: ThemeManager().seedColor,
+    ));
     // If the user have already logged in, redirect to the other default page.
     return Scaffold(
       backgroundColor: ThemeManager().seedColor,
@@ -121,7 +127,8 @@ class _FirstPageState extends State<_FirstPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              _transitionAnimationLogin((context) => const RegistrazioneUtenteGui()),
+                              _transitionAnimationLogin(
+                                  (context) => const RegistrazioneUtenteGui()),
                             );
                           },
                           child: const Text('Registrazione')),
