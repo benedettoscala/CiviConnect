@@ -259,10 +259,19 @@ class UserManagementDAO {
           .collection('municipality')
           .doc(user.uid)
           .get();
+
+      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+      String email = data.containsKey('email') ? data['email'] : '';
+      String municipalityName = data.containsKey('municipalityName')
+          ? capitalize(data['municipalityName'])
+          : '';
+      String province = data.containsKey('province') ? data['province'] : '';
+
       return {
-        'email': snapshot['email'],
-        'municipalityName': capitalize(snapshot['municipalityName']),
-        'province': snapshot['province'],
+        'email': email,
+        'municipalityName': municipalityName,
+        'province': province,
       };
     } else {
       throw Exception('No authenticated user found.');
