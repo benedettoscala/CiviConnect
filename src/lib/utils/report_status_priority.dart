@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Each status has a [name] to display as a string and a [value] used for sorting or comparisons.
 enum StatusReport implements Comparable<StatusReport> {
   /// The report is waiting for admin approval.
-  underReview(name: 'In verifica', value: 0),
+  underReview(name: 'In Verifica', value: 0),
 
   /// The report has been approved by an admin.
   accepted(name: 'Accettata', value: 1),
@@ -64,16 +64,16 @@ enum StatusReport implements Comparable<StatusReport> {
 /// has a [name], [value], and a [color] associated with it for visual representation.
 enum PriorityReport implements Comparable<PriorityReport> {
   /// Unset priority level.
-  unset(value: -1, name: 'Non impostata', color: Colors.grey),
+  unset(value: 1, name: 'Non impostata', color: Colors.grey),
 
   /// Low priority level.
-  low(value: 0, name: 'Bassa', color: Colors.yellow),
+  low(value: 1, name: 'Bassa', color: Colors.yellow),
 
   /// Medium priority level.
-  medium(value: 1, name: 'Media', color: Colors.orange),
+  medium(value: 3, name: 'Media', color: Colors.orange),
 
   /// High priority level.
-  high(value: 2, name: 'Alta', color: Colors.red);
+  high(value: 4, name: 'Alta', color: Colors.red);
 
   /// A numerical value representing the priority.
   final int _value;
