@@ -7,15 +7,24 @@ import 'package:flutter/material.dart';
 ///
 /// Parameters:
 /// - [redirectPage]: The page to navigate to when the button is pressed.
-class LocationPermissionPage extends StatelessWidget {
-/// The page to navigate to when the button is pressed.
-final Widget redirectPage;
+class PermissionPage extends StatelessWidget {
+  /// The page to navigate to when the button is pressed.
+  final Widget redirectPage;
+/// The error message to display.
+final String error;
+
+/// The icon to display.
+final IconData icon;
 
   /// Constructs a new `LocationPermissionPage` instance.
-///
-/// Parameters:
-/// - [redirectPage]: The page to navigate to when the button is pressed.
-const LocationPermissionPage({required this.redirectPage, super.key});
+  ///
+  /// Parameters:
+  /// - [redirectPage]: The page to navigate to when the button is pressed.
+  const PermissionPage(
+      {required this.error,
+      required this.icon,
+      required this.redirectPage,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,28 +34,28 @@ const LocationPermissionPage({required this.redirectPage, super.key});
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.location_off, size: 100, color: Colors.red),
+            Icon(icon, size: 100, color: Colors.red),
             const SizedBox(height: 20),
-            const Text(
-              'Localizzazione disabilitata',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              error,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             const Text(
-              'Per utilizzare questa funzionalità, è necessario abilitare la localizzazione sul dispositivo.',
+              'Per utilizzare questa funzionalità, è necessario abilitare i permessi sul dispositivo.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-  onPressed: () {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => redirectPage),
-    );
-  },
-  child: const Text('Torna alla Home'),
-)
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => redirectPage),
+                );
+              },
+              child: const Text('Torna alla Home'),
+            )
           ],
         ),
       ),
