@@ -221,6 +221,7 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
                             'number': report['address']['number'] ?? 'N/A',
                           },
                     city: report['city'],
+                    photo: report['photo'],
                   ),
                   onTap: () {
                     // TODO: vai alla pagina dei dettagli
