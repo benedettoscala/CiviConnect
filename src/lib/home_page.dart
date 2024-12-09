@@ -25,12 +25,6 @@ class _HomePageState extends State<HomePage> {
   Map<String, dynamic>? userData;
   late UserManagementController userController;
 
-  final List<Widget> _pages = <Widget>[
-    const MyReportsViewGUI(),
-    const ReportsViewCitizenGUI(),
-    const UserProfile(),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -62,7 +56,7 @@ class _HomePageState extends State<HomePage> {
 
 
   final List<Widget> _pages = <Widget>[
-    const Placeholder(),
+    const MyReportsViewGUI(),
     const ReportsViewCitizenGUI(),
     const UserProfile(),
     DataAnalysisGUI(),
@@ -90,9 +84,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _pages[userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
+      body: _pages[_userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: userInfo is Citizen
+        items: _userInfo is Citizen
             ? const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.assignment),
@@ -163,10 +157,10 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    userInfo != null
+                    _userInfo != null
                         ? Text(
                         (userData == null) ? 'Benvenuto Utente' :
-                            userInfo is Citizen
+                            _userInfo is Citizen
                                 ? '${userData?['firstName']} ${userData?['lastName']}'
                                 : userData?['municipalityName'],
                             style: TextStyle(
