@@ -16,6 +16,7 @@ Future<void> main() async {
   //Firebase Initialization example code
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
+    name: 'civiconnect-13aeb',
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
