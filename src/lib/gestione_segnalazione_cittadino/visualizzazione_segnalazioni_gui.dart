@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:civiconnect/gestione_segnalazione_cittadino/inserimento_segnalazione_gui.dart';
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
