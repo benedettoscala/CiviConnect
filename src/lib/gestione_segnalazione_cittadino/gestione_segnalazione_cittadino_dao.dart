@@ -1,9 +1,11 @@
+import 'package:civiconnect/model/report_model.dart';
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Data Access Object (DAO) for managing citizen reports.
 class CitizenReportManagementDAO {
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   /// The data access object for user management.
   final UserManagementDAO _userManagementDAO;
@@ -14,7 +16,6 @@ class CitizenReportManagementDAO {
 
   /// Specifies it the query offset is at the bottom of the list.
   bool _isEnded = false;
-
 
   /// Constructs a new `CitizenReportManagementDAO` instance.
   ///
@@ -50,6 +51,30 @@ class CitizenReportManagementDAO {
   }
 
 
+/// Adds a new report to the Firestore database.
+///
+/// Parameters:
+/// - [reportData]: The report data to be added.
+///
+/// Returns:
+/// - A `Future<bool>` indicating whether the report was successfully added.
+///
+/// Throws:
+/// - [Exception]: If there is an error adding the report.
+Future<bool> addReport(Report reportData) async {
+    try {
+      await _firebaseFirestore
+          .collection('reports')
+          .doc(reportData.city?.toLowerCase())
+          .collection('${reportData.city?.toLowerCase()}_reports')
+          .add(reportData.toMap());
+    } catch (e) {
+      throw Exception('Failed to add report');
+    }
+    return true;
+  }
+
+
   /// Retrieves a list of reports created by a specific user.
   ///
   /// Parameters:
@@ -76,7 +101,6 @@ class CitizenReportManagementDAO {
 
 
 
-
   /* --------------------------- PRIVATE METHODS ---------------------------------- */
 
   /// Retrieves the next ten reports for a given city, starting from the last retrieved report.
@@ -90,27 +114,22 @@ class CitizenReportManagementDAO {
   ///
   /// Throws:
   /// - [Exception]: If there is an error retrieving the data.
-Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city}) async {
-  Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
-    .orderBy('title', descending: true).limit(10);
+  Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city}) async {
+    Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
+      .orderBy('title', descending: true).limit(10);
 
-  // If the last document is not null, the query starts after the last document of the previous query.
-  if (_lastDocument != null) {
-    query = query.startAfterDocument(_lastDocument!);
-  }
-
-  try {
-    final querySnapshot = await query.get();
-    // If the query is empty or the last document is the same as the previous one, the query is ended.
-    if (_isEnded || querySnapshot.docs.isEmpty || _lastDocument == querySnapshot.docs.last){
-      _isEnded = true;
-      return null;
+    // If the last document is not null, the query starts after the last document of the previous query.
+    if (_lastDocument != null) {
+      query = query.startAfterDocument(_lastDocument!);
     }
 
-    // If the query is less than 10, the query is ended but the last documents are updated.
-    if(querySnapshot.docs.length < 10){
-      _isEnded = true;
-    }
+    try {
+      final querySnapshot = await query.get();
+      // If the query is empty or the last document is the same as the previous one, the query is ended.
+      if (_isEnded || querySnapshot.docs.isEmpty || _lastDocument == querySnapshot.docs.last){
+        _isEnded = true;
+        return null;
+      }
 
     //Retrieve the data from the query snapshot.
     var data = querySnapshot.docs.map((doc) {
@@ -123,12 +142,13 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     // Update the last document.
     _lastDocument  = querySnapshot.docs.last;
 
-    return data;
 
-  } catch (e) {
-    throw Exception('Error retrieving data: $e');
+      return data;
+
+    } catch (e) {
+      throw Exception('Error retrieving data: $e');
+    }
   }
-}
 
 
   ///
@@ -155,7 +175,12 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
 
         final querySnapshot = await query.get();
         if (querySnapshot.docs.isNotEmpty) {
-          allReports.addAll(querySnapshot.docs.map((doc) => doc.data()).toList());
+          allReports.addAll(querySnapshot.docs.map((doc) {
+        // Add the reportId to the data.
+        final d = doc.data();
+        d['reportId'] = doc.id;
+        return d;
+        }).toList());
           _lastDocument = querySnapshot.docs.last;
         }
       }
@@ -171,8 +196,8 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
       throw Exception('Error retrieving data: $e');
     }
   }
-  /* -------------------------------- UTILITY PRIVATE METHODS ----------------------------- */
 
+  /* -------------------------------- UTILITY PRIVATE METHODS ----------------------------- */
 
   /// Checks if the current user is valid for the given city.
   ///
@@ -191,5 +216,4 @@ Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city
     }
     return (user is Municipality && (user).municipalityName == city) || user is Citizen;
   }
-
 }
