@@ -26,11 +26,6 @@ import '../utils/report_status_priority.dart';
 ///   newPriority: PriorityReport.high,
 /// );
 /// ```
-///
-/// **Note**: Ensure proper authentication and permission handling when using these methods.
-///
-/// @Author: [Your Name or Organization]
-/// @Version: 1.0.0
 class MunicipalityReportManagementDAO {
   /// Instance of Firebase Firestore for database operations.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

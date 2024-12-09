@@ -31,11 +31,6 @@ import 'gestione_segnalazione_comune_dao.dart';
 ///   newPriority: PriorityReport.high,
 /// );
 /// ```
-///
-/// **Note**: Ensure proper permissions and authentication for Firestore operations.
-///
-/// @Author: [Your Name or Organization]
-/// @Version: 1.0.0
 class MunicipalityReportManagementController {
   /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
   final MunicipalityReportManagementDAO _reportDAO;
