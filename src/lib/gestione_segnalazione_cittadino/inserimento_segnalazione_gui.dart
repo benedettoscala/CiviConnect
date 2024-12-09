@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_location_failed.dart';
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/model/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -364,7 +365,7 @@ class _InserimentoSegnalazioneGUIState
   void _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      if(_selectedImage != null) {
+      if (_selectedImage != null) {
         setState(() => _isLoading = true);
         bool result = await sendData();
         setState(() => _isLoading = false);
@@ -377,10 +378,11 @@ class _InserimentoSegnalazioneGUIState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: color),
         );
-      }
-      else{
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Devi scattare un\'immagine'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Devi scattare un\'immagine'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -417,12 +419,21 @@ class _InserimentoSegnalazioneGUIState
   }
 
   Future<void> _pickImageFromCamera() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
+    try {
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+            builder: (context) => const PermissionPage(
+                  redirectPage: HomePage(), error:'Abilita i permessi della fotocamera', icon: Icons.camera_alt,
+                )),
+      );
     }
   }
 }
