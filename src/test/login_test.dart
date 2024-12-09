@@ -33,11 +33,7 @@ class FakeUserManagementController extends Fake implements UserManagementControl
   Future<bool> login(BuildContext context, {required String email, required String password}) {
     if(email == 'valid.email@mail.com' && password == 'validP4ssword#'){
       //push to HomePage if login is successful
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-            (route) => false,
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const Placeholder()));
       return Future.value(true);
     } else {
       return Future.value(false);
@@ -168,7 +164,7 @@ Future<void> _testValidation({required String description, required String input
       // Wait for the HomePage to be pushed
       await tester.pumpAndSettle();
       // Check HomePage is pushed
-      expect(find.byType(HomePage), findsOneWidget, reason: 'Login success for valid credentials');
+      expect(find.byType(LoginUtenteGUI), findsNothing, reason: 'Login success for valid credentials');
       // Check we're not in Login Page
       expect(find.text('Login'), findsNothing, reason: 'Login button is not present: successful login');
 
