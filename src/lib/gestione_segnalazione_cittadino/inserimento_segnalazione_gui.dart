@@ -5,7 +5,7 @@ import 'package:civiconnect/model/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:civiconnect/widgets/input_textfield_decoration.dart';
+//import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -127,7 +127,7 @@ class _InserimentoSegnalazioneGUIState
         const Text('Titolo', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
-          decoration: TextFieldInputDecoration(context, labelText: 'Titolo'),
+          //decoration: TextFieldInputDecoration(context, labelText: 'Titolo'),
           validator: FormBuilderValidators.compose(
             [
               FormBuilderValidators.required(
@@ -165,7 +165,7 @@ class _InserimentoSegnalazioneGUIState
         const Text('Categoria', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         DropdownButtonFormField<Category>(
-          decoration: TextFieldInputDecoration(context, labelText: 'Categoria'),
+          //decoration: TextFieldInputDecoration(context, labelText: 'Categoria'),
           items: Category.values.map((category) {
             return DropdownMenuItem<Category>(
               value: category,
@@ -191,7 +191,7 @@ class _InserimentoSegnalazioneGUIState
         const SizedBox(height: 8),
         TextFormField(
             controller: _cittaController,
-            decoration: TextFieldInputDecoration(context, labelText: 'Città'),
+            //decoration: TextFieldInputDecoration(context, labelText: 'Città'),
             validator: FormBuilderValidators.required(),
             enabled: false,
             onSaved: (value) => {
@@ -211,7 +211,7 @@ class _InserimentoSegnalazioneGUIState
         const SizedBox(height: 8),
         TextFormField(
           controller: _indirizzoController,
-          decoration: TextFieldInputDecoration(context, labelText: 'Indirizzo'),
+          //decoration: TextFieldInputDecoration(context, labelText: 'Indirizzo'),
           validator: FormBuilderValidators.required(),
           enabled: false,
           onSaved: (value) => {
@@ -238,8 +238,7 @@ class _InserimentoSegnalazioneGUIState
             style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
-          decoration:
-              TextFieldInputDecoration(context, labelText: 'Descrizione'),
+          //decoration:TextFieldInputDecoration(context, labelText: 'Descrizione'),
           maxLines: 3,
           validator: FormBuilderValidators.compose(
             [
@@ -365,18 +364,25 @@ class _InserimentoSegnalazioneGUIState
   void _onSubmit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      setState(() => _isLoading = true);
-      bool result = await sendData();
-      setState(() => _isLoading = false);
+      if(_selectedImage != null) {
+        setState(() => _isLoading = true);
+        bool result = await sendData();
+        setState(() => _isLoading = false);
 
-      final message = result
-          ? 'Invio effettuato con successo!'
-          : 'Errore durante l\'invio della segnalazione';
-      final color = result ? Colors.green : Colors.red;
+        final message = result
+            ? 'Invio effettuato con successo!'
+            : 'Errore durante l\'invio della segnalazione';
+        final color = result ? Colors.green : Colors.red;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: color),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: color),
+        );
+      }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Devi scattare un\'immagine'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
