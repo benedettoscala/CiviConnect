@@ -209,7 +209,7 @@ Future<loc.Location> requestLocationPermissions(BuildContext context) async {
   if (!serviceEnabled) {
     serviceEnabled = await location.requestService();
     if (!serviceEnabled) {
-      _redirectToLocationPermissionPage(context);
+      _redirectToPermissionPage(context);
     }
   }
 
@@ -217,12 +217,12 @@ Future<loc.Location> requestLocationPermissions(BuildContext context) async {
   if (permissionGranted == loc.PermissionStatus.denied) {
     permissionGranted = await location.requestPermission();
     if (permissionGranted == loc.PermissionStatus.denied) {
-      _redirectToLocationPermissionPage(context);
+      _redirectToPermissionPage(context);
     }
   }
 
   if (permissionGranted == loc.PermissionStatus.deniedForever) {
-    _redirectToLocationPermissionPage(context);
+    _redirectToPermissionPage(context);
   }
   return location;
 }
@@ -265,12 +265,12 @@ Future<List<String>> getLocation(GeoPoint? location) async {
 
 // Redirects the user to the LocationPermissionPage.
 // This function navigates to the LocationPermissionPage, which prompts the user to enable location services or grant location permissions.
-void _redirectToLocationPermissionPage(BuildContext context) {
+void _redirectToPermissionPage(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const LocationPermissionPage(
-        redirectPage: HomePage(),
+      builder: (context) => const PermissionPage(
+        redirectPage: HomePage(), error: 'Localizzazione disabilitata', icon: Icons.location_off,
       ),
     ),
   );
