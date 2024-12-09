@@ -116,50 +116,53 @@ class _HomePageState extends State<HomePage> {
       );
     }
     return PreferredSize(
-        preferredSize: const Size.fromHeight(75),
-        child: AppBar(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(15),
-              ),
-            ),
-            elevation: 10,
-            shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
-            title: Column(
+      preferredSize: const Size.fromHeight(75),
+      child: AppBar(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
+        elevation: 10,
+        shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
+        title: Column(
+          children: [
+            const SizedBox(height: 20),
+            Row(
               children: [
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    userInfo != null
-                        ? CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage(
-
-                        'assets/images/profile/${_userInfo!.uid.hashCode % 6}.jpg',
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                        (userData == null) ? 'Benvenuto Utente' :
-                        _userInfo is Citizen
+                _userInfo != null
+                    ? CircleAvatar(
+                        radius: 20,
+                        backgroundImage: AssetImage(
+                          'assets/images/profile/${_userInfo!.uid.hashCode % 6}.jpg',
+                        ),
+                      )
+                    : const SizedBox(),
+                const SizedBox(width: 12),
+                Text(
+                    (userData == null)
+                        ? 'Benvenuto Utente'
+                        : _userInfo is Citizen
                             ? '${userData?['firstName']} ${userData?['lastName']}'
                             : userData?['municipalityName'],
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary)),
-                    const Expanded(child: UnconstrainedBox()),
-                    IconButton(
-                      alignment: Alignment.topLeft,
-                      icon: Icon(
-                        Icons.accessible_forward_sharp,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      onPressed: () {
-                        // TODO: Implement filter selection method
-                      },
-                    ),
-                  ],
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary)),
+                const Expanded(child: UnconstrainedBox()),
+                IconButton(
+                  alignment: Alignment.topLeft,
+                  icon: Icon(
+                    Icons.accessible_forward_sharp,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  onPressed: () {
+                    // TODO: Implement filter selection method
+                  },
                 ),
               ],
-            )));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

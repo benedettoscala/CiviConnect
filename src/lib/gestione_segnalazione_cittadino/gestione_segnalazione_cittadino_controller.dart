@@ -21,8 +21,8 @@ import 'package:civiconnect/user_management/user_management_dao.dart';
 /// This controller handles the initialization of the citizen user and provides
 /// methods for adding reports, uploading images, and fetching user reports.
 class CitizenReportManagementController {
-/// The page to navigate to after certain actions, such as adding a report.
-final Widget redirectPage;
+  /// The page to navigate to after certain actions, such as adding a report.
+  final Widget redirectPage;
 
   /// Creates a new instance of [CitizenReportManagementController].
   ///
@@ -38,7 +38,7 @@ final Widget redirectPage;
   Citizen? _citizen;
   final Completer<Citizen> _citizenCompleter = Completer<Citizen>();
 
-/// Adds a new report for the current citizen user.
+  /// Adds a new report for the current citizen user.
   ///
   /// This method creates a new report with the provided details and uploads it to the database.
   /// If a photo is provided, it uploads the photo to Firebase Storage and includes the URL in the report.
@@ -111,7 +111,8 @@ final Widget redirectPage;
 
       if (user is Citizen) {
         _citizen = user;
-        _citizenCompleter.complete(user); // Segnala che l'inizializzazione è completa
+        _citizenCompleter
+            .complete(user); // Segnala che l'inizializzazione è completa
       } else {
         throw Exception('User is not a citizen');
       }
@@ -133,7 +134,8 @@ final Widget redirectPage;
   ///
   /// Returns:
   /// - A [Future] that resolves to a list of maps, where each map contains the report details.
-  Future<List<Map<String, dynamic>>?> getUserReports({bool reset = false}) async {
+  Future<List<Map<String, dynamic>>?> getUserReports(
+      {bool reset = false}) async {
     if (_citizen == null || _citizen!.city == null) {
       return [];
     }
@@ -190,7 +192,7 @@ final Widget redirectPage;
       }
     }
     return false;
-
+  }
 
   /// Fetches the list of reports for the current logged-in user.
   ///
@@ -292,7 +294,9 @@ void _redirectToPermissionPage(BuildContext context) {
     context,
     MaterialPageRoute(
       builder: (context) => const PermissionPage(
-        redirectPage: HomePage(), error: 'Localizzazione disabilitata', icon: Icons.location_off,
+        redirectPage: HomePage(),
+        error: 'Localizzazione disabilitata',
+        icon: Icons.location_off,
       ),
     ),
   );

@@ -149,7 +149,6 @@ Future<bool> addReport(Report reportData) async {
       throw Exception('Error retrieving data: $e');
     }
   }
-}
 
 
   ///
