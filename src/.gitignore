@@ -45,3 +45,7 @@ app.*.map.json
 
 # ignore firebase log file
 firepit-log.txt
+
+
+# ingnore env
+src/.env/
