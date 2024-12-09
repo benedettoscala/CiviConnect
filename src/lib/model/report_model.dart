@@ -144,6 +144,11 @@ class Report {
     Map<String, String>? address,
   }) : address = Citizen.validateAddress(address);
 
+
+  /// Converts a `Report` instance to a map.
+  ///
+  /// Returns:
+  /// - A `Map<String, dynamic>` containing the details of the report.
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
