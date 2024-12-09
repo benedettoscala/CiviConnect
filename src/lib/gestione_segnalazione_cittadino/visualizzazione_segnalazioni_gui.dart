@@ -1,3 +1,5 @@
+import 'package:civiconnect/gestione_segnalazione_cittadino/inserimento_segnalazione_gui.dart';
+import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
@@ -44,7 +46,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           _loadUpdateData();
         }
       });
-    _reportController = CitizenReportManagementController();
+    _reportController = CitizenReportManagementController(redirectPage: const HomePage());
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
   }
@@ -182,7 +184,12 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: vai alla pagina di creazione della segnalazione
+          // Send to the report creation page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const InserimentoSegnalazioneGUI()),
+          );
         },
         backgroundColor: theme.colorScheme.primary,
         child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
@@ -251,11 +258,12 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           }
           final report = _userData[index];
           Report store = Report(
+            reportId: report['reportId'],
             title: report['title'],
             uid: report['uid'],
             authorFirstName: '${report['authorFirstName']}',
             authorLastName: '${report['authorLastName']}',
-            description: report['title'],
+            description: report['description'],
             status: StatusReport.getStatus(report['status']) ??
                 StatusReport.rejected,
             priority: PriorityReport.getPriority(report['priority']) ??

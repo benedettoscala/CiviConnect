@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'firebase_options.dart';
 
@@ -16,8 +17,14 @@ Future<void> main() async {
   //Firebase Initialization example code
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
+    name: 'civiconnect-13aeb',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Init Hive for Local Storage
+  await Hive.initFlutter();
+  // Open box called "settings"
+  await Hive.openBox('settings');
 
   runApp(const FirstPage());
 }
