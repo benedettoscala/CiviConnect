@@ -348,7 +348,11 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildFooter() {
     return const Column(
       children: [
-        Divider(),
+        Divider(
+          thickness: 1,
+          height: 10,
+          color: Color.fromRGBO(0, 69, 118, 1),
+        ),
         SizedBox(height: 8),
         Text(
           'Grazie per il tuo contributo!',
