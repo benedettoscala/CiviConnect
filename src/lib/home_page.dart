@@ -1,11 +1,10 @@
-import 'package:civiconnect/gestione_segnalazione_cittadino/my_segnalazioni_gui.dart';
 import 'package:civiconnect/gestione_admin/admin_gui.dart';
-import 'package:civiconnect/gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
+import 'package:civiconnect/gestione_segnalazione_cittadino/my_segnalazioni_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
-import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
+
 import 'gestione_segnalazione_cittadino/visualizzazione_segnalazioni_gui.dart';
 import 'model/users_model.dart';
 
@@ -80,23 +79,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Column( //MOMENTANEO SOLO PER TESTING
-        children: [
-          Expanded(child: _pages[_selectedIndex]),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                reportController.editReportPriority(
-                    city: "fisciano",
-                    reportId: "P99GKVv5Nfzt5aFacaKE",
-                    newPriority: PriorityReport.high);
-              },
-              child: const Text('reportId: P99GKVv5Nfzt5aFacaKE basso -> alto'),
-            ),
-          ),
-        ],
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -155,10 +138,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                        (userData == null) ? 'Benvenuto Utente' :
-                        _userInfo is Citizen
-                            ? '${userData?['firstName']} ${userData?['lastName']}'
-                            : userData?['municipalityName'],
+                        (userData == null)
+                            ? 'Benvenuto Utente'
+                            : _userInfo is Citizen
+                                ? '${userData?['firstName']} ${userData?['lastName']}'
+                                : userData?['municipalityName'],
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary)),
                     const Expanded(child: UnconstrainedBox()),

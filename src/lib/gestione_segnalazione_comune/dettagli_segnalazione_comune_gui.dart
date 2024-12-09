@@ -8,20 +8,15 @@ import 'gestione_segnalazione_comune_controller.dart';
 /// View of single report details.
 class DettagliSegnalazioneComune extends StatefulWidget {
   /// Constructs a new `DettagliSegnalazioneCittadino` instance.
-  const DettagliSegnalazioneComune(
-      {required report,
-      super.key})
+  const DettagliSegnalazioneComune({required report, super.key})
       : _report = report;
 
   final Report _report;
+
   @override
   State<DettagliSegnalazioneComune> createState() =>
       _DettagliSegnalazioneState();
 }
-
-//Report Controller
-MunicipalityReportManagementController reportController =
-MunicipalityReportManagementController();
 
 class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
   @override
@@ -44,7 +39,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectTarget: widget._report,
             onValueSelected: (value) {
               //implement showMessage if it works
-              reportController.editReportPriority(
+              MunicipalityReportManagementController().editReportPriority(
                   city: widget._report.city,
                   reportId: widget._report.reportId,
                   newPriority: value);
