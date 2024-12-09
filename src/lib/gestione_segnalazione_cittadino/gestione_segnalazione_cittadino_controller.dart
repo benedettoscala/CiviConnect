@@ -16,9 +16,18 @@ import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 
+/// Controller for managing citizen reports.
+///
+/// This controller handles the initialization of the citizen user and provides
+/// methods for adding reports, uploading images, and fetching user reports.
 class CitizenReportManagementController {
-  final Widget redirectPage;
+/// The page to navigate to after certain actions, such as adding a report.
+final Widget redirectPage;
 
+  /// Creates a new instance of [CitizenReportManagementController].
+  ///
+  /// The [redirectPage] parameter specifies the page to navigate to after
+  /// certain actions, such as adding a report.
   CitizenReportManagementController({required this.redirectPage}) {
     _loadCitizen();
   }
@@ -29,6 +38,21 @@ class CitizenReportManagementController {
   Citizen? _citizen;
   final Completer<Citizen> _citizenCompleter = Completer<Citizen>();
 
+/// Adds a new report for the current citizen user.
+  ///
+  /// This method creates a new report with the provided details and uploads it to the database.
+  /// If a photo is provided, it uploads the photo to Firebase Storage and includes the URL in the report.
+  /// After successfully adding the report, it navigates to the specified redirect page.
+  ///
+  /// \param context The build context.
+  /// \param citta The city where the report is made.
+  /// \param titolo The title of the report.
+  /// \param descrizione The description of the report.
+  /// \param categoria The category of the report.
+  /// \param location The geographical location of the report.
+  /// \param indirizzo An optional map containing the address details.
+  /// \param photo An optional file containing the photo to be uploaded.
+  /// \return A `Future` that resolves to `true` if the report is successfully added, otherwise `false`.
   Future<bool> addReport(BuildContext context,
       {required String citta,
       required String titolo,
@@ -218,6 +242,14 @@ Future<GeoPoint?> getCoordinates(BuildContext context) async {
   return GeoPoint(locationData.latitude!, locationData.longitude!);
 }
 
+/// Retrieves the location details based on the provided [GeoPoint].
+///
+/// This method fetches the locality, street, and name from the coordinates
+/// of the given [GeoPoint] using the geocoding package.
+///
+/// \param location The geographical location as a [GeoPoint].
+/// \return A `Future` that resolves to a list of strings containing the locality,
+///         street, and name of the location.
 Future<List<String>> getLocation(GeoPoint? location) async {
   final locationData = location;
 

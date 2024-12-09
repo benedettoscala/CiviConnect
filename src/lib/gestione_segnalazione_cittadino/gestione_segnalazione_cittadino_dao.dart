@@ -51,7 +51,17 @@ class CitizenReportManagementDAO {
       return await _getTenReportsByOffset(city: city);
   }
 
-  Future<bool> addReport(Report reportData) async {
+/// Adds a new report to the Firestore database.
+///
+/// Parameters:
+/// - [reportData]: The report data to be added.
+///
+/// Returns:
+/// - A `Future<bool>` indicating whether the report was successfully added.
+///
+/// Throws:
+/// - [Exception]: If there is an error adding the report.
+Future<bool> addReport(Report reportData) async {
     try {
       await _firebaseFirestore
           .collection('reports')

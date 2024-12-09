@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 
+/// A page that informs the user that location permissions are disabled.
+///
+/// This page displays a message and an icon indicating that location services are disabled.
+/// It also provides a button to navigate back to the home page.
+///
+/// Parameters:
+/// - [redirectPage]: The page to navigate to when the button is pressed.
 class LocationPermissionPage extends StatelessWidget {
-  final Widget redirectPage;
+/// The page to navigate to when the button is pressed.
+final Widget redirectPage;
 
-  const LocationPermissionPage({required this.redirectPage, super.key});
+  /// Constructs a new `LocationPermissionPage` instance.
+///
+/// Parameters:
+/// - [redirectPage]: The page to navigate to when the button is pressed.
+const LocationPermissionPage({required this.redirectPage, super.key});
 
   @override
   Widget build(BuildContext context) {
