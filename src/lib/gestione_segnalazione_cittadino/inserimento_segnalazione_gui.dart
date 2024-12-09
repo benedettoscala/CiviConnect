@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_location_failed.dart';
+import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_permessi_failed.dart';
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/model/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

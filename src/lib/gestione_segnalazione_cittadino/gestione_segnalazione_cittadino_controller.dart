@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../home_page.dart';
-import 'gestione_location_failed.dart';
+import 'gestione_permessi_failed.dart';
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
 import 'gestione_segnalazione_cittadino_dao.dart';
