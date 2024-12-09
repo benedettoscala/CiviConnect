@@ -11,7 +11,9 @@ import 'package:image_picker/image_picker.dart';
 
 import '../theme.dart';
 
+/// A widget that provides a GUI for inserting a citizen report.
 class InserimentoSegnalazioneGUI extends StatefulWidget {
+  /// Creates an instance of InserimentoSegnalazioneGUI.
   const InserimentoSegnalazioneGUI({super.key});
 
   @override
@@ -128,8 +130,20 @@ class _InserimentoSegnalazioneGUIState
           decoration: TextFieldInputDecoration(context, labelText: 'Titolo'),
           validator: FormBuilderValidators.compose(
             [
-              FormBuilderValidators.required(),
-              (value) => _checkBadWords(value),
+              FormBuilderValidators.required(
+                  errorText: 'Il campo è obbligatorio'),
+              FormBuilderValidators.maxLength(255,
+                  errorText: 'Massimo 255 caratteri'),
+              (value) {
+                final error = _checkBadWords(value);
+                if (error != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                  );
+                  return error;
+                }
+                return null;
+              },
             ],
           ),
           onChanged: (value) => {
@@ -229,8 +243,20 @@ class _InserimentoSegnalazioneGUIState
           maxLines: 3,
           validator: FormBuilderValidators.compose(
             [
-              FormBuilderValidators.required(),
-              (value) => _checkBadWords(value),
+              FormBuilderValidators.required(
+                  errorText: 'Il campo è obbligatorio'),
+              FormBuilderValidators.maxLength(1023,
+                  errorText: 'Massimo 1023 caratteri'),
+              (value) {
+                final error = _checkBadWords(value);
+                if (error != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                  );
+                  return error;
+                }
+                return null;
+              },
             ],
           ),
           onChanged: (value) => {
@@ -286,16 +312,16 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildSubmitButton() {
     return Center(
         child: ElevatedButton.icon(
-          onPressed: _isLoading ? null : _onSubmit,
-          icon: const Icon(Icons.send, color: Colors.white),
-          label: const Text('Invia Segnalazione',
-              style: TextStyle(fontSize: 16, color: Colors.white)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: theme.buttonTheme.colorScheme!.primary,
-            padding: const EdgeInsets.all(14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        ));
+      onPressed: _isLoading ? null : _onSubmit,
+      icon: const Icon(Icons.send, color: Colors.white),
+      label: const Text('Invia Segnalazione',
+          style: TextStyle(fontSize: 16, color: Colors.white)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: theme.buttonTheme.colorScheme!.primary,
+        padding: const EdgeInsets.all(14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    ));
   }
 
   Widget _buildHeader() {
@@ -333,27 +359,29 @@ class _InserimentoSegnalazioneGUIState
   }
 
   void _onSubmit() async {
-    setState(() => _isLoading = true);
-    bool result = await sendData();
-    setState(() => _isLoading = false);
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      setState(() => _isLoading = true);
+      bool result = await sendData();
+      setState(() => _isLoading = false);
 
-    final message = result
-        ? 'Invio effettuato con successo!'
-        : 'Errore durante l\'invio della segnalazione';
-    final color = result ? Colors.green : Colors.red;
+      final message = result
+          ? 'Invio effettuato con successo!'
+          : 'Errore durante l\'invio della segnalazione';
+      final color = result ? Colors.green : Colors.red;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: color),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: color),
+      );
+    }
   }
-
 
   Future<bool> sendData() async {
     bool result = false;
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-        result = await _controller.addReport(
+      result = await _controller.addReport(
         context,
         citta: _citta!,
         titolo: _titolo!,
@@ -361,7 +389,7 @@ class _InserimentoSegnalazioneGUIState
         categoria: _categoria,
         location: _location, // Replace with actual location data
         indirizzo: _indirizzo,
-          photo: _selectedImage,
+        photo: _selectedImage,
       );
     }
     return result;
