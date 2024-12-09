@@ -104,15 +104,15 @@ class MunicipalityReportManagementDAO {
   /// }
   /// ```
   Future<void> editReportPriority({
-    required String? city,
-    required String? reportId,
+    required String city,
+    required String reportId,
     required PriorityReport newPriority,
   }) async {
     try {
       await _firestore
           .collection('reports')
-          .doc(city?.toLowerCase())
-          .collection('${city?.toLowerCase()}_reports')
+          .doc(city.toLowerCase())
+          .collection('${city.toLowerCase()}_reports')
           .doc(reportId)
           .update({'priority': newPriority.name});
     } catch (e) {

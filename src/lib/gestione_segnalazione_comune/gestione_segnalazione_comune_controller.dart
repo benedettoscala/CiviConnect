@@ -73,8 +73,8 @@ class MunicipalityReportManagementController {
   /// );
   /// ```
   Future<void> editReportStatus({
-    required String? city,
-    required String? reportId,
+    required String city,
+    required String reportId,
     required StatusReport newStatus,
   }) async {
     await _reportDAO.editReportStatus(
@@ -104,8 +104,8 @@ class MunicipalityReportManagementController {
   /// );
   /// ```
   Future<void> editReportPriority({
-    required String? city,
-    required String? reportId,
+    required String city,
+    required String reportId,
     required PriorityReport newPriority,
   }) async {
     await _reportDAO.editReportPriority(

@@ -40,8 +40,8 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             onValueSelected: (value) {
               //implement showMessage if it works
               MunicipalityReportManagementController().editReportPriority(
-                  city: widget._report.city,
-                  reportId: widget._report.reportId,
+                  city: widget._report.city!,
+                  reportId: widget._report.reportId!,
                   newPriority: value);
               //showMessage(context, message: "MESSAGE");
 
