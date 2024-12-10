@@ -14,7 +14,7 @@ class FilterModal extends StatefulWidget {
       {required String city,
       List<StatusReport>? status,
       List<PriorityReport>? priority,
-      List<Category>? category}) onSubmit;
+      List<Category>? category, bool? popNav}) onSubmit;
 
   /// Callback function that is triggered when the form is reset.
   final Function() onReset;
@@ -163,13 +163,20 @@ class _FilterModalState extends State<FilterModal> {
                     _getWrap(Category.values, widget.categoryCriteria),
                     const SizedBox(height: 16),
                     ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ThemeManager().customTheme.colorScheme.primaryContainer,
+                          elevation: 2,
+                        ),
                         onPressed: () => widget.onSubmit(
                               status: widget.statusCriteria,
                               priority: widget.priorityCriteria,
                               category: widget.categoryCriteria,
                               city: _cityTextField ?? widget.startCity,
+                              popNav: true,
                             ),
-                        child: const Text('Filtra'))
+                        child: const Text('Filtra'),
+                    ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),
