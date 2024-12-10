@@ -2,6 +2,8 @@ import 'package:civiconnect/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../model/report_model.dart';
+import '../utils/report_status_priority.dart';
 import '../widgets/card_widget.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
@@ -37,7 +39,7 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent &&
+                _scrollController.position.maxScrollExtent &&
             _hasMoreData &&
             !_isLoadingMore) {
           _loadUpdateData();
@@ -56,18 +58,17 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
     if (_isLoading) {
       return _hasMoreData
           ? const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      )
+              body: Center(child: CircularProgressIndicator()),
+            )
           : const Scaffold(
-        body: Center(child: Text('Fine.')),
-      );
+              body: Center(child: Text('Fine.')),
+            );
     }
 
     if (_userData.isEmpty) {
       return const Scaffold(
         body: Center(
-          child: Text(
-              'Nessun dato disponibile. Controlla la tua connessione.'),
+          child: Text('Nessun dato disponibile. Controlla la tua connessione.'),
         ),
       );
     }
@@ -104,7 +105,6 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
       });
     }
   }
-
 
   /// Loads additional data when the user scrolls to the bottom of the list.
   ///
@@ -187,26 +187,46 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-            (context, index) {
+        (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-            report: report,
-            onTap: () {
-              // TODO: vai alla pagina dei dettagli
-            },
-          );
+                  report: Report(
+                    reportId: report['reportId'],
+                    title: report['title'],
+                    uid: report['uid'],
+                    authorFirstName: '${report['authorFirstName']}',
+                    authorLastName: '${report['authorLastName']}',
+                    description: report['description'],
+                    status: StatusReport.getStatus(report['status']) ??
+                        StatusReport.rejected,
+                    priority: PriorityReport.getPriority(report['priority']) ??
+                        PriorityReport.unset,
+                    reportDate: report['reportDate'],
+                    address: report['address'] == null
+                        ? {'street': 'N/A', 'number': 'N/A'}
+                        : {
+                            'street': report['address']['street'] ?? 'N/A',
+                            'number': report['address']['number'] ?? 'N/A',
+                          },
+                    city: report['city'],
+                    photo: report['photo'],
+                  ),
+                  onTap: () {
+                    // TODO: vai alla pagina dei dettagli
+                  },
+                );
         },
       ),
     );
@@ -219,5 +239,4 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
     _loadInitialData();
     await Future.delayed(const Duration(seconds: 1));
   }
-
 }

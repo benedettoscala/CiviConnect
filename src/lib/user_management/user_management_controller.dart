@@ -208,4 +208,42 @@ class UserManagementController {
   String marcoMissingMartina() {
     return 'Marco is sad';
   }
+
+  /// Logout the current user.
+  /// The method logs out the current user.
+  /// Throws an exception if an error occurs during the process.
+  /// Returns:
+  /// - A `Future<void>` indicating the completion of the operation.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
+  Future<void> logOut() async {
+    try {
+      await UserManagementDAO().logOut();
+    } catch (e) {
+      throw Exception('Errore durante il logout');
+    }
+  }
+
+  /// Determines the type of the current user.
+  /// The GenericUser type is a super class of all the user types.
+  ///
+  /// Returns:
+  /// - A `Future<GenericUser?>` containing the type of the current user.
+  ///
+  /// Example:
+  /// ```dart
+  /// GenericUser? user = await UserManagementController().determineUserType();
+  /// if (user is Admin) {
+  ///   print("User is an Admin");
+  /// } else if (user is Municipality) {
+  ///   print("User is a Municipality");
+  /// } else if (user is Citizen) {
+  ///   print("User is a Citizen");
+  /// } else {
+  ///   print("User type could not be determined");
+  /// }
+  /// ```
+  Future<GenericUser?> determineUserType() async {
+    return await UserManagementDAO().determineUserType();
+  }
 }
