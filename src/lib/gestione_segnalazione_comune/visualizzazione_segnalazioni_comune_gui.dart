@@ -264,7 +264,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
             uid: report['uid'],
             authorFirstName: '${report['authorFirstName']}',
             authorLastName: '${report['authorLastName']}',
-            description: report['description'],
+            description: report['title'],
             status: StatusReport.getStatus(report['status']) ??
                 StatusReport.rejected,
             priority: PriorityReport.getPriority(report['priority']) ??
@@ -277,6 +277,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
               'number': report['address']['number'] ?? 'N/A',
             },
             city: report['city'],
+              photo: report['photo']
           );
           return (_errorText != '')
               ? Text(_errorText)
