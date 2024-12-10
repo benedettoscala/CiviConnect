@@ -14,6 +14,7 @@ on:
 
 jobs:
   build:
+    environment: firebase
     name: Build, Test e Checkstyle
     runs-on: ubuntu-latest
 
@@ -39,6 +40,54 @@ jobs:
         api-levels: 31
         build-tools: 31.0.0
 
+    - name: Create private config file
+      run: |
+        mkdir -p ./src/android/app
+        cat <<EOF > ./src/android/app/google-services.json
+        {
+          "project_info": {
+            "project_number": "${{ secrets.PROJECT_NUMBER }}",
+            "project_id": "civiconnect-13aeb",
+            "storage_bucket": "civiconnect-13aeb.firebasestorage.app"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "${{ secrets.MOBILESDK_APP_ID }}",
+                "android_client_info": {
+                  "package_name": "it.unisa.civiconnect"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "${{ secrets.CURRENT_KEY }}"
+                }
+              ],
+              "services": {
+                "appinvite_service": {
+                  "other_platform_oauth_client": []
+                }
+              }
+            }
+          ],
+          "configuration_version": "1"
+        }
+        EOF
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.x
+
+    - name: Validate and Fix JSON
+      run: |
+        for file in $(find . -name '*.json'); do
+          echo "Processing $file"
+          python3 -m json.tool "$file" > "${file}_fixed" || exit 1
+          mv "${file}_fixed" "$file"
+        done
+
     - name: Install dependencies
       working-directory: src  # Specifica la cartella src
       run: flutter pub get
@@ -54,3 +103,12 @@ jobs:
     - name: Build APK
       working-directory: src
       run: flutter build apk --release
+      env:
+        APIKEY_ANDROID: ${{ secrets.APIKEY_ANDROID }}
+        #APIKEY_IOS: ${{ secrets.APIKEY_IOS }}
+        #APIKEY_MAC: ${{ secrets.APIKEY_MAC }}
+        #APIKEY_WEB: ${{ secrets.APIKEY_WEB }}
+        #APIKEY_WIN: ${{ secrets.APIKEY_WIN }}
+
+    - name: Clean up
+      run: rm src/android/app/google-services.json
