@@ -25,12 +25,12 @@ enum Category {
   const Category({required name}) : _name = name;
 
   /// Returns the name of the category.
-  String name() => _name;
+  String get name => _name;
 
   /// Returns the category based on the [name].
   static Category? getCategory(String name) {
     for(Category category in Category.values) {
-      if(category.name() == name) {
+      if(category.name == name) {
         return category;
       }
     }
