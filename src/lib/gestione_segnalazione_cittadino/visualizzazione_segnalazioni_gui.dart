@@ -30,6 +30,10 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   String _errorText = '';
   late ScrollController _scrollController;
   Citizen? _citizen;
+  int _numberOfFilters = 0;
+  final List<StatusReport> _statusCriteria = [];
+  final List<PriorityReport> _priorityCriteria = [];
+  final List<Category> _categoryCriteria = [];
 
   /// Initializes the state of the widget.
   ///
@@ -41,7 +45,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels ==
-                _scrollController.position.maxScrollExtent &&
+            _scrollController.position.maxScrollExtent &&
             _hasMoreData &&
             !_isLoadingMore) {
           _loadUpdateData();
@@ -60,15 +64,17 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     if (_isLoading) {
       return _hasMoreData
           ? const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            )
+        body: Center(child: CircularProgressIndicator()),
+      )
           : const Scaffold(
-              body: Center(child: Text('Fine.')),
-            );
+        body: Center(child: Text('Fine.')),
+      );
     }
 
     return _buildScaffold();
   }
+
+  /* ----------------- DATA LOADING ----------------- */
 
   /// Loads the initial data for the widget.
   ///
@@ -152,6 +158,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     }
   }
 
+  /* ----------------- SCAFFOLD ----------------- */
+
   /// Builds the scaffold of the page
   Widget _buildScaffold() {
     return Scaffold(
@@ -166,20 +174,20 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                 child: _buildHeader(),
               ),
               (_userData.isEmpty)
-                    // Check if there are any reports to show
-                    // Show a message if there are no reports
+              // Check if there are any reports to show
+              // Show a message if there are no reports
                   ? SliverFillRemaining(
-                      child: Center(
-                        child: Text(
-                          'Nessuna segnalazione trovata.',
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      ),
-                    ) :
+                child: Center(
+                  child: Text(
+                    'Nessuna segnalazione trovata',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              ) :
 
-                  /// Show the list of reports if there are any
-                  // Scrollable list
-                  _buildReportsList(),
+              /// Show the list of reports if there are any
+              // Scrollable list
+              _buildReportsList(),
             ],
           ),
         ),
@@ -194,53 +202,93 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     );
   }
 
+  /* ----------------- WIDGETS ----------------- */
+
   /// Builds the header of the page
   /// Contains the user profile picture and the search and filter buttons
   Widget _buildHeader() {
-    return Row(
-  children: [
-    /// Search bar
-    Expanded(child: _searchBar()),
+    return Column(
+      children: [
+        Row(
+          children: [
 
-    /// Filter button
-    Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Card(
-        color: Colors.white70,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.5),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.filter_list,
-                  color: theme.colorScheme.onPrimaryContainer,
+            /// Search bar
+            Expanded(child: _searchBar()),
+
+            /// Filter button
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Card(
+                color: _numberOfFilters > 0 ? Theme.of(context).colorScheme.primaryContainer : Colors.white70,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                onPressed: () {
-                  // TODO: Implementa il metodo di selezione del filtro
-                  showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (context) =>
-                        _citizen != null ? FilterModal(startCity: _citizen?.city ?? '', onSubmit: (criteria){},)
-                        : const SizedBox()
-                  );
-                },
+                elevation: 2,
+                shadowColor: Colors.black.withOpacity(0.5),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.filter_list,
+                              color:theme.colorScheme.onPrimaryContainer,
+                            ),
+                            onPressed: () {
+                              /// Show the filter modal
+                              showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) =>
+                                  _citizen != null ? FilterModal(
+                                    categoryCriteria: _categoryCriteria,
+                                    statusCriteria: _statusCriteria,
+                                    priorityCriteria: _priorityCriteria,
+                                    startCity: _citizen?.city ?? '',
+                                    onSubmit: _filterData,
+                                    onReset: _resetFilters,
+                                  )
+                                      : const SizedBox()
+                              );
+                            },
+                          ),
+                          /// Show the number of filters applied if there are any
+                          if (_numberOfFilters > 0)
+                            Positioned(
+                              right: -5,
+                              top: -5,
+                              child: CircleAvatar(
+                                radius: 8,
+                                backgroundColor: Colors.red,
+                                child: Text(
+                                  _numberOfFilters.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
+            )
+          ],
         ),
-      ),
-    )
-  ],
-);
+        const SizedBox(height: 10),
+        Text('Segnalazioni per ${_citizen?.city ?? ''}',
+            style: theme.textTheme.titleMedium),
+      ],
+
+    );
   }
 
   /// Main Body of the page
@@ -249,15 +297,15 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-        (context, index) {
+            (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
@@ -276,36 +324,29 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
             address: report['address'] == null
                 ? {'street': 'N/A', 'number': 'N/A'}
                 : {
-                    'street': report['address']['street'] ?? 'N/A',
-                    'number': report['address']['number'] ?? 'N/A',
-                  },
+              'street': report['address']['street'] ?? 'N/A',
+              'number': report['address']['number'] ?? 'N/A',
+            },
             city: report['city'],
           );
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-                  report: store,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              DettagliSegnalazioneCittadino(report: store)),
-                    );
-                  },
-                );
+            report: store,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        DettagliSegnalazioneCittadino(report: store)),
+              );
+            },
+          );
         },
       ),
     );
   }
 
-  /// Refreshes the data when the user performs a pull-to-refresh action.
-  ///
-  /// This method reloads the initial data and waits for a short delay before completing.
-  Future<void> _pullRefresh() async {
-    _loadInitialData();
-    await Future.delayed(const Duration(seconds: 1));
-  }
 
   /// Builds the search bar
   /// /// Builds the search bar widget.
@@ -314,45 +355,117 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// The search icon does not have any functionality implemented yet.
   Widget _searchBar() {
     return Padding(
-  padding: const EdgeInsets.all(10.0),
-  child: Card(
-    color: Colors.white70,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    elevation: 2,
-    shadowColor: Colors.black.withOpacity(0.5),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          IconButton(
-            icon: Icon(
-              HugeIcons.strokeRoundedSearch02,
-              size: 24,
-              color: theme.colorScheme.onPrimaryContainer,
-            ),
-            onPressed: () { // TODO - Implement search functionality
-            },
+      padding: const EdgeInsets.all(10.0),
+      child: Card(
+        color: Colors.white70,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.5),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              IconButton(
+                icon: Icon(
+                  HugeIcons.strokeRoundedSearch02,
+                  size: 24,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+                onPressed: () { // TODO - Implement search functionality
+                },
+              ),
+              const Flexible(
+                child: TextField(
+                  decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        borderSide: BorderSide.none,
+                      ),
+                      hintText: 'Cerca segnalazione...'),
+                ),
+              ),
+            ],
           ),
-          const Flexible(
-            child: TextField(
-              decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    borderSide: BorderSide.none,
-                  ),
-                  hintText: 'Cerca segnalazione...'),
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
+
+
+  /* ----------------- METHODS TO CONTROLLER AND UTILITY METHODS ----------------- */
+
+
+
+  /// Refreshes the data when the user performs a pull-to-refresh action.
+  ///
+  /// This method reloads the initial data and waits for a short delay before completing.
+  Future<void> _pullRefresh() async {
+    _loadInitialData();
+    _categoryCriteria.clear();
+    _statusCriteria.clear();
+    _priorityCriteria.clear();
+    setState(() {
+      _numberOfFilters = 0;
+    });
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+
+
+  /// Filters the data based on the selected filters.
+  /// Parameters:
+  /// - status: The list of selected status filters.
+  /// - priority: The list of selected priority filters.
+  /// - category: The list of selected category filters.
+  /// - city: The city to filter the reports by.
+  /// This method fetches the reports based on the selected filters and updates the state with the new data.
+  /// If an error occurs during the filtering process, the error message is displayed.
+  Future<void> _filterData({required String city, List<StatusReport>? status, List<PriorityReport>? priority, List<Category>? category}) async {
+    _numberOfFilters = 0;
+    _numberOfFilters += status?.length ?? 0;
+    _numberOfFilters += priority?.length ?? 0;
+    _numberOfFilters += category?.length ?? 0;
+
+    setState(() {
+      _isLoading = true;
+      _hasMoreData = true;
+    });
+    try {
+      _reportController.citizen.then((value) {
+        _citizen = value;
+        _reportController.filterReportsBy(city: city, status: status, priority: priority, category: category).then((value) {
+          _userData.clear();
+          setState(() {
+            if (value != null && value.isNotEmpty) {
+              _userData.addAll(value);
+            } else {
+              _hasMoreData = false;
+            }
+          });
+        });
+      });
+    } catch (e) {
+      _errorText = 'Errore durante il caricamento filtrato: $e';
+    } finally{
+      Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  /// Resets the filters and reloads the initial data.
+  /// This method resets the filters and reloads the initial data.
+  void _resetFilters() async{
+    Navigator.pop(context);
+    await _pullRefresh();
+  }
+
 }
+
