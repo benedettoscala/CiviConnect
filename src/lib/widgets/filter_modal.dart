@@ -38,6 +38,9 @@ class FilterModal extends StatefulWidget {
   /// The starting filter number.
   final int startingFilterNumber;
 
+  /// The default city. Need for the reset button.
+  final String defaultCity;
+
   /// Creates a [FilterModal].
   /// Parameters:
   /// - [onSubmit]: The callback function that is triggered when the form is submitted.
@@ -58,6 +61,7 @@ class FilterModal extends StatefulWidget {
       required this.statusCriteria,
       required this.priorityCriteria,
       required this.categoryCriteria,
+      required this.defaultCity,
       this.isCityEnabled = true,
       super.key})
       : startingFilterNumber = statusCriteria.length +
@@ -73,6 +77,12 @@ class _FilterModalState extends State<FilterModal> {
   final GlobalKey<FormState> _cityKey = GlobalKey<FormState>();
   String? _cityTextField;
   int? _filterNumber;
+
+  @override
+  void initState() {
+    super.initState();
+    _cityTextField = widget.startCity;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,10 +119,11 @@ class _FilterModalState extends State<FilterModal> {
                   const Spacer(),
                   TextButton(
                     style: ButtonStyle(
-                      enableFeedback:
-                          _filterNumber == 0 || widget.startingFilterNumber == 0
-                              ? false
-                              : true,
+                      enableFeedback: (_filterNumber == 0 ||
+                                  widget.startingFilterNumber == 0) &&
+                              widget.defaultCity == _cityTextField
+                          ? false
+                          : true,
                       elevation: _filterNumber == 0
                           ? null
                           : WidgetStateProperty.all(1),
@@ -123,15 +134,17 @@ class _FilterModalState extends State<FilterModal> {
                               .colorScheme
                               .primaryContainer),
                     ),
-                    onPressed:
-                        _filterNumber == 0 || widget.startingFilterNumber == 0
-                            ? null
-                            : widget.onReset,
+                    onPressed: (_filterNumber == 0 ||
+                                widget.startingFilterNumber == 0) &&
+                            widget.defaultCity == _cityTextField
+                        ? null
+                        : widget.onReset,
                     child: Text(
                       'Resetta filtri',
                       style: TextStyle(
-                        color: _filterNumber == 0 ||
-                                widget.startingFilterNumber == 0
+                        color: (_filterNumber == 0 ||
+                                    widget.startingFilterNumber == 0) &&
+                                widget.defaultCity == _cityTextField
                             ? Colors.grey
                             : theme.primaryColor,
                       ),
@@ -228,7 +241,11 @@ class _FilterModalState extends State<FilterModal> {
       name: 'città',
       enabled: enabled ?? true,
       maxLines: 1,
-      onChanged: (value) => _cityTextField = value,
+      onChanged: (value) {
+        setState(() {
+          _cityTextField = value;
+        });
+      },
       initialValue: widget.startCity,
       validator: FormBuilderValidators.required(),
       decoration: const InputDecoration(

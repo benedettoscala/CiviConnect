@@ -264,6 +264,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                                   isScrollControlled: true,
                                   builder: (context) => _citizen != null
                                       ? FilterModal(
+                                          defaultCity: _citizen?.city ?? '',
                                           categoryCriteria: _categoryCriteria,
                                           statusCriteria: _statusCriteria,
                                           priorityCriteria: _priorityCriteria,
