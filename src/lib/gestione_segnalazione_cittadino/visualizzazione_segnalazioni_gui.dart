@@ -52,7 +52,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent &&
+                _scrollController.position.maxScrollExtent &&
             _hasMoreData &&
             !_isLoadingMore) {
           _loadUpdateData();
@@ -69,7 +69,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     super.dispose();
   }
 
-
   /// Build the widget
   /// If there are no data to load, shows a message
   /// If there is an error, shows an error message
@@ -78,11 +77,11 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     if (_isLoading) {
       return _hasMoreData
           ? const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      )
+              body: Center(child: CircularProgressIndicator()),
+            )
           : const Scaffold(
-        body: Center(child: Text('Fine.')),
-      );
+              body: Center(child: Text('Fine.')),
+            );
     }
 
     return _buildScaffold();
@@ -190,20 +189,21 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                 child: _buildHeader(),
               ),
               (_userData.isEmpty)
-              // Check if there are any reports to show
-              // Show a message if there are no reports
+                  // Check if there are any reports to show
+                  // Show a message if there are no reports
                   ? SliverFillRemaining(
-                child: Center(
-                  child: Text(
-                    'Nessuna segnalazione trovata',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-              ) :
+                      child: Center(
+                        child: Text(
+                          'Nessuna segnalazione trovata',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    )
+                  :
 
-              /// Show the list of reports if there are any
-              // Scrollable list
-              _buildReportsList(),
+                  /// Show the list of reports if there are any
+                  // Scrollable list
+                  _buildReportsList(),
             ],
           ),
         ),
@@ -227,7 +227,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       children: [
         Row(
           children: [
-
             /// Search bar
             Expanded(child: _searchBar()),
 
@@ -235,14 +234,17 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Card(
-                color: _numberOfFilters > 0 ? Theme.of(context).colorScheme.primaryContainer : Colors.white70,
+                color: _numberOfFilters > 0
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : Colors.white70,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 2,
                 shadowColor: Colors.black.withOpacity(0.5),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -253,26 +255,27 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                           IconButton(
                             icon: Icon(
                               Icons.filter_list,
-                              color:theme.colorScheme.onPrimaryContainer,
+                              color: theme.colorScheme.onPrimaryContainer,
                             ),
                             onPressed: () {
                               /// Show the filter modal
                               showModalBottomSheet(
                                   context: context,
                                   isScrollControlled: true,
-                                  builder: (context) =>
-                                  _citizen != null ? FilterModal(
-                                    categoryCriteria: _categoryCriteria,
-                                    statusCriteria: _statusCriteria,
-                                    priorityCriteria: _priorityCriteria,
-                                    startCity: _citySelected ?? (_citizen?.city ?? ''),
-                                    onSubmit: _filterData,
-                                    onReset: _resetFilters,
-                                  )
-                                      : const SizedBox()
-                              );
+                                  builder: (context) => _citizen != null
+                                      ? FilterModal(
+                                          categoryCriteria: _categoryCriteria,
+                                          statusCriteria: _statusCriteria,
+                                          priorityCriteria: _priorityCriteria,
+                                          startCity: _citySelected ??
+                                              (_citizen?.city ?? ''),
+                                          onSubmit: _filterData,
+                                          onReset: _resetFilters,
+                                        )
+                                      : const SizedBox());
                             },
                           ),
+
                           /// Show the number of filters applied if there are any
                           if (_numberOfFilters > 0)
                             Positioned(
@@ -303,7 +306,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
         Text('Segnalazioni per ${_citySelected ?? (_citizen?.city ?? '')}',
             style: theme.textTheme.titleMedium),
       ],
-
     );
   }
 
@@ -313,15 +315,15 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-            (context, index) {
+        (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
@@ -340,29 +342,28 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
             address: report['address'] == null
                 ? {'street': 'N/A', 'number': 'N/A'}
                 : {
-              'street': report['address']['street'] ?? 'N/A',
-              'number': report['address']['number'] ?? 'N/A',
-            },
+                    'street': report['address']['street'] ?? 'N/A',
+                    'number': report['address']['number'] ?? 'N/A',
+                  },
             city: report['city'],
           );
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-            report: store,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        DettagliSegnalazioneCittadino(report: store)),
-              );
-            },
-          );
+                  report: store,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              DettagliSegnalazioneCittadino(report: store)),
+                    );
+                  },
+                );
         },
       ),
     );
   }
-
 
   /// Builds the search bar
   /// /// Builds the search bar widget.
@@ -392,8 +393,10 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
                 onPressed: () {
-                  if(_keyWords != null && _keyWords!.isNotEmpty || _numberOfFilters > 0) {
-                    _filterData(city: _citizen?.city ?? '', keyWords: _keyWords);
+                  if (_keyWords != null && _keyWords!.isNotEmpty ||
+                      _numberOfFilters > 0) {
+                    _filterData(
+                        city: _citizen?.city ?? '', keyWords: _keyWords);
                   }
                 },
               ),
@@ -407,10 +410,13 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                         borderSide: BorderSide.none,
                       ),
                       hintText: 'Cerca segnalazione...'),
-                  onChanged: (value) { _keyWords = value; },
+                  onChanged: (value) {
+                    _keyWords = value;
+                  },
                   onSubmitted: (value) {
-                    if(value.isNotEmpty || _numberOfFilters > 0) {
-                      _filterData(city: _citizen?.city ?? '', keyWords: _keyWords);
+                    if (value.isNotEmpty || _numberOfFilters > 0) {
+                      _filterData(
+                          city: _citizen?.city ?? '', keyWords: _keyWords);
                     }
                   },
                 ),
@@ -422,10 +428,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     );
   }
 
-
   /* ----------------- METHODS TO CONTROLLER AND UTILITY METHODS ----------------- */
-
-
 
   /// Refreshes the data when the user performs a pull-to-refresh action.
   ///
@@ -444,8 +447,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     await Future.delayed(const Duration(seconds: 1));
   }
 
-
-
   /// Filters the data based on the selected filters.
   /// Parameters:
   /// - status: The list of selected status filters.
@@ -454,7 +455,13 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// - city: The city to filter the reports by.
   /// This method fetches the reports based on the selected filters and updates the state with the new data.
   /// If an error occurs during the filtering process, the error message is displayed.
-  Future<void> _filterData({required String city, List<StatusReport>? status, List<PriorityReport>? priority, List<Category>? category, String? keyWords, bool? popNav = false}) async {
+  Future<void> _filterData(
+      {required String city,
+      List<StatusReport>? status,
+      List<PriorityReport>? priority,
+      List<Category>? category,
+      String? keyWords,
+      bool? popNav = false}) async {
     _numberOfFilters = 0;
     _numberOfFilters += status?.length ?? 0;
     _numberOfFilters += priority?.length ?? 0;
@@ -468,39 +475,45 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     try {
       _reportController.citizen.then((value) async {
         _citizen = value;
-        _reportController.filterReportsBy(
-            city: city,
-            status: status,
-            priority: priority,
-            category: category,
-            keyword: keyWords)
+        _reportController
+            .filterReportsBy(
+                city: city,
+                status: status,
+                priority: priority,
+                category: category,
+                keyword: keyWords)
             .then((value) async {
-        if (await checkValidity(city)) {
-          _citySelected = city;
-        } else {
-          _citySelected = _citizen!.city;
-          showMessage(context, isError: true, message: 'Città non valida');
-        }
-        _reportController.filterReportsBy(city: _citySelected!, status: status, priority: priority, category: category).then((value) {
-          _userData.clear();
-
-          if(mounted) {
-            setState(() {
-              if(value != null && value.isNotEmpty) {
-                _userData.addAll(value);
-              } else {
-                _errorText = 'Nessuna segnalazione trovata';
-              }
-            });
+          if (await checkValidity(city)) {
+            _citySelected = city;
+          } else {
+            _citySelected = _citizen!.city;
+            showMessage(context, isError: true, message: 'Città non valida');
           }
+          _reportController
+              .filterReportsBy(
+                  city: _citySelected!,
+                  status: status,
+                  priority: priority,
+                  category: category)
+              .then((value) {
+            _userData.clear();
 
+            if (mounted) {
+              setState(() {
+                if (value != null && value.isNotEmpty) {
+                  _userData.addAll(value);
+                } else {
+                  _errorText = 'Nessuna segnalazione trovata';
+                }
+              });
+            }
+          });
         });
-      });
       });
     } catch (e) {
       _errorText = 'Errore durante il caricamento filtrato: $e';
-    } finally{
-      if(popNav!) {
+    } finally {
+      if (popNav!) {
         Navigator.pop(context);
       }
       setState(() {
@@ -512,7 +525,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
   /// Resets the filters and reloads the initial data.
   /// This method resets the filters and reloads the initial data.
-  void _resetFilters() async{
+  void _resetFilters() async {
     Navigator.pop(context);
     await _pullRefresh();
   }
@@ -523,7 +536,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     Map<String, dynamic> jsonResult = json.decode(data);
 
     List<dynamic> municipalitiesList =
-    jsonResult['Sheet 1 - comuni-localita-cap-i'];
+        jsonResult['Sheet 1 - comuni-localita-cap-i'];
     List<String> allMunicipalities = municipalitiesList
         .map((comune) => comune['Comune Localita’'].toString())
         .toSet()
@@ -541,4 +554,3 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     return _cities.contains(city.toLowerCase());
   }
 }
-

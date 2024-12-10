@@ -14,7 +14,8 @@ class FilterModal extends StatefulWidget {
       {required String city,
       List<StatusReport>? status,
       List<PriorityReport>? priority,
-      List<Category>? category, bool? popNav}) onSubmit;
+      List<Category>? category,
+      bool? popNav}) onSubmit;
 
   /// Callback function that is triggered when the form is reset.
   final Function() onReset;
@@ -58,7 +59,10 @@ class FilterModal extends StatefulWidget {
       required this.priorityCriteria,
       required this.categoryCriteria,
       this.isCityEnabled = true,
-      super.key}) : startingFilterNumber = statusCriteria.length + priorityCriteria.length + categoryCriteria.length;
+      super.key})
+      : startingFilterNumber = statusCriteria.length +
+            priorityCriteria.length +
+            categoryCriteria.length;
 
   @override
   State<FilterModal> createState() => _FilterModalState();
@@ -70,12 +74,15 @@ class _FilterModalState extends State<FilterModal> {
   String? _cityTextField;
   int? _filterNumber;
 
-
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeManager().customTheme;
-    final TextStyle titleFilterStyle = ThemeManager().customTheme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
-          ?? const TextStyle( color: Colors.black, fontWeight: FontWeight.bold);
+    final TextStyle titleFilterStyle = ThemeManager()
+            .customTheme
+            .textTheme
+            .titleMedium
+            ?.copyWith(fontWeight: FontWeight.bold) ??
+        const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
 
     _filterNumber = widget.statusCriteria.length +
         widget.priorityCriteria.length +
@@ -102,7 +109,10 @@ class _FilterModalState extends State<FilterModal> {
                   const Spacer(),
                   TextButton(
                     style: ButtonStyle(
-                      enableFeedback: _filterNumber == 0 || widget.startingFilterNumber == 0 ? false : true,
+                      enableFeedback:
+                          _filterNumber == 0 || widget.startingFilterNumber == 0
+                              ? false
+                              : true,
                       elevation: _filterNumber == 0
                           ? null
                           : WidgetStateProperty.all(1),
@@ -113,11 +123,15 @@ class _FilterModalState extends State<FilterModal> {
                               .colorScheme
                               .primaryContainer),
                     ),
-                    onPressed: _filterNumber == 0 || widget.startingFilterNumber == 0 ? null : widget.onReset,
+                    onPressed:
+                        _filterNumber == 0 || widget.startingFilterNumber == 0
+                            ? null
+                            : widget.onReset,
                     child: Text(
                       'Resetta filtri',
                       style: TextStyle(
-                        color: _filterNumber == 0 || widget.startingFilterNumber == 0
+                        color: _filterNumber == 0 ||
+                                widget.startingFilterNumber == 0
                             ? Colors.grey
                             : theme.primaryColor,
                       ),
@@ -137,16 +151,10 @@ class _FilterModalState extends State<FilterModal> {
                       ),
                     if (widget.isCityEnabled) _cityField(),
                     const SizedBox(height: 30),
-                    Text(
-                      'Data',
-                      style: titleFilterStyle
-                    ),
+                    Text('Data', style: titleFilterStyle),
                     // TODO DatePicker
                     const SizedBox(height: 16),
-                    Text(
-                      'Stato',
-                      style: titleFilterStyle
-                    ),
+                    Text('Stato', style: titleFilterStyle),
                     _getWrap(StatusReport.values, widget.statusCriteria),
                     const SizedBox(height: 16),
                     Text(
@@ -162,18 +170,21 @@ class _FilterModalState extends State<FilterModal> {
                     _getWrap(Category.values, widget.categoryCriteria),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ThemeManager().customTheme.colorScheme.primaryContainer,
-                          elevation: 2,
-                        ),
-                        onPressed: () => widget.onSubmit(
-                              status: widget.statusCriteria,
-                              priority: widget.priorityCriteria,
-                              category: widget.categoryCriteria,
-                              city: _cityTextField ?? widget.startCity,
-                              popNav: true,
-                            ),
-                        child: const Text('Filtra'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ThemeManager()
+                            .customTheme
+                            .colorScheme
+                            .primaryContainer,
+                        elevation: 2,
+                      ),
+                      onPressed: () => widget.onSubmit(
+                        status: widget.statusCriteria,
+                        priority: widget.priorityCriteria,
+                        category: widget.categoryCriteria,
+                        city: _cityTextField ?? widget.startCity,
+                        popNav: true,
+                      ),
+                      child: const Text('Filtra'),
                     ),
                     const SizedBox(height: 10),
                   ],
