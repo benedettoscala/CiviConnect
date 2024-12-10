@@ -65,7 +65,6 @@ class FilterModal extends StatefulWidget {
 }
 
 class _FilterModalState extends State<FilterModal> {
-  String? cityCriteria;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _cityKey = GlobalKey<FormState>();
   String? _cityTextField;
@@ -218,7 +217,7 @@ class _FilterModalState extends State<FilterModal> {
       name: 'città',
       enabled: enabled ?? true,
       maxLines: 1,
-      onSubmitted: (value) => _cityTextField = value,
+      onChanged: (value) => _cityTextField = value,
       initialValue: widget.startCity,
       validator: FormBuilderValidators.required(),
       decoration: const InputDecoration(

@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
+import 'package:civiconnect/utils/snackbar_riscontro.dart';
 import 'package:civiconnect/widgets/filter_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../model/report_model.dart';
@@ -35,6 +39,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   final List<PriorityReport> _priorityCriteria = [];
   final List<Category> _categoryCriteria = [];
   String? _keyWords;
+  String? _citySelected;
+  final Set<String> _cities = {};
 
   /// Initializes the state of the widget.
   ///
@@ -259,7 +265,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                                     categoryCriteria: _categoryCriteria,
                                     statusCriteria: _statusCriteria,
                                     priorityCriteria: _priorityCriteria,
-                                    startCity: _citizen?.city ?? '',
+                                    startCity: _citySelected ?? (_citizen?.city ?? ''),
                                     onSubmit: _filterData,
                                     onReset: _resetFilters,
                                   )
@@ -294,7 +300,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           ],
         ),
         const SizedBox(height: 10),
-        Text('Segnalazioni per ${_citizen?.city ?? ''}',
+        Text('Segnalazioni per ${_citySelected ?? (_citizen?.city ?? '')}',
             style: theme.textTheme.titleMedium),
       ],
 
@@ -433,6 +439,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _numberOfFilters = 0;
       _keyWords = '';
       _errorText = '';
+      _citySelected = _citizen?.city;
     });
     await Future.delayed(const Duration(seconds: 1));
   }
@@ -459,7 +466,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _errorText = '';
     });
     try {
-      _reportController.citizen.then((value) {
+      _reportController.citizen.then((value) async {
         _citizen = value;
         _reportController.filterReportsBy(
             city: city,
@@ -467,8 +474,14 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
             priority: priority,
             category: category,
             keyword: keyWords)
-            .then((value) {
-
+            .then((value) async {
+        if (await checkValidity(city)) {
+          _citySelected = city;
+        } else {
+          _citySelected = _citizen!.city;
+          showMessage(context, isError: true, message: 'Città non valida');
+        }
+        _reportController.filterReportsBy(city: _citySelected!, status: status, priority: priority, category: category).then((value) {
           _userData.clear();
 
           if(mounted) {
@@ -482,6 +495,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           }
 
         });
+      });
       });
     } catch (e) {
       _errorText = 'Errore durante il caricamento filtrato: $e';
@@ -503,5 +517,28 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     await _pullRefresh();
   }
 
+  Future<List<String>> loadMunicipalities() async {
+    String data = await rootBundle
+        .loadString('assets/files/comuni-localita-cap-italia.json');
+    Map<String, dynamic> jsonResult = json.decode(data);
+
+    List<dynamic> municipalitiesList =
+    jsonResult['Sheet 1 - comuni-localita-cap-i'];
+    List<String> allMunicipalities = municipalitiesList
+        .map((comune) => comune['Comune Localita’'].toString())
+        .toSet()
+        .toList();
+
+    return allMunicipalities;
+  }
+
+  Future<bool> checkValidity(String city) async {
+    if (_cities.isEmpty) {
+      List<String> municipalities = await loadMunicipalities();
+      _cities.addAll(municipalities.map((e) => e.toLowerCase()));
+    }
+
+    return _cities.contains(city.toLowerCase());
+  }
 }
 
