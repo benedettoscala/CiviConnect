@@ -43,7 +43,7 @@ class _UserProfileState extends State<UserProfile> {
   void _loadUserData() async {
     late Map<String, dynamic> data;
     try {
-      userInfo = (await UserManagementDAO().determineUserType())!;
+      userInfo = (await UserManagementController().determineUserType())!;
       if (userInfo is Citizen) {
         data = await userController.getUserData();
       } else {
@@ -101,7 +101,7 @@ class _UserProfileState extends State<UserProfile> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          UserManagementDAO().logOut();
+                          UserManagementController().logOut();
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
