@@ -79,8 +79,8 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
       _hasMoreData = true;
     });
     try {
-      /*_reportController.citizen.then((value) {
-        _reportController.getUserReports(reset: true).then((value) {
+      _reportController.municipality.then((value) {
+        _reportController.getMunicipalityReports(reset: true).then((value) {
           _userData.clear();
           setState(() {
             if (value != null && value.isNotEmpty) {
@@ -91,7 +91,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
             _isLoading = false;
           });
         });
-      });*/
+      });
     } catch (e) {
       _errorText = 'Errore durante il caricamento iniziale: $e';
       setState(() {
@@ -119,7 +119,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
       /// Implements loading of new data: fetch data from the controller
       /// and add it to the list of data
       /// If no data is returned, set hasMoreData to false
-      /*_reportController.getMunicipalityReports().then((value) {
+      _reportController.getMunicipalityReports().then((value) {
         SchedulerBinding.instance.addPostFrameCallback((_) async {
           setState(() {
             if (value == null || value.isEmpty) {
@@ -129,7 +129,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
             }
           });
         });
-      });*/
+      });
 
       /// Error handling: set hasMoreData to false and hasError to true to show error message
     } catch (e) {

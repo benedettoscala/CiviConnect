@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../model/users_model.dart';
+import '../user_management/user_management_dao.dart';
 import '../utils/report_status_priority.dart';
 import '../utils/snackbar_riscontro.dart';
 import 'gestione_segnalazione_comune_dao.dart';
@@ -32,23 +36,26 @@ import 'gestione_segnalazione_comune_dao.dart';
 /// );
 /// ```
 class MunicipalityReportManagementController {
+  /// The page to navigate to after certain actions, such as adding a report.
+  final Widget? redirectPage;
   /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
-  final MunicipalityReportManagementDAO _reportDAO;
+  final MunicipalityReportManagementDAO _reportDAO= MunicipalityReportManagementDAO();
+  final UserManagementDAO _userManagementDAO = UserManagementDAO();
   final BuildContext? _context;
+  Municipality? _municipality;
+  final Completer<Municipality> _municipalityCompleter = Completer<Municipality>();
 
-  /// Constructs a `MunicipalityReportManagementController`.
+
+  /// Constructs a `CitizenReportManagementController`.
   ///
-  /// If a `MunicipalityReportManagementDAO` instance is not provided, a new
-  /// instance is initialized internally.
+  /// This constructor initializes the controller and loads the municipality data.
   ///
   /// ### Parameters:
-  /// - `reportDAO`: An optional instance of `MunicipalityReportManagementDAO`
-  ///   to be used by this controller. If not provided, a default instance is created.
-  /// - `context`: An optional `BuildContext` to be used for UI operations.
-  ///  This is required for displaying messages or dialogs.
-  MunicipalityReportManagementController({reportDAO, context})
-      : _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(),
-        _context = context;
+  /// - `redirectPage`: The page to redirect to after loading the municipality data.
+  MunicipalityReportManagementController({this.redirectPage, context})
+      : _context = context {
+    _loadMunicipality();
+  }
 
   /// Edits the status of a specific report.
   ///
@@ -143,5 +150,49 @@ class MunicipalityReportManagementController {
         );
       }
     }
+  }
+
+  void _loadMunicipality() async {
+    try {
+      final user = await _userManagementDAO.determineUserType();
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+
+      if (user is Municipality) {
+        _municipality = user;
+        _municipalityCompleter
+            .complete(user); // Segnala che l'inizializzazione è completa
+      } else {
+        throw Exception('User is not a citizen');
+      }
+    } catch (e) {
+      _municipalityCompleter.completeError('Error determining user type: $e');
+    }
+  }
+
+  /// Returns the current citizen user.
+  Future<Municipality> get municipality async => _municipalityCompleter.future;
+
+  /// Retrieves the list of municipality reports.
+  ///
+  /// This method fetches the list of reports for the current municipality.
+  /// If the municipality is not set or its name is null, an empty list is returned.
+  ///
+  /// ### Parameters:
+  /// - `reset`: A boolean flag indicating whether to reset the report list. Defaults to `false`.
+  ///
+  /// ### Returns:
+  /// A `Future` that completes with a list of maps containing the report data, or an empty list if the municipality is not set.
+  Future<List<Map<String, dynamic>>?> getMunicipalityReports({bool reset = false}) async {
+    if (_municipality == null || _municipality!.municipalityName == null) {
+      return [];
+    }
+
+    List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
+      city: _municipality!.municipalityName!,
+      reset: reset,
+    );
+    return snapshot;
   }
 }
