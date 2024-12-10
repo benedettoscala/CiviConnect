@@ -48,4 +48,5 @@ firepit-log.txt
 
 
 # ingnore env
-src/.env/
+.env/
+android/app/google-services.json

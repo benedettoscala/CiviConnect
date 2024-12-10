@@ -1,5 +1,6 @@
-import 'package:civiconnect/gestione_admin/admin_gui.dart';
+import 'package:civiconnect/analisi_dati/analisi_dati_gui.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/my_segnalazioni_gui.dart';
+import 'package:civiconnect/gestione_admin/admin_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
@@ -23,12 +24,6 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   Map<String, dynamic>? userData;
   late UserManagementController userController;
-
-  final List<Widget> _pages = <Widget>[
-    const MyReportsViewGUI(),
-    const ReportsViewCitizenGUI(),
-    const UserProfile(),
-  ];
 
   @override
   void initState() {
@@ -59,6 +54,16 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
+  final List<Widget> _pages = <Widget>[
+    const MyReportsViewGUI(),
+    const ReportsViewCitizenGUI(),
+    const UserProfile(),
+    DataAnalysisGUI(),
+    const Placeholder(),
+    const UserProfile(),
+  ];
+  
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -79,22 +84,37 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _pages[_selectedIndex],
+      body: _pages[_userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Segnalazioni',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profilo',
-          ),
-        ],
+        items: _userInfo is Citizen
+            ? const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.assignment),
+                  label: 'Segnalazioni',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: 'Profilo',
+                ),
+              ]
+            : const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.analytics),
+                  label: 'Analisi',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.assignment),
+                  label: 'Segnalazioni',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: 'Profilo',
+                ),
+              ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
@@ -116,49 +136,53 @@ class _HomePageState extends State<HomePage> {
       );
     }
     return PreferredSize(
-        preferredSize: const Size.fromHeight(75),
-        child: AppBar(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(15),
-              ),
-            ),
-            elevation: 10,
-            shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
-            title: Column(
+      preferredSize: const Size.fromHeight(75),
+      child: AppBar(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15),
+          ),
+        ),
+        elevation: 10,
+        shadowColor: Theme.of(context).shadowColor.withOpacity(0.9),
+        title: Column(
+          children: [
+            const SizedBox(height: 20),
+            Row(
               children: [
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage(
-                        'assets/images/profile/${_userInfo!.uid.hashCode % 6}.jpg',
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                        (userData == null)
-                            ? 'Benvenuto Utente'
-                            : _userInfo is Citizen
-                                ? '${userData?['firstName']} ${userData?['lastName']}'
-                                : userData?['municipalityName'],
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary)),
-                    const Expanded(child: UnconstrainedBox()),
-                    IconButton(
-                      alignment: Alignment.topLeft,
-                      icon: Icon(
-                        Icons.accessible_forward_sharp,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      onPressed: () {
-                        // TODO: Implement filter selection method
-                      },
-                    ),
-                  ],
+                _userInfo != null
+                    ? CircleAvatar(
+                        radius: 20,
+                        backgroundImage: AssetImage(
+                          'assets/images/profile/${_userInfo!.uid.hashCode % 6}.jpg',
+                        ),
+                      )
+                    : const SizedBox(),
+                const SizedBox(width: 12),
+                Text(
+                    (userData == null)
+                        ? 'Benvenuto Utente'
+                        : _userInfo is Citizen
+                            ? '${userData?['firstName']} ${userData?['lastName']}'
+                            : userData?['municipalityName'],
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary)),
+                const Expanded(child: UnconstrainedBox()),
+                IconButton(
+                  alignment: Alignment.topLeft,
+                  icon: Icon(
+                    Icons.accessible_forward_sharp,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  onPressed: () {
+                    // TODO: Implement filter selection method
+                  },
                 ),
               ],
-            )));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

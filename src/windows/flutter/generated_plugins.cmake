@@ -5,9 +5,12 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
   desktop_webview_auth
+  file_selector_windows
   firebase_auth
   firebase_core
+  firebase_storage
   geolocator_windows
+  permission_handler_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
