@@ -88,13 +88,16 @@ class CitizenReportManagementDAO {
   /// - [city]: The name of the city for which to retrieve the reports.
   /// Returns:
   /// - A `Future<List<Map<String, dynamic>>?>` containing the list of reports for the specified city filtered by the criteria, or `null` if the user is not valid.
-  Future<List<Map<String, dynamic>>?> filterReportBy({required Map<String, List<dynamic>> criteria, required String city}) async {
+  Future<List<Map<String, dynamic>>?> filterReportsBy({required Map<String, List<dynamic>> criteria, required String city}) async {
+    city = city.toLowerCase().trim();
+
     Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports');
     for (var key in criteria.keys) {
       if (criteria[key] != null && criteria[key]!.isNotEmpty) {
         query = query.where(key, whereIn: criteria[key]);
       }
     }
+
     final querySnapshot = await query.limit(100).get(); // TODO: check limit
     if (querySnapshot.docs.isEmpty) {
       return null;
