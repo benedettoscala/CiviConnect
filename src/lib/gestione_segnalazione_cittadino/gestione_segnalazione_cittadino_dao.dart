@@ -1,9 +1,12 @@
+import 'package:civiconnect/model/report_model.dart';
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Data Access Object (DAO) for managing citizen reports.
 class CitizenReportManagementDAO {
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+
   /// The data access object for user management.
   final UserManagementDAO _userManagementDAO;
 
@@ -49,6 +52,29 @@ class CitizenReportManagementDAO {
     }
 
     return await _getTenReportsByOffset(city: city);
+  }
+
+  /// Adds a new report to the Firestore database.
+  ///
+  /// Parameters:
+  /// - [reportData]: The report data to be added.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` indicating whether the report was successfully added.
+  ///
+  /// Throws:
+  /// - [Exception]: If there is an error adding the report.
+  Future<bool> addReport(Report reportData) async {
+    try {
+      await _firebaseFirestore
+          .collection('reports')
+          .doc(reportData.city?.toLowerCase())
+          .collection('${reportData.city?.toLowerCase()}_reports')
+          .add(reportData.toMap());
+    } catch (e) {
+      throw Exception('Failed to add report');
+    }
+    return true;
   }
 
   /// Retrieves a list of reports created by a specific user.
@@ -113,7 +139,6 @@ class CitizenReportManagementDAO {
 
     List<Map<String, dynamic>>? results;
     try {
-
       final querySnapshot = await query.limit(100).get(); // TODO: check limit
       if (querySnapshot.docs.isEmpty) {
         return null;
@@ -134,7 +159,6 @@ class CitizenReportManagementDAO {
                 report['description'].toLowerCase().contains(keyword))
             .toList();
       }
-
     } catch (e) {
       return null;
     }
@@ -223,8 +247,12 @@ class CitizenReportManagementDAO {
 
         final querySnapshot = await query.get();
         if (querySnapshot.docs.isNotEmpty) {
-          allReports
-              .addAll(querySnapshot.docs.map((doc) => doc.data()).toList());
+          allReports.addAll(querySnapshot.docs.map((doc) {
+            // Add the reportId to the data.
+            final d = doc.data();
+            d['reportId'] = doc.id;
+            return d;
+          }).toList());
           _lastDocument = querySnapshot.docs.last;
         }
       }

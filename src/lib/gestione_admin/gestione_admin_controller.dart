@@ -122,13 +122,23 @@ class AdminManagementController {
   }
 
   /// Generates credentials for the selected municipality.
-  /// The credentials include an email and a password.
-  /// The email is generated based on the municipality name.
-  /// The password is randomly generated.
+  /// The method generates an email and password for the municipality.
+  /// The email is in the format `comune.<comune>@anci.gov`.
+  /// The password is a randomly generated string with 15 characters.
   /// The credentials are saved to the database.
-  /// The admin password is used to authenticate the operation.
-  /// Returns a map containing the email and password.
-  /// Throws an exception if an error occurs during the process.
+  /// The method returns the generated email and password.
+  /// Parameters:
+  /// - [selectedMunicipality]: The selected municipality to generate credentials for.
+  /// - [adminPassword]: The password of the admin user.
+  /// - [emailComune]: The email of the municipality.
+  /// Returns:
+  /// - A `Future<Map<String, String>>` containing the generated email and password.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
+  /// - An exception if the email is invalid.
+  /// - An exception if the password is invalid.
+  /// - An exception if the credentials cannot be saved to the database.
+  /// - An exception if the admin password is incorrect.
   Future<Map<String, String>> generateCredentials(
       Map<String, String> selectedMunicipality,
       String adminPassword,
@@ -137,6 +147,10 @@ class AdminManagementController {
         selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
     String emailGen = 'comune.$municipalityEmailPart@anci.gov';
     String passwordGen = generatePassword();
+
+    if (validateEmail(emailGen) != null || validatePassword(passwordGen) != null) {
+      throw ('Errore nella generazione delle credenziali');
+    }
 
     // Save credentials to the database
     await _daoAdmin.saveCredentialsToDatabase(emailGen, emailComune,

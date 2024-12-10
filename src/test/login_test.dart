@@ -1,11 +1,5 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// This is the test file for the login page.
 
-import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/user_management/login_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +27,7 @@ class FakeUserManagementController extends Fake implements UserManagementControl
   Future<bool> login(BuildContext context, {required String email, required String password}) {
     if(email == 'valid.email@mail.com' && password == 'validP4ssword#'){
       //push to HomePage if login is successful
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-            (route) => false,
-      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const Placeholder()));
       return Future.value(true);
     } else {
       return Future.value(false);
@@ -168,7 +158,7 @@ Future<void> _testValidation({required String description, required String input
       // Wait for the HomePage to be pushed
       await tester.pumpAndSettle();
       // Check HomePage is pushed
-      expect(find.byType(HomePage), findsOneWidget, reason: 'Login success for valid credentials');
+      expect(find.byType(LoginUtenteGUI), findsNothing, reason: 'Login success for valid credentials');
       // Check we're not in Login Page
       expect(find.text('Login'), findsNothing, reason: 'Login button is not present: successful login');
 

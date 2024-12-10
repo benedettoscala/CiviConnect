@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
+import 'gestione_segnalazione_comune_controller.dart';
 
 /// View of single report details.
 class DettagliSegnalazioneComune extends StatefulWidget {
   /// Constructs a new `DettagliSegnalazioneCittadino` instance.
-  const DettagliSegnalazioneComune(
-      {required report,
-      super.key})
+  const DettagliSegnalazioneComune({required report, super.key})
       : _report = report;
 
   final Report _report;
+
   @override
   State<DettagliSegnalazioneComune> createState() =>
       _DettagliSegnalazioneState();
@@ -38,7 +38,13 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: PriorityReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
-              // TODO: implement backend usage for update priority
+              //implement showMessage if it works
+              MunicipalityReportManagementController().editReportPriority(
+                  city: widget._report.city!,
+                  reportId: widget._report.reportId!,
+                  newPriority: value);
+              //showMessage(context, message: "MESSAGE");
+
               setState(() {
                 widget._report.priority = value;
               });
