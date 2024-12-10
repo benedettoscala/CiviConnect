@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:civiconnect/utils/report_status_priority.dart';
 
+import '../model/report_model.dart';
 import '../model/users_model.dart';
 import 'gestione_segnalazione_cittadino_dao.dart';
 
@@ -106,4 +108,36 @@ class CitizenReportManagementController {
     );
     return snapshot;
   }
+
+  /// Filters the reports based on the specified criteria.
+  /// This method filters the reports based on the specified status, priority, and category of a specified city.
+  /// If no criteria are specified, it returns the list of all reports of the current city.
+  ///
+  /// Parameters:
+  /// - [city]: The city to filter by.
+  /// - [status]: The list of status criteria to filter by.
+  /// - [priority]: The list of priority criteria to filter by.
+  /// - [category]: The list of category criteria to filter by.
+  ///
+  /// Returns:
+  /// - A [Future] that resolves to a list of maps, where each map contains the report details.
+  /// - If no reports are found, it returns an empty list.
+  /// - If the user is not valid, it returns `null`.
+  Future<List<Map<String, dynamic>>?> filterReportsBy({required String city,
+    List<StatusReport>? status,
+    List<PriorityReport>? priority,
+    List<Category>? category}) async {
+
+    Map<String, List<dynamic>> criteria = {
+    if (status != null) 'status': status.map((e) => e.name).toList(),
+    if (priority != null)  'priority': priority.map((e) => e.name).toList(),
+    if (category != null) 'category': category.map((e) => e.name).toList(),
+    };
+
+    List<Map<String, dynamic>>? snapshot = await _reportDAO.filterReportsBy(
+        criteria: criteria,
+        city: (_citizen != null) ? (city.isEmpty ? _citizen!.city ?? 'roma' : city) : 'roma');
+    return snapshot;
+  }
+
 }
