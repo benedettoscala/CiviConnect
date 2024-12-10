@@ -126,7 +126,7 @@ class CitizenReportManagementController {
   Future<List<Map<String, dynamic>>?> filterReportsBy({required String city,
     List<StatusReport>? status,
     List<PriorityReport>? priority,
-    List<Category>? category}) async {
+    List<Category>? category, String? keyword}) async {
 
     Map<String, List<dynamic>> criteria = {
     if (status != null) 'status': status.map((e) => e.name).toList(),
@@ -136,6 +136,7 @@ class CitizenReportManagementController {
 
     List<Map<String, dynamic>>? snapshot = await _reportDAO.filterReportsBy(
         criteria: criteria,
+        keyword: keyword,
         city: (_citizen != null) ? (city.isEmpty ? _citizen!.city ?? 'roma' : city) : 'roma');
     return snapshot;
   }
