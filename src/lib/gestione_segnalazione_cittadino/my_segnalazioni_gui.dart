@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
 import '../widgets/card_widget.dart';
+import 'dettagli_segnalazione_cittadino_gui.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
 /// A widget that displays the user's reports.
@@ -171,13 +172,6 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: vai alla pagina di creazione della segnalazione
-        },
-        backgroundColor: theme.colorScheme.primary,
-        child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
-      ),
     );
   }
 
@@ -187,46 +181,51 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-        (context, index) {
+            (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
+          Report store = Report(
+              reportId: report['reportId'],
+              title: report['title'],
+              uid: report['uid'],
+              authorFirstName: '${report['authorFirstName']}',
+              authorLastName: '${report['authorLastName']}',
+              description: report['title'],
+              status: StatusReport.getStatus(report['status']) ??
+                  StatusReport.rejected,
+              priority: PriorityReport.getPriority(report['priority']) ??
+                  PriorityReport.unset,
+              reportDate: report['reportDate'],
+              address: report['address'] == null
+                  ? {'street': 'N/A', 'number': 'N/A'}
+                  : {
+                'street': report['address']['street'] ?? 'N/A',
+                'number': report['address']['number'] ?? 'N/A',
+              },
+              city: report['city'],
+              photo: report['photo']
+          );
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-                  report: Report(
-                    reportId: report['reportId'],
-                    title: report['title'],
-                    uid: report['uid'],
-                    authorFirstName: '${report['authorFirstName']}',
-                    authorLastName: '${report['authorLastName']}',
-                    description: report['description'],
-                    status: StatusReport.getStatus(report['status']) ??
-                        StatusReport.rejected,
-                    priority: PriorityReport.getPriority(report['priority']) ??
-                        PriorityReport.unset,
-                    reportDate: report['reportDate'],
-                    address: report['address'] == null
-                        ? {'street': 'N/A', 'number': 'N/A'}
-                        : {
-                            'street': report['address']['street'] ?? 'N/A',
-                            'number': report['address']['number'] ?? 'N/A',
-                          },
-                    city: report['city'],
-                    photo: report['photo'],
-                  ),
-                  onTap: () {
-                    // TODO: vai alla pagina dei dettagli
-                  },
-                );
+            report: store,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          DettagliSegnalazioneCittadino(report: store)));
+            },
+          );
         },
       ),
     );
