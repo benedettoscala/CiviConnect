@@ -75,8 +75,8 @@ class FilterModal extends StatefulWidget {
 class _FilterModalState extends State<FilterModal> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _cityKey = GlobalKey<FormState>();
-  String? _cityTextField;
-  int? _filterNumber;
+  late String _cityTextField;
+  late int _filterNumber;
 
   @override
   void initState() {
@@ -194,7 +194,9 @@ class _FilterModalState extends State<FilterModal> {
                         status: widget.statusCriteria,
                         priority: widget.priorityCriteria,
                         category: widget.categoryCriteria,
-                        city: _cityTextField ?? widget.startCity,
+                        city: _cityTextField == ''
+                            ? widget.startCity
+                            : _cityTextField,
                         popNav: true,
                       ),
                       child: const Text('Filtra'),
@@ -242,7 +244,7 @@ class _FilterModalState extends State<FilterModal> {
       maxLines: 1,
       onChanged: (value) {
         setState(() {
-          _cityTextField = value;
+          _cityTextField = value ?? '';
         });
       },
       initialValue: widget.startCity,
