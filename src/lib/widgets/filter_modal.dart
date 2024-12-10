@@ -7,18 +7,35 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../theme.dart';
 
-
 /// A modal dialog that allows the user to filter reports based on various criteria.
 class FilterModal extends StatefulWidget {
-
   /// Callback function that is triggered when the form is submitted.
-  final Function(Map<List, dynamic> criteria) onSubmit;
+  final Function(
+      {required String city,
+      List<StatusReport>? status,
+      List<PriorityReport>? priority,
+      List<Category>? category}) onSubmit;
+
+  /// Callback function that is triggered when the form is reset.
+  final Function() onReset;
 
   /// The initial city to filter by.
   final String startCity;
 
   /// Whether the city field is enabled.
   final bool isCityEnabled;
+
+  /// The criteria to filter by: Status List.
+  final List<StatusReport> statusCriteria;
+
+  /// The criteria to filter by: Priority List.
+  final List<PriorityReport> priorityCriteria;
+
+  /// The criteria to filter by: Category List.
+  final List<Category> categoryCriteria;
+
+  /// The starting filter number.
+  final int startingFilterNumber;
 
   /// Creates a [FilterModal].
   /// Parameters:
@@ -33,22 +50,37 @@ class FilterModal extends StatefulWidget {
   ///
   /// The [onSubmit] function should take a map as a parameter,
   /// where the key is the field to filter by and the value is a list of values to filter.
-  const FilterModal({required this.onSubmit, required this.startCity, this.isCityEnabled = true, super.key});
+  const FilterModal(
+      {required this.onSubmit,
+      required this.onReset,
+      required this.startCity,
+      required this.statusCriteria,
+      required this.priorityCriteria,
+      required this.categoryCriteria,
+      this.isCityEnabled = true,
+      super.key}) : startingFilterNumber = statusCriteria.length + priorityCriteria.length + categoryCriteria.length;
 
   @override
   State<FilterModal> createState() => _FilterModalState();
 }
 
 class _FilterModalState extends State<FilterModal> {
-  final List<StatusReport> statusCriteria = [];
-  final List<PriorityReport> priorityCriteria = [];
-  final List<Category> categoryCriteria = [];
   String? cityCriteria;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _cityKey = GlobalKey<FormState>();
+  String? _cityTextField;
+  int? _filterNumber;
+
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeManager().customTheme;
+    final TextStyle titleFilterStyle = ThemeManager().customTheme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
+          ?? const TextStyle( color: Colors.black, fontWeight: FontWeight.bold);
+
+    _filterNumber = widget.statusCriteria.length +
+        widget.priorityCriteria.length +
+        widget.categoryCriteria.length;
 
     return Wrap(
       children: [
@@ -62,37 +94,82 @@ class _FilterModalState extends State<FilterModal> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Filtra per',
-                style: theme.textTheme.titleLarge,
+              Row(
+                children: [
+                  Text(
+                    'Filtra per',
+                    style: theme.textTheme.titleLarge,
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    style: ButtonStyle(
+                      enableFeedback: _filterNumber == 0 || widget.startingFilterNumber == 0 ? false : true,
+                      elevation: _filterNumber == 0
+                          ? null
+                          : WidgetStateProperty.all(1),
+                      backgroundColor: WidgetStatePropertyAll(_filterNumber == 0
+                          ? Colors.transparent
+                          : ThemeManager()
+                              .customTheme
+                              .colorScheme
+                              .primaryContainer),
+                    ),
+                    onPressed: _filterNumber == 0 || widget.startingFilterNumber == 0 ? null : widget.onReset,
+                    child: Text(
+                      'Resetta filtri',
+                      style: TextStyle(
+                        color: _filterNumber == 0 || widget.startingFilterNumber == 0
+                            ? Colors.grey
+                            : theme.primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    if(widget.isCityEnabled) Text(
-                      'Città',
-                      style: ThemeManager().customTheme.textTheme.titleMedium,),
-                    if(widget.isCityEnabled) _cityField(),
+                    if (widget.isCityEnabled)
+                      Text(
+                        'Città',
+                        style: titleFilterStyle,
+                      ),
+                    if (widget.isCityEnabled) _cityField(),
                     const SizedBox(height: 30),
                     Text(
-                      'Stato',
-                      style: ThemeManager().customTheme.textTheme.titleMedium,
+                      'Data',
+                      style: titleFilterStyle
                     ),
-                    _getWrap(StatusReport.values, statusCriteria),
+                    // TODO DatePicker
+                    const SizedBox(height: 16),
+                    Text(
+                      'Stato',
+                      style: titleFilterStyle
+                    ),
+                    _getWrap(StatusReport.values, widget.statusCriteria),
                     const SizedBox(height: 16),
                     Text(
                       'Priorità',
-                      style: ThemeManager().customTheme.textTheme.titleMedium,
+                      style: titleFilterStyle,
                     ),
-                    _getWrap(PriorityReport.values, priorityCriteria),
+                    _getWrap(PriorityReport.values, widget.priorityCriteria),
                     const SizedBox(height: 16),
                     Text(
                       'Categoria',
-                      style: ThemeManager().customTheme.textTheme.titleMedium,
+                      style: titleFilterStyle,
                     ),
-                    _getWrap(Category.values, categoryCriteria),
+                    _getWrap(Category.values, widget.categoryCriteria),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                        onPressed: () => widget.onSubmit(
+                              status: widget.statusCriteria,
+                              priority: widget.priorityCriteria,
+                              category: widget.categoryCriteria,
+                              city: _cityTextField ?? widget.startCity,
+                            ),
+                        child: const Text('Filtra'))
                   ],
                 ),
               ),
@@ -102,7 +179,6 @@ class _FilterModalState extends State<FilterModal> {
       ],
     );
   }
-
 
   Wrap _getWrap(List<dynamic> enumList, List<dynamic> criteria) {
     return Wrap(
@@ -129,12 +205,13 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-
   FormBuilderTextField _cityField({bool? enabled = true}) {
     return FormBuilderTextField(
+      key: _cityKey,
       name: 'città',
       enabled: enabled ?? true,
       maxLines: 1,
+      onSubmitted: (value) => _cityTextField = value,
       initialValue: widget.startCity,
       validator: FormBuilderValidators.required(),
       decoration: const InputDecoration(
@@ -150,5 +227,4 @@ class _FilterModalState extends State<FilterModal> {
       ),
     );
   }
-
 }
