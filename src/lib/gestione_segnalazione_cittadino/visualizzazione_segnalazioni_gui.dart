@@ -34,6 +34,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   final List<StatusReport> _statusCriteria = [];
   final List<PriorityReport> _priorityCriteria = [];
   final List<Category> _categoryCriteria = [];
+  String? _keyWords;
 
   /// Initializes the state of the widget.
   ///
@@ -55,6 +56,13 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
   }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Libera il controller dello scroll
+    super.dispose();
+  }
+
 
   /// Build the widget
   /// If there are no data to load, shows a message
@@ -151,9 +159,11 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       /// Set isLoadingMore to false to allow loading more data if needed
     } finally {
       SchedulerBinding.instance.addPostFrameCallback((_) async {
-        setState(() {
-          _isLoadingMore = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoadingMore = false;
+          });
+        }
       });
     }
   }
@@ -375,12 +385,15 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                   size: 24,
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
-                onPressed: () { // TODO - Implement search functionality
+                onPressed: () {
+                  if(_keyWords != null && _keyWords!.isNotEmpty || _numberOfFilters > 0) {
+                    _filterData(city: _citizen?.city ?? '', keyWords: _keyWords);
+                  }
                 },
               ),
-              const Flexible(
+              Flexible(
                 child: TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       fillColor: Colors.white,
                       filled: true,
                       border: OutlineInputBorder(
@@ -388,6 +401,12 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                         borderSide: BorderSide.none,
                       ),
                       hintText: 'Cerca segnalazione...'),
+                  onChanged: (value) { _keyWords = value; },
+                  onSubmitted: (value) {
+                    if(value.isNotEmpty || _numberOfFilters > 0) {
+                      _filterData(city: _citizen?.city ?? '', keyWords: _keyWords);
+                    }
+                  },
                 ),
               ),
             ],
@@ -412,6 +431,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _priorityCriteria.clear();
     setState(() {
       _numberOfFilters = 0;
+      _keyWords = '';
+      _errorText = '';
     });
     await Future.delayed(const Duration(seconds: 1));
   }
@@ -426,7 +447,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// - city: The city to filter the reports by.
   /// This method fetches the reports based on the selected filters and updates the state with the new data.
   /// If an error occurs during the filtering process, the error message is displayed.
-  Future<void> _filterData({required String city, List<StatusReport>? status, List<PriorityReport>? priority, List<Category>? category}) async {
+  Future<void> _filterData({required String city, List<StatusReport>? status, List<PriorityReport>? priority, List<Category>? category, String? keyWords, bool? popNav = false}) async {
     _numberOfFilters = 0;
     _numberOfFilters += status?.length ?? 0;
     _numberOfFilters += priority?.length ?? 0;
@@ -435,27 +456,42 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     setState(() {
       _isLoading = true;
       _hasMoreData = true;
+      _errorText = '';
     });
     try {
       _reportController.citizen.then((value) {
         _citizen = value;
-        _reportController.filterReportsBy(city: city, status: status, priority: priority, category: category).then((value) {
+        _reportController.filterReportsBy(
+            city: city,
+            status: status,
+            priority: priority,
+            category: category,
+            keyword: keyWords)
+            .then((value) {
+
           _userData.clear();
-          setState(() {
-            if (value != null && value.isNotEmpty) {
-              _userData.addAll(value);
-            } else {
-              _hasMoreData = false;
-            }
-          });
+
+          if(mounted) {
+            setState(() {
+              if(value != null && value.isNotEmpty) {
+                _userData.addAll(value);
+              } else {
+                _errorText = 'Nessuna segnalazione trovata';
+              }
+            });
+          }
+
         });
       });
     } catch (e) {
       _errorText = 'Errore durante il caricamento filtrato: $e';
     } finally{
-      Navigator.pop(context);
+      if(popNav!) {
+        Navigator.pop(context);
+      }
       setState(() {
         _isLoading = false;
+        _hasMoreData = false;
       });
     }
   }
