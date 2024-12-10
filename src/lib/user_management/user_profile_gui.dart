@@ -100,14 +100,20 @@ class _UserProfileState extends State<UserProfile> {
                     Container(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          UserManagementController().logOut();
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const FirstPage()),
-                            (route) => false,
-                          );
+                        onPressed: () async {
+                          try {
+                            await UserManagementController().logOut();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const FirstPage()),
+                              (route) => false,
+                            );
+                          } catch (e) {
+                            showMessage(context,
+                                isError: true,
+                                message: 'Errore durante il logout');
+                          }
                         },
                         child: const Text('Logout'),
                       ),

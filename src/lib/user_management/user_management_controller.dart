@@ -217,7 +217,11 @@ class UserManagementController {
   /// Throws:
   /// - An exception if an error occurs during the process.
   Future<void> logOut() async {
-    UserManagementDAO().logOut();
+    try {
+      await UserManagementDAO().logOut();
+    } catch (e) {
+      throw Exception('Errore durante il logout');
+    }
   }
 
   /// Determines the type of the current user.
