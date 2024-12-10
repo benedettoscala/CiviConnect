@@ -215,23 +215,22 @@ class _FilterModalState extends State<FilterModal> {
       alignment: WrapAlignment.center,
       direction: Axis.horizontal,
       spacing: 10,
-      children: [
-        for (var el in enumList)
-          FilterChip(
-            tooltip: 'Filtra per stato ${el.name}',
-            label: Text(el.name),
-            selected: criteria.contains(el),
-            onSelected: (selected) {
-              setState(() {
-                if (selected) {
-                  criteria.add(el);
-                } else {
-                  criteria.remove(el);
-                }
-              });
-            },
-          ),
-      ],
+      children: enumList
+          .map((el) => FilterChip(
+                tooltip: 'Filtra per stato ${el.name}',
+                label: Text(el.name),
+                selected: criteria.contains(el),
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      criteria.add(el);
+                    } else {
+                      criteria.remove(el);
+                    }
+                  });
+                },
+              ))
+          .toList(),
     );
   }
 
