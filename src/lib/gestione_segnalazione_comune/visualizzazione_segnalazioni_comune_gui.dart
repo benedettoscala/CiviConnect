@@ -1,6 +1,4 @@
-import 'package:civiconnect/gestione_segnalazione_cittadino/inserimento_segnalazione_gui.dart';
-//import 'package:civiconnect/home_page.dart';
-import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
+import 'package:civiconnect/gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
 import 'package:flutter/material.dart';
@@ -183,18 +181,6 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Send to the report creation page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const InserimentoSegnalazioneGUI()),
-          );
-        },
-        backgroundColor: theme.colorScheme.primary,
-        child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
-      ),
     );
   }
 
@@ -288,7 +274,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          DettagliSegnalazioneCittadino(report: store)));
+                          DettagliSegnalazioneComune(report: store)));
             },
           );
         },
