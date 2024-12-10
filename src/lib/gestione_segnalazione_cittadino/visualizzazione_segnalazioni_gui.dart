@@ -1,6 +1,8 @@
 import 'package:civiconnect/gestione_segnalazione_cittadino/dettagli_segnalazione_cittadino_gui.dart';
+import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
+import 'package:civiconnect/widgets/filter_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -27,6 +29,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   bool _isLoading = true;
   String _errorText = '';
   late ScrollController _scrollController;
+  Citizen? _citizen;
 
   /// Initializes the state of the widget.
   ///
@@ -78,6 +81,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     });
     try {
       _reportController.citizen.then((value) {
+        _citizen = value;
         _reportController.getUserReports(reset: true).then((value) {
           _userData.clear();
           setState(() {
@@ -221,6 +225,13 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                 ),
                 onPressed: () {
                   // TODO: Implementa il metodo di selezione del filtro
+                  showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) =>
+                        _citizen != null ? FilterModal(startCity: _citizen?.city ?? '', onSubmit: (criteria){},)
+                        : const SizedBox()
+                  );
                 },
               ),
             ],
