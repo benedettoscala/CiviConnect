@@ -112,13 +112,13 @@ class CitizenReportManagementDAO {
   /// The criteria are combined with an AND operator.
   ///
   /// Parameters:
-  /// - \[criteria\]: A map containing the criteria to filter by.
+  /// - [criteria]: A map containing the criteria to filter by.
   ///   It is a map where the key is the field to filter by and the value is a list of values to filter.
-  /// - \[city\]: The name of the city for which to retrieve the reports.
-  /// - \[keyword\]: An optional keyword to filter the reports by title or description.
+  /// - [city]: The name of the city for which to retrieve the reports.
+  /// - [keyword]: An optional keyword to filter the reports by title or description.
   ///
   /// Returns:
-  /// - A \`Future<List<Map<String, dynamic>>?>\` containing the list of reports for the specified city filtered by the criteria, or \`null\` if the user is not valid.
+  /// - A `Future<List<Map<String, dynamic>>?>` containing the list of reports for the specified city filtered by the criteria, or `null` if the user is not valid.
   Future<List<Map<String, dynamic>>?> filterReportsBy(
       {required Map<String, List<dynamic>> criteria,
       required String city,
