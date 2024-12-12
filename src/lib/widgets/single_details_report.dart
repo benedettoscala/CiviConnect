@@ -178,7 +178,7 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
       elevation: 0.5,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(widget._report.status!.name(),
+        child: Text(widget._report.status!.name,
             style: Theme.of(context).textTheme.bodySmall),
       ),
     );

@@ -181,7 +181,7 @@ class _StatusReport extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(7.0),
             child: Text(
-              status.name(),
+              status.name,
               style: textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),

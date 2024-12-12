@@ -109,7 +109,7 @@ class MunicipalityReportManagementDAO {
         .doc(city?.toLowerCase())
         .collection('${city?.toLowerCase()}_reports')
         .doc(reportId)
-        .update({'status': newStatus.name()});
+        .update({'status': newStatus.name});
   }
 
   /// Updates the priority of a specific report in the Firestore database.
