@@ -28,7 +28,10 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: StatusReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
-              // TODO: implement backend usage for update status
+              MunicipalityReportManagementController().editReportStatus(
+                  city: widget._report.city!,
+                  reportId: widget._report.reportId!,
+                  newStatus: value);
               setState(() {
                 widget._report.status = value;
               });
