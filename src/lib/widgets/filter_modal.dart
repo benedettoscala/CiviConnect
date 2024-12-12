@@ -77,6 +77,7 @@ class _FilterModalState extends State<FilterModal> {
   final GlobalKey<FormState> _cityKey = GlobalKey<FormState>();
   late String _cityTextField;
   late int _filterNumber;
+  DateTimeRange? _selectedDate;
 
   @override
   void initState() {
@@ -164,8 +165,31 @@ class _FilterModalState extends State<FilterModal> {
                       ),
                     if (widget.isCityEnabled) _cityField(),
                     const SizedBox(height: 30),
-                    Text('Data', style: titleFilterStyle),
-                    // TODO DatePicker
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Data', style: titleFilterStyle),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: IconButton(
+                              style: ButtonStyle(
+                                enableFeedback: true,
+                                elevation: WidgetStateProperty.all(3),
+                                backgroundColor: WidgetStatePropertyAll(
+                                    ThemeManager()
+                                        .customTheme
+                                        .colorScheme
+                                        .primaryContainer),
+                              ),
+                              onPressed: () async {
+                                _selectedDate = await _datePickerDialog();
+                              },
+                              icon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar01, color: Colors.black54, size: 30,),
+                          ),
+                        ),
+                      ],
+                    ),
+                    //DatePickerDialog(firstDate: DateTime.now() , lastDate: DateTime.now()),
                     const SizedBox(height: 16),
                     Text('Stato', style: titleFilterStyle),
                     _getWrap(StatusReport.values, widget.statusCriteria),
@@ -189,6 +213,7 @@ class _FilterModalState extends State<FilterModal> {
                             .colorScheme
                             .primaryContainer,
                         elevation: 2,
+                        shadowColor: ThemeManager().customTheme.shadowColor,
                       ),
                       onPressed: () => widget.onSubmit(
                         status: widget.statusCriteria,
@@ -217,6 +242,7 @@ class _FilterModalState extends State<FilterModal> {
       alignment: WrapAlignment.center,
       direction: Axis.horizontal,
       spacing: 10,
+      runSpacing: 10,
       children: enumList
           .map((el) => FilterChip(
                 tooltip: 'Filtra per stato ${el.name}',
@@ -235,6 +261,62 @@ class _FilterModalState extends State<FilterModal> {
           .toList(),
     );
   }
+
+
+  Future<DateTimeRange?> _datePickerDialog() {
+    return showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2023),
+      lastDate: DateTime.now(),
+      confirmText: 'Conferma',
+      errorInvalidRangeText: 'Intervallo non valido',
+      errorFormatText: 'Formato non valido',
+      fieldStartHintText: 'Inizio',
+      fieldEndHintText: 'Fine',
+      currentDate: DateTime.now(),
+      locale: const Locale('it', 'IT'),
+      helpText: 'Seleziona un intervallo di date',
+      builder: (context, child) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: ThemeManager()
+                    .customTheme
+                    .colorScheme
+                    .primaryContainer,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: ThemeManager()
+                        .customTheme
+                        .shadowColor,
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width - 50,
+                    maxHeight: MediaQuery.of(context).size.height - 50,
+                  ),
+                  child: child,
+                ),
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+
+
 
   FormBuilderTextField _cityField({bool? enabled = true}) {
     return FormBuilderTextField(
