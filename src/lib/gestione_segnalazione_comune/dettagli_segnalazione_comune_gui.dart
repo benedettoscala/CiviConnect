@@ -28,7 +28,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: StatusReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
-              MunicipalityReportManagementController().editReportStatus(
+              MunicipalityReportManagementController(context: context).editReportStatus(
                   city: widget._report.city!,
                   reportId: widget._report.reportId!,
                   newStatus: value);
@@ -41,13 +41,10 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: PriorityReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
-              //implement showMessage if it works
-              MunicipalityReportManagementController().editReportPriority(
+              MunicipalityReportManagementController(context: context).editReportPriority(
                   city: widget._report.city!,
                   reportId: widget._report.reportId!,
                   newPriority: value);
-              //showMessage(context, message: "MESSAGE");
-
               setState(() {
                 widget._report.priority = value;
               });

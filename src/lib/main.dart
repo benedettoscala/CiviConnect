@@ -10,16 +10,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/foundation.dart';
 
 import 'firebase_options.dart';
 
 Future<void> main() async {
   //Firebase Initialization example code
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    name: 'civiconnect-13aeb',
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } else {
+    await Firebase.initializeApp(
+      name: 'civiconnect-13aeb',
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   // Init Hive for Local Storage
   await Hive.initFlutter();
