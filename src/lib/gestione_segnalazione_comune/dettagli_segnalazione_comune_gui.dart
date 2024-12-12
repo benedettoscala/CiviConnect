@@ -28,6 +28,10 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             objectType: StatusReport.values,
             objectTarget: widget._report,
             onValueSelected: (value) {
+              MunicipalityReportManagementController().editReportStatus(
+                  city: widget._report.city!,
+                  reportId: widget._report.reportId!,
+                  newStatus: value);
               MunicipalityReportManagementController(context: context).editReportStatus(
                   city: widget._report.city!,
                   reportId: widget._report.reportId!,
