@@ -122,6 +122,8 @@ class CitizenReportManagementDAO {
   Future<List<Map<String, dynamic>>?> filterReportsBy(
       {required Map<String, List<dynamic>> criteria,
       required String city,
+      Timestamp? reportDateStart,
+      Timestamp? reportDateEnd,
       String? keyword}) async {
     city = city.toLowerCase().trim();
     keyword = keyword?.toLowerCase().trim();
@@ -135,6 +137,15 @@ class CitizenReportManagementDAO {
       if (criteria[key] != null && criteria[key]!.isNotEmpty) {
         query = query.where(key, whereIn: criteria[key]);
       }
+    }
+
+    if (reportDateStart != null) {
+      query =
+          query.where('reportDate', isGreaterThanOrEqualTo: reportDateStart);
+    }
+
+    if (reportDateEnd != null) {
+      query = query.where('reportDate', isLessThanOrEqualTo: reportDateEnd);
     }
 
     List<Map<String, dynamic>>? results;

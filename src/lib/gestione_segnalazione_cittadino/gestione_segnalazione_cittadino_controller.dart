@@ -227,6 +227,7 @@ class CitizenReportManagementController {
   /// - [status]: The list of status criteria to filter by.
   /// - [priority]: The list of priority criteria to filter by.
   /// - [category]: The list of category criteria to filter by.
+  /// - [reportDate]: the list of report date criteria to filter by. Used as [ startDate, endDate ].
   ///
   /// Returns:
   /// - A [Future] that resolves to a list of maps, where each map contains the report details.
@@ -237,6 +238,7 @@ class CitizenReportManagementController {
       List<StatusReport>? status,
       List<PriorityReport>? priority,
       List<Category>? category,
+      List<DateTime>? reportDate,
       String? keyword}) async {
     Map<String, List<dynamic>> criteria = {
       if (status != null) 'status': status.map((e) => e.name).toList(),
@@ -244,9 +246,16 @@ class CitizenReportManagementController {
       if (category != null) 'category': category.map((e) => e.name).toList(),
     };
 
+    Timestamp? startRange =
+        null == reportDate?[0] ? null : Timestamp.fromDate(reportDate![0]);
+    Timestamp? endRange =
+        null == reportDate?[1] ? null : Timestamp.fromDate(reportDate![1]);
+
     List<Map<String, dynamic>>? snapshot = await _reportDAO.filterReportsBy(
         criteria: criteria,
         keyword: keyword,
+        reportDateStart: startRange,
+        reportDateEnd: endRange,
         city: (_citizen != null)
             ? (city.isEmpty ? _citizen!.city ?? 'roma' : city)
             : 'roma');
