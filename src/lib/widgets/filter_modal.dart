@@ -343,7 +343,11 @@ class _FilterModalState extends State<FilterModal> {
         });
       },
       initialValue: widget.startCity,
-      validator: FormBuilderValidators.required(),
+      validator: FormBuilderValidators.compose([
+        FormBuilderValidators.maxLength(255),
+        FormBuilderValidators.minLength(0),
+        ]
+      ),
       decoration: const InputDecoration(
         isDense: true,
         constraints: BoxConstraints(minHeight: 50, maxWidth: 300),
