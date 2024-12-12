@@ -42,6 +42,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   final List<Category> _categoryCriteria = [];
   String? _keyWords;
   String? _citySelected;
+  DateTimeRange? _dateRange;
   final Set<String> _cities = {};
 
   /// Initializes the state of the widget.
@@ -272,6 +273,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                                   isScrollControlled: true,
                                   builder: (context) => _citizen != null
                                       ? FilterModal(
+                                          dateRange: _dateRange,
                                           defaultCity: _citizen?.city ?? '',
                                           categoryCriteria: _categoryCriteria,
                                           statusCriteria: _statusCriteria,
@@ -447,6 +449,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _statusCriteria.clear();
     _priorityCriteria.clear();
     setState(() {
+      _dateRange = null;
       _numberOfFilters = 0;
       _keyWords = '';
       _errorText = '';
@@ -469,6 +472,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       List<PriorityReport>? priority,
       List<Category>? category,
       String? keyWords,
+      DateTimeRange? dateRange,
       bool? popNav = false}) async {
     _numberOfFilters = 0;
     _numberOfFilters += status?.length ?? 0;
@@ -479,6 +483,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _isLoading = true;
       _hasMoreData = true;
       _errorText = '';
+      _dateRange = dateRange;
     });
 
     try {

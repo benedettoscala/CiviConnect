@@ -15,6 +15,7 @@ class FilterModal extends StatefulWidget {
       List<StatusReport>? status,
       List<PriorityReport>? priority,
       List<Category>? category,
+      DateTimeRange? dateRange,
       bool? popNav}) onSubmit;
 
   /// Callback function that is triggered when the form is reset.
@@ -41,6 +42,9 @@ class FilterModal extends StatefulWidget {
   /// The default city. Need for the reset button.
   final String defaultCity;
 
+  /// The date range to filter by.
+  final DateTimeRange? dateRange;
+
   /// Creates a [FilterModal].
   /// Parameters:
   /// - [onSubmit]: The callback function that is triggered when the form is submitted.
@@ -62,6 +66,7 @@ class FilterModal extends StatefulWidget {
       required this.priorityCriteria,
       required this.categoryCriteria,
       required this.defaultCity,
+      required this.dateRange,
       this.isCityEnabled = true,
       super.key})
       : startingFilterNumber = statusCriteria.length +
@@ -77,11 +82,12 @@ class _FilterModalState extends State<FilterModal> {
   final GlobalKey<FormState> _cityKey = GlobalKey<FormState>();
   late String _cityTextField;
   late int _filterNumber;
-  DateTimeRange? _selectedDate;
+  late DateTimeRange? _selectedDate;
 
   @override
   void initState() {
     super.initState();
+    _selectedDate = widget.dateRange;
     _cityTextField = widget.startCity;
   }
 
@@ -172,19 +178,23 @@ class _FilterModalState extends State<FilterModal> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: IconButton(
-                              style: ButtonStyle(
-                                enableFeedback: true,
-                                elevation: WidgetStateProperty.all(3),
-                                backgroundColor: WidgetStatePropertyAll(
-                                    ThemeManager()
-                                        .customTheme
-                                        .colorScheme
-                                        .primaryContainer),
-                              ),
-                              onPressed: () async {
-                                _selectedDate = await _datePickerDialog();
-                              },
-                              icon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar01, color: Colors.black54, size: 30,),
+                            style: ButtonStyle(
+                              enableFeedback: true,
+                              elevation: WidgetStateProperty.all(3),
+                              backgroundColor: WidgetStatePropertyAll(
+                                  ThemeManager()
+                                      .customTheme
+                                      .colorScheme
+                                      .primaryContainer),
+                            ),
+                            onPressed: () async {
+                              _selectedDate = await _datePickerDialog();
+                            },
+                            icon: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedCalendar01,
+                              color: Colors.black54,
+                              size: 30,
+                            ),
                           ),
                         ),
                       ],
@@ -222,6 +232,7 @@ class _FilterModalState extends State<FilterModal> {
                         city: _cityTextField == ''
                             ? widget.startCity
                             : _cityTextField,
+                        dateRange: _selectedDate,
                         popNav: true,
                       ),
                       child: const Text('Filtra'),
@@ -262,7 +273,6 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-
   Future<DateTimeRange?> _datePickerDialog() {
     return showDateRangePicker(
       context: context,
@@ -283,16 +293,11 @@ class _FilterModalState extends State<FilterModal> {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: ThemeManager()
-                    .customTheme
-                    .colorScheme
-                    .primaryContainer,
+                color: ThemeManager().customTheme.colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: ThemeManager()
-                        .customTheme
-                        .shadowColor,
+                    color: ThemeManager().customTheme.shadowColor,
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -314,9 +319,6 @@ class _FilterModalState extends State<FilterModal> {
       },
     );
   }
-
-
-
 
   FormBuilderTextField _cityField({bool? enabled = true}) {
     return FormBuilderTextField(
