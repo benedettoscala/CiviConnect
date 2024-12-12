@@ -493,7 +493,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _reportController.citizen.then((value) async {
         _citizen = value;
 
-          if (await checkValidity(city)) {
+          if (await _checkValidity(city)) {
             _citySelected = city;
           } else {
             _citySelected = _citizen!.city;
@@ -544,7 +544,11 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     await _pullRefresh();
   }
 
-  Future<List<String>> loadMunicipalities() async {
+  /// Loads the list of municipalities.
+  /// This method loads the list of municipalities from a JSON file.
+  /// Returns:
+  /// - A list of strings containing the names of the municipalities.
+  Future<List<String>> _loadMunicipalities() async {
     String data = await rootBundle
         .loadString('assets/files/comuni-localita-cap-italia.json');
     Map<String, dynamic> jsonResult = json.decode(data);
@@ -559,9 +563,16 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     return allMunicipalities;
   }
 
-  Future<bool> checkValidity(String city) async {
+
+  /// Checks if the city is valid.
+  /// This method checks if the city is valid by comparing it to a list of valid cities.
+  /// Parameters:
+  /// - city: The city to check.
+  /// Returns:
+  /// - A boolean value indicating whether the city is valid.
+  Future<bool> _checkValidity(String city) async {
     if (_cities.isEmpty) {
-      List<String> municipalities = await loadMunicipalities();
+      List<String> municipalities = await _loadMunicipalities();
       _cities.addAll(municipalities.map((e) => e.toLowerCase()));
     }
 
