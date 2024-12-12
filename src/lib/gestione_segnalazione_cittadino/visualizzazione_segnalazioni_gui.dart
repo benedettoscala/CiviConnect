@@ -480,9 +480,19 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _hasMoreData = true;
       _errorText = '';
     });
+
     try {
       _reportController.citizen.then((value) async {
         _citizen = value;
+
+          if (await checkValidity(city)) {
+            _citySelected = city;
+          } else {
+            _citySelected = _citizen!.city;
+            showMessage(context, isError: true, message: 'Città non valida');
+            return null;
+          }
+
         _reportController
             .filterReportsBy(
                 city: city,
@@ -491,33 +501,20 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                 category: category,
                 keyword: keyWords)
             .then((value) async {
-          if (await checkValidity(city)) {
-            _citySelected = city;
-          } else {
-            _citySelected = _citizen!.city;
-            showMessage(context, isError: true, message: 'Città non valida');
-          }
-          _reportController
-              .filterReportsBy(
-                  city: _citySelected!,
-                  status: status,
-                  priority: priority,
-                  category: category)
-              .then((value) {
-            _userData.clear();
+          _userData.clear();
 
-            if (mounted) {
-              setState(() {
-                if (value != null && value.isNotEmpty) {
-                  _userData.addAll(value);
-                } else {
-                  _errorText = 'Nessuna segnalazione trovata';
-                }
-              });
-            }
-          });
+          if (mounted) {
+            setState(() {
+              if (value != null && value.isNotEmpty) {
+                _userData.addAll(value);
+              } else {
+                _errorText = 'Nessuna segnalazione trovata';
+              }
+            });
+          }
         });
       });
+
     } catch (e) {
       _errorText = 'Errore durante il caricamento filtrato: $e';
     } finally {
