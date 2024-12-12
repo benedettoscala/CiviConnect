@@ -48,16 +48,16 @@ class FilterModal extends StatefulWidget {
   /// Creates a [FilterModal].
   /// Parameters:
   /// - [onSubmit]: The callback function that is triggered when the form is submitted.
+  /// - [onReset]: The callback function that is triggered when the form is reset.
   /// - [startCity]: The initial city to filter by.
-  /// - [isCityEnabled]: Whether the city field is enabled or not.
+  /// - [statusCriteria]: The criteria to filter by: Status List.
+  /// - [priorityCriteria]: The criteria to filter by: Priority List.
+  /// - [categoryCriteria]: The criteria to filter by: Category List.
+  /// - [defaultCity]: The default city. Needed for the reset button.
+  /// - [dateRange]: The date range to filter by.
+  /// - [isCityEnabled]: Whether the city field is enabled or not. Defaults to `true`.
   /// - [key]: The key to use for the widget.
   ///
-  /// The [onSubmit] and [startCity] parameters are required.
-  /// The [isCityEnabled] parameter defaults to `true`.
-  /// The [key] parameter is optional.
-  ///
-  /// The [onSubmit] function should take a map as a parameter,
-  /// where the key is the field to filter by and the value is a list of values to filter.
   const FilterModal(
       {required this.onSubmit,
       required this.onReset,
@@ -71,7 +71,8 @@ class FilterModal extends StatefulWidget {
       super.key})
       : startingFilterNumber = statusCriteria.length +
             priorityCriteria.length +
-            categoryCriteria.length + (dateRange != null ? 1 : 0);
+            categoryCriteria.length +
+            (dateRange != null ? 1 : 0);
 
   @override
   State<FilterModal> createState() => _FilterModalState();
@@ -101,6 +102,7 @@ class _FilterModalState extends State<FilterModal> {
             ?.copyWith(fontWeight: FontWeight.bold) ??
         const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
 
+    /// Calculate the number of filters applied at the beginning.
     _filterNumber = widget.statusCriteria.length +
         widget.priorityCriteria.length +
         widget.categoryCriteria.length;
@@ -127,22 +129,20 @@ class _FilterModalState extends State<FilterModal> {
                   const Spacer(),
                   TextButton(
                     style: ButtonStyle(
-                      enableFeedback: (_isResetButtonEnabled())
-                          ? false
-                          : true,
+                      enableFeedback: (_isResetButtonEnabled()) ? false : true,
                       elevation: _filterNumber == 0
                           ? null
                           : WidgetStateProperty.all(1),
-                      backgroundColor: WidgetStatePropertyAll(_isResetButtonEnabled()
-                          ? Colors.transparent
-                          : ThemeManager()
-                              .customTheme
-                              .colorScheme
-                              .primaryContainer),
+                      backgroundColor: WidgetStatePropertyAll(
+                          _isResetButtonEnabled()
+                              ? Colors.transparent
+                              : ThemeManager()
+                                  .customTheme
+                                  .colorScheme
+                                  .primaryContainer),
                     ),
-                    onPressed: (_isResetButtonEnabled())
-                        ? null
-                        : widget.onReset,
+                    onPressed:
+                        (_isResetButtonEnabled()) ? null : widget.onReset,
                     child: Text(
                       'Resetta filtri',
                       style: TextStyle(
@@ -243,6 +243,14 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
+  /// Creates a [Wrap] widget containing [FilterChip] widgets.
+  ///
+  /// Parameters:
+  /// - [enumList]: The list of enum values to create the [FilterChip] widgets from.
+  /// - [criteria]: The list of criteria that are currently selected (should be updated when a [FilterChip] is selected)
+  /// It will contain the selected criteria also.
+  ///
+  /// Returns a [Wrap] widget.
   Wrap _getWrap(List<dynamic> enumList, List<dynamic> criteria) {
     return Wrap(
       alignment: WrapAlignment.center,
@@ -255,6 +263,35 @@ class _FilterModalState extends State<FilterModal> {
                 label: Text(el.name),
                 selected: criteria.contains(el),
                 onSelected: (selected) {
+                  /// Check if the enum is in the list of admitted enums.
+                  if (!enumList.contains(el)) {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            elevation: 5,
+                            semanticLabel: 'Errore',
+                            titleTextStyle: const TextStyle(fontSize: 15),
+                            title: const Text(
+                                'Non è possibile filtrare per questa categoria'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('OK'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        });
+                    return;
+                  }
+
                   setState(() {
                     if (selected) {
                       criteria.add(el);
@@ -267,7 +304,6 @@ class _FilterModalState extends State<FilterModal> {
           .toList(),
     );
   }
-
 
   /// Creates a _datePickerDialog.
   /// Returns a Future<DateTimeRange?> containing the selected date range,
@@ -325,8 +361,6 @@ class _FilterModalState extends State<FilterModal> {
         widget.defaultCity == _cityTextField;
   }
 
-
-
   /// Creates a [FormBuilderTextField] for the city field.
   /// Parameters:
   /// - The [enabled] parameter is optional and defaults to `true`.
@@ -343,10 +377,11 @@ class _FilterModalState extends State<FilterModal> {
         });
       },
       initialValue: widget.startCity,
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.maxLength(255),
-        FormBuilderValidators.minLength(0),
-        ]
+      validator: FormBuilderValidators.compose(
+        [
+          FormBuilderValidators.maxLength(255),
+          FormBuilderValidators.minLength(0),
+        ],
       ),
       decoration: const InputDecoration(
         isDense: true,
