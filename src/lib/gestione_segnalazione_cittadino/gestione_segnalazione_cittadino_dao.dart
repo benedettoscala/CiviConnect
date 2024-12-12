@@ -139,18 +139,10 @@ class CitizenReportManagementDAO {
       }
     }
 
-    if (reportDateStart != null) {
-      query =
-          query.where('reportDate', isGreaterThanOrEqualTo: reportDateStart);
-    }
-
-    if (reportDateEnd != null) {
-      query = query.where('reportDate', isLessThanOrEqualTo: reportDateEnd);
-    }
-
     List<Map<String, dynamic>>? results;
     try {
-      final querySnapshot = await query.limit(100).get(); // TODO: check limit
+      final querySnapshot = await query.limit(100).get(); // Check limit
+      print('QuerySnapshot: ${querySnapshot.docs.length}');
       if (querySnapshot.docs.isEmpty) {
         return null;
       }
@@ -169,6 +161,21 @@ class CitizenReportManagementDAO {
                 report['title'].toLowerCase().contains(keyword!) ||
                 report['description'].toLowerCase().contains(keyword))
             .toList();
+      }
+
+      // Date filter is applied after the keyword filter
+      // It is applied locally since Firebase requires an index for composite queries for each document (city)
+      if (reportDateStart != null) {
+        reportDateEnd ??= Timestamp.now();
+        results = results
+            .where((report) =>
+                reportDateStart.compareTo(report['reportDate']) <= 0 &&
+                reportDateEnd!.compareTo(report['reportDate']) >= 0)
+            .toList();
+      }
+
+      if (reportDateEnd != null) {
+        query = query.where('reportDate', isLessThanOrEqualTo: reportDateEnd);
       }
     } catch (e) {
       return null;
@@ -190,8 +197,7 @@ class CitizenReportManagementDAO {
   /// - [Exception]: If there is an error retrieving the data.
   Future<List<Map<String, dynamic>>?> _getTenReportsByOffset(
       {required String city}) async {
-
-    if(_isEnded) {
+    if (_isEnded) {
       return null;
     }
 

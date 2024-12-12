@@ -326,6 +326,7 @@ class _FilterModalState extends State<FilterModal> {
       fieldStartHintText: 'Inizio',
       fieldEndHintText: 'Fine',
       currentDate: DateTime.now(),
+      initialDateRange: _selectedDate,
       locale: const Locale('it', 'IT'),
       helpText: 'Seleziona un intervallo di date',
       builder: (context, child) {
