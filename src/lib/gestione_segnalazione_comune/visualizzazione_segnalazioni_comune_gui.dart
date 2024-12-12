@@ -250,7 +250,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
             uid: report['uid'],
             authorFirstName: '${report['authorFirstName']}',
             authorLastName: '${report['authorLastName']}',
-            description: report['title'],
+            description: report['description'],
             status: StatusReport.getStatus(report['status']) ??
                 StatusReport.rejected,
             priority: PriorityReport.getPriority(report['priority']) ??
