@@ -218,21 +218,21 @@ class CitizenReportManagementController {
     return snapshot;
   }
 
-  /// Filters the reports based on the specified criteria.
-  /// This method filters the reports based on the specified status, priority, and category of a specified city.
-  /// If no criteria are specified, it returns the list of all reports of the current city.
-  ///
-  /// Parameters:
-  /// - [city]: The city to filter by.
-  /// - [status]: The list of status criteria to filter by.
-  /// - [priority]: The list of priority criteria to filter by.
-  /// - [category]: The list of category criteria to filter by.
-  /// - [reportDate]: the list of report date criteria to filter by. Used as [ startDate, endDate ].
-  ///
-  /// Returns:
-  /// - A [Future] that resolves to a list of maps, where each map contains the report details.
-  /// - If no reports are found, it returns an empty list.
-  /// - If the user is not valid, it returns `null`.
+/// Filters the reports based on the specified criteria.
+/// This method filters the reports based on the specified status, priority, and category of a specified city.
+/// If no criteria are specified, it returns the list of all reports of the current city.
+///
+/// Parameters:
+/// - [city]: The city to filter by.
+/// - [status]: The list of status criteria to filter by.
+/// - [priority]: The list of priority criteria to filter by.
+/// - [category]: The list of category criteria to filter by.
+/// - [dateRange]: The date range to filter by, used as [startDate, endDate].
+///
+/// Returns:
+/// - A [Future] that resolves to a list of maps, where each map contains the report details.
+/// - If no reports are found, it returns an empty list.
+/// - If the user is not valid, it returns `null`.
   Future<List<Map<String, dynamic>>?> filterReportsBy(
       {required String city,
       List<StatusReport>? status,

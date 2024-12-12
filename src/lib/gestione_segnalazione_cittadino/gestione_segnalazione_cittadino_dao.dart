@@ -102,8 +102,6 @@ class CitizenReportManagementDAO {
     return await _getTenReportsByUser(userId: userId);
   }
 
-  /* --------------------------- PRIVATE METHODS ---------------------------------- */
-
   /// Retrieves a list of reports for a given city filtered by the specified criteria.
   /// The criteria are specified as a map where the key is the field to filter by and the value is a list of values to filter.
   ///
@@ -115,6 +113,8 @@ class CitizenReportManagementDAO {
   /// - [criteria]: A map containing the criteria to filter by.
   ///   It is a map where the key is the field to filter by and the value is a list of values to filter.
   /// - [city]: The name of the city for which to retrieve the reports.
+  /// - [reportDateStart]: An optional start date to filter the reports.
+  /// - [reportDateEnd]: An optional end date to filter the reports.
   /// - [keyword]: An optional keyword to filter the reports by title or description.
   ///
   /// Returns:
@@ -175,6 +175,8 @@ class CitizenReportManagementDAO {
     }
     return results;
   }
+
+  /* --------------------------- PRIVATE METHODS ---------------------------------- */
 
   /// Retrieves the next ten reports for a given city, starting from the last retrieved report.
   ///
