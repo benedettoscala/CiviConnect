@@ -218,7 +218,6 @@ class CitizenReportManagementController {
 
     List<Map<String, dynamic>>? snapshot = await _reportDAO.getUserReportList(
       userId: _citizen!.uid,
-      reset: reset,
     );
     return snapshot;
   }

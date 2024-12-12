@@ -1,10 +1,9 @@
 import 'package:civiconnect/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
 import '../widgets/card_widget.dart';
+import 'dettagli_segnalazione_cittadino_gui.dart';
 import 'gestione_segnalazione_cittadino_controller.dart';
 
 /// A widget that displays the user's reports.
@@ -23,11 +22,9 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
   late final CitizenReportManagementController _reportController;
   late final ThemeData theme;
   late final List<Map<String, dynamic>> _userData = [];
-  bool _isLoadingMore = false;
   bool _hasMoreData = true;
   bool _isLoading = true;
   String _errorText = '';
-  late ScrollController _scrollController;
 
   /// Initializes the state of the widget.
   ///
@@ -36,15 +33,6 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()
-      ..addListener(() {
-        if (_scrollController.position.pixels ==
-                _scrollController.position.maxScrollExtent &&
-            _hasMoreData &&
-            !_isLoadingMore) {
-          _loadUpdateData();
-        }
-      });
     _reportController = CitizenReportManagementController(redirectPage: const MyReportsViewGUI());
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
@@ -106,56 +94,6 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
     }
   }
 
-  /// Loads additional data when the user scrolls to the bottom of the list.
-  ///
-  /// This method fetches more reports from the controller and updates the state
-  /// with the new data.
-  void _loadUpdateData() {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      setState(() {
-        _isLoadingMore = true;
-      });
-    });
-
-    if (_isLoadingMore || !_hasMoreData) {
-      return;
-    }
-
-    try {
-      /// Implements loading of new data: fetch data from the controller
-      /// and add it to the list of data
-      /// If no data is returned, set hasMoreData to false
-      _reportController.getUserReports().then((value) {
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
-          setState(() {
-            if (value == null || value.isEmpty) {
-              _hasMoreData = false;
-            } else {
-              _userData.addAll(value);
-            }
-          });
-        });
-      });
-
-      /// Error handling: set hasMoreData to false and hasError to true to show error message
-    } catch (e) {
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        setState(() {
-          _hasMoreData = false;
-          _errorText = e.toString();
-        });
-      });
-
-      /// Set isLoadingMore to false to allow loading more data if needed
-    } finally {
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        setState(() {
-          _isLoadingMore = false;
-        });
-      });
-    }
-  }
-
   /// Builds the scaffold of the page
   Widget _buildScaffold() {
     return Scaffold(
@@ -163,20 +101,12 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
         child: RefreshIndicator(
           onRefresh: _pullRefresh,
           child: CustomScrollView(
-            controller: _scrollController, // Added scroll controller
             slivers: [
               // Scrollable list
               _buildReportsList(),
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: vai alla pagina di creazione della segnalazione
-        },
-        backgroundColor: theme.colorScheme.primary,
-        child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
       ),
     );
   }
@@ -186,47 +116,51 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
   Widget _buildReportsList() {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        childCount: _userData.length + (_hasMoreData ? 1 : 0),
-        (context, index) {
+        childCount: _userData.length + 1,
+            (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
-            _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
+          Report store = Report(
+              reportId: report['reportId'],
+              title: report['title'],
+              uid: report['uid'],
+              authorFirstName: '${report['authorFirstName']}',
+              authorLastName: '${report['authorLastName']}',
+              description: report['description'],
+              status: StatusReport.getStatus(report['status']) ??
+                  StatusReport.rejected,
+              priority: PriorityReport.getPriority(report['priority']) ??
+                  PriorityReport.unset,
+              reportDate: report['reportDate'],
+              address: report['address'] == null
+                  ? {'street': 'N/A', 'number': 'N/A'}
+                  : {
+                'street': report['address']['street'] ?? 'N/A',
+                'number': report['address']['number'] ?? 'N/A',
+              },
+              city: report['city'],
+              photo: report['photo']
+          );
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-                  report: Report(
-                    reportId: report['reportId'],
-                    title: report['title'],
-                    uid: report['uid'],
-                    authorFirstName: '${report['authorFirstName']}',
-                    authorLastName: '${report['authorLastName']}',
-                    description: report['description'],
-                    status: StatusReport.getStatus(report['status']) ??
-                        StatusReport.rejected,
-                    priority: PriorityReport.getPriority(report['priority']) ??
-                        PriorityReport.unset,
-                    reportDate: report['reportDate'],
-                    address: report['address'] == null
-                        ? {'street': 'N/A', 'number': 'N/A'}
-                        : {
-                            'street': report['address']['street'] ?? 'N/A',
-                            'number': report['address']['number'] ?? 'N/A',
-                          },
-                    city: report['city'],
-                    photo: report['photo'],
-                  ),
-                  onTap: () {
-                    // TODO: vai alla pagina dei dettagli
-                  },
-                );
+            report: store,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          DettagliSegnalazioneCittadino(report: store)));
+            },
+          );
         },
       ),
     );

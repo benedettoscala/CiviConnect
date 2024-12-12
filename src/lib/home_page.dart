@@ -7,6 +7,7 @@ import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:flutter/material.dart';
 
 import 'gestione_segnalazione_cittadino/visualizzazione_segnalazioni_gui.dart';
+import 'gestione_segnalazione_comune/visualizzazione_segnalazioni_comune_gui.dart';
 import 'model/users_model.dart';
 
 /// Home page of the application.
@@ -60,7 +61,7 @@ class _HomePageState extends State<HomePage> {
     const ReportsViewCitizenGUI(),
     const UserProfile(),
     DataAnalysisGUI(),
-    const Placeholder(),
+    const ReportsViewMunicipalityGUI(),
     const UserProfile(),
   ];
   

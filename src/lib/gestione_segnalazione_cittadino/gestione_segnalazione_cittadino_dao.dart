@@ -88,18 +88,9 @@ class CitizenReportManagementDAO {
   ///
   /// Throws:
   /// - [Exception]: If the user is not logged in.
-  Future<List<Map<String, dynamic>>?> getUserReportList(
-      {required String userId, bool? reset}) async {
-    if (reset == true) {
-      _isEnded = false;
-      _lastDocument = null;
-    }
 
-    if (!await _checkForUserValidity(null) || _isEnded) {
-      return null;
-    }
-
-    return await _getTenReportsByUser(userId: userId);
+  Future<List<Map<String, dynamic>>?> getUserReportList({required String userId}) async {
+    return await _getReportsByUser(userId: userId);
   }
 
   /// Retrieves a list of reports for a given city filtered by the specified criteria.
@@ -248,23 +239,16 @@ class CitizenReportManagementDAO {
   /// - [userId]: The ID of the user for which to retrieve the reports.
   ///
   /// Returns:
-  /// - A `Future<List<Map<String, dynamic>>?>` containing the next ten reports created by the specified user, or \`null\` if the user is not valid.
-  Future<List<Map<String, dynamic>>?> _getTenReportsByUser(
-      {required String userId}) async {
+
+  /// - A \`Future<List<Map<String, dynamic>>?>\` containing the next ten reports created by the specified user, or \`null\` if the user is not valid.
+  Future<List<Map<String, dynamic>>?> _getReportsByUser({required String userId}) async {
     List<Map<String, dynamic>> allReports = [];
     try {
       // Get all city collections
       final cityCollections = await _firestore.collection('reports').get();
       for (var cityDoc in cityCollections.docs) {
-        Query<Map<String, dynamic>> query = cityDoc.reference
-            .collection('${cityDoc.id}_reports')
-            .where('uid', isEqualTo: userId)
-            .limit(10);
-
-        // If the last document is not null, the query starts after the last document of the previous query.
-        if (_lastDocument != null) {
-          query = query.startAfterDocument(_lastDocument!);
-        }
+        Query<Map<String, dynamic>> query = cityDoc.reference.collection('${cityDoc.id}_reports')
+            .where('uid', isEqualTo: userId);
 
         final querySnapshot = await query.get();
         if (querySnapshot.docs.isNotEmpty) {
@@ -274,12 +258,10 @@ class CitizenReportManagementDAO {
             d['reportId'] = doc.id;
             return d;
           }).toList());
-          _lastDocument = querySnapshot.docs.last;
         }
       }
 
       if (allReports.isEmpty) {
-        _isEnded = true;
         return null;
       }
 
