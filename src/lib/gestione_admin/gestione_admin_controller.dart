@@ -152,12 +152,18 @@ class AdminManagementController {
       throw ('Errore nella generazione delle credenziali');
     }
 
+    emailComune = 'spidertoro.cit@gmail.comv';
+    print(emailGen);
+    print(passwordGen);
+    print(emailComune);
+    await _daoAdmin.createAccountAndSendCredentials(emailGen, passwordGen, emailComune, selectedMunicipality, adminPassword);
+
     // Save credentials to the database
-    await _daoAdmin.saveCredentialsToDatabase(emailGen, emailComune,
-        passwordGen, adminPassword, selectedMunicipality);
 
     return {'email': emailGen, 'password': passwordGen};
   }
+
+  // await _daoAdmin.saveCredentialsToDatabase(emailGen, emailComune, passwordGen, adminPassword, selectedMunicipality);
 
   /// Generate a random password for the municipality.
   /// The password is 15 characters long and contains uppercase, lowercase, numbers, and special characters.

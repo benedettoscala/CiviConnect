@@ -1,6 +1,7 @@
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../model/users_model.dart';
 
@@ -54,6 +55,55 @@ class AdminManagementDAO {
   /// - An exception if the user type is not an admin.
   /// - An exception if the credentials cannot
   ///  be saved to the database.
+
+  Future<void> createAccountAndSendCredentials(
+      String emailGen,
+      String passwordGen,
+      String emailComune,
+      Map<String, String> selectedComune,
+      String passwordAdmin) async {
+
+    UserManagementDAO userManagementDAO = UserManagementDAO();
+    GenericUser? genericUser = await userManagementDAO.determineUserType();
+    String adminEmail = genericUser?.email?.trim() ?? '';
+
+    // Log in as admin
+    await _firebaseAuth.signInWithEmailAndPassword(
+        email: adminEmail, password: passwordAdmin);
+
+    if (FirebaseAuth.instance.currentUser == null) {
+      throw ('Errore di autenticazione Admin.');
+    }
+
+    // Save comune and provincia in variables
+    String comune = selectedComune['Comune']!.toLowerCase();
+    String provincia = selectedComune['Provincia']!;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.getIdToken(true);
+    }
+
+    print('UID utente loggato: ${FirebaseAuth.instance.currentUser?.uid}');
+
+    print(emailGen);
+    print(passwordGen);
+    print(emailComune);
+    print(comune);
+    print(provincia);
+
+
+    final callable = FirebaseFunctions.instance.httpsCallable('createAccountAndSendCredentialsv1');
+    final result = await callable.call({
+      'emailGen': emailGen,
+      'passwordGen': passwordGen,
+      'emailComune': emailComune,
+      'comune': comune,
+      'provincia': provincia
+    });
+    print(result.data);
+  }
+
   Future<void> saveCredentialsToDatabase(
       String emailGen,
       String emailComune,
@@ -88,6 +138,11 @@ class AdminManagementDAO {
       // Log in as admin
       await _firebaseAuth.signInWithEmailAndPassword(
           email: adminEmail, password: passwordAdmin);
+
+      // Save comune and provincia in variables
+      String comune = selectedComune['Comune']!.toLowerCase();
+      String provincia = selectedComune['Provincia']!;
+
 
       // Logged as admin
       // Save the municipality data to Firestore.
