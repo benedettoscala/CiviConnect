@@ -108,139 +108,146 @@ class _FilterModalState extends State<FilterModal> {
         widget.categoryCriteria.length;
     _filterNumber = _selectedDate != null ? _filterNumber + 1 : _filterNumber;
 
-    return Wrap(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 16,
-            left: 16,
-            right: 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        expand: false,
+        builder: (context, scrollController) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              top: 16,
+              left: 16,
+              right: 16,
+            ),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Filtra per',
-                    style: theme.textTheme.titleLarge,
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    style: ButtonStyle(
-                      enableFeedback: (_isResetButtonEnabled()) ? false : true,
-                      elevation: _filterNumber == 0
-                          ? null
-                          : WidgetStateProperty.all(1),
-                      backgroundColor: WidgetStatePropertyAll(
-                          _isResetButtonEnabled()
-                              ? Colors.transparent
-                              : ThemeManager()
-                                  .customTheme
-                                  .colorScheme
-                                  .primaryContainer),
-                    ),
-                    onPressed:
-                        (_isResetButtonEnabled()) ? null : widget.onReset,
-                    child: Text(
-                      'Resetta filtri',
-                      style: TextStyle(
-                        color: (_isResetButtonEnabled())
-                            ? Colors.grey
-                            : theme.primaryColor,
+                  Row(
+                    children: [
+                      Text(
+                        'Filtra per',
+                        style: theme.textTheme.titleLarge,
                       ),
+                      const Spacer(),
+                      TextButton(
+                        style: ButtonStyle(
+                          enableFeedback:
+                              (_isResetButtonEnabled()) ? false : true,
+                          elevation: _filterNumber == 0
+                              ? null
+                              : WidgetStateProperty.all(1),
+                          backgroundColor: WidgetStatePropertyAll(
+                              _isResetButtonEnabled()
+                                  ? Colors.transparent
+                                  : ThemeManager()
+                                      .customTheme
+                                      .colorScheme
+                                      .primaryContainer),
+                        ),
+                        onPressed:
+                            (_isResetButtonEnabled()) ? null : widget.onReset,
+                        child: Text(
+                          'Resetta filtri',
+                          style: TextStyle(
+                            color: (_isResetButtonEnabled())
+                                ? Colors.grey
+                                : theme.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        if (widget.isCityEnabled)
+                          Text(
+                            'Città',
+                            style: titleFilterStyle,
+                          ),
+                        if (widget.isCityEnabled) _cityField(),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Data', style: titleFilterStyle),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: IconButton(
+                                style: ButtonStyle(
+                                  enableFeedback: true,
+                                  elevation: WidgetStateProperty.all(3),
+                                  backgroundColor: WidgetStatePropertyAll(
+                                      ThemeManager()
+                                          .customTheme
+                                          .colorScheme
+                                          .primaryContainer),
+                                ),
+                                onPressed: () async {
+                                  _selectedDate = await _datePickerDialog();
+                                },
+                                icon: const HugeIcon(
+                                  icon: HugeIcons.strokeRoundedCalendar01,
+                                  color: Colors.black54,
+                                  size: 30,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        //DatePickerDialog(firstDate: DateTime.now() , lastDate: DateTime.now()),
+                        const SizedBox(height: 16),
+                        Text('Stato', style: titleFilterStyle),
+                        _getWrap(StatusReport.values, widget.statusCriteria),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Priorità',
+                          style: titleFilterStyle,
+                        ),
+                        _getWrap(
+                            PriorityReport.values, widget.priorityCriteria),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Categoria',
+                          style: titleFilterStyle,
+                        ),
+                        _getWrap(Category.values, widget.categoryCriteria),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ThemeManager()
+                                .customTheme
+                                .colorScheme
+                                .primaryContainer,
+                            elevation: 2,
+                            shadowColor: ThemeManager().customTheme.shadowColor,
+                          ),
+                          onPressed: () => widget.onSubmit(
+                            status: widget.statusCriteria,
+                            priority: widget.priorityCriteria,
+                            category: widget.categoryCriteria,
+                            city: _cityTextField == ''
+                                ? widget.startCity
+                                : _cityTextField,
+                            dateRange: _selectedDate,
+                            popNav: true,
+                          ),
+                          child: const Text('Filtra'),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    if (widget.isCityEnabled)
-                      Text(
-                        'Città',
-                        style: titleFilterStyle,
-                      ),
-                    if (widget.isCityEnabled) _cityField(),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Data', style: titleFilterStyle),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: IconButton(
-                            style: ButtonStyle(
-                              enableFeedback: true,
-                              elevation: WidgetStateProperty.all(3),
-                              backgroundColor: WidgetStatePropertyAll(
-                                  ThemeManager()
-                                      .customTheme
-                                      .colorScheme
-                                      .primaryContainer),
-                            ),
-                            onPressed: () async {
-                              _selectedDate = await _datePickerDialog();
-                            },
-                            icon: const HugeIcon(
-                              icon: HugeIcons.strokeRoundedCalendar01,
-                              color: Colors.black54,
-                              size: 30,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    //DatePickerDialog(firstDate: DateTime.now() , lastDate: DateTime.now()),
-                    const SizedBox(height: 16),
-                    Text('Stato', style: titleFilterStyle),
-                    _getWrap(StatusReport.values, widget.statusCriteria),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Priorità',
-                      style: titleFilterStyle,
-                    ),
-                    _getWrap(PriorityReport.values, widget.priorityCriteria),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Categoria',
-                      style: titleFilterStyle,
-                    ),
-                    _getWrap(Category.values, widget.categoryCriteria),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ThemeManager()
-                            .customTheme
-                            .colorScheme
-                            .primaryContainer,
-                        elevation: 2,
-                        shadowColor: ThemeManager().customTheme.shadowColor,
-                      ),
-                      onPressed: () => widget.onSubmit(
-                        status: widget.statusCriteria,
-                        priority: widget.priorityCriteria,
-                        category: widget.categoryCriteria,
-                        city: _cityTextField == ''
-                            ? widget.startCity
-                            : _cityTextField,
-                        dateRange: _selectedDate,
-                        popNav: true,
-                      ),
-                      child: const Text('Filtra'),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+            ),
+          );
+        });
   }
 
   /// Creates a [Wrap] widget containing [FilterChip] widgets.
