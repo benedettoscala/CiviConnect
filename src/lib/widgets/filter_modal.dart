@@ -71,7 +71,7 @@ class FilterModal extends StatefulWidget {
       super.key})
       : startingFilterNumber = statusCriteria.length +
             priorityCriteria.length +
-            categoryCriteria.length;
+            categoryCriteria.length + (dateRange != null ? 1 : 0);
 
   @override
   State<FilterModal> createState() => _FilterModalState();
@@ -104,6 +104,7 @@ class _FilterModalState extends State<FilterModal> {
     _filterNumber = widget.statusCriteria.length +
         widget.priorityCriteria.length +
         widget.categoryCriteria.length;
+    _filterNumber = _selectedDate != null ? _filterNumber + 1 : _filterNumber;
 
     return Wrap(
       children: [
@@ -126,32 +127,26 @@ class _FilterModalState extends State<FilterModal> {
                   const Spacer(),
                   TextButton(
                     style: ButtonStyle(
-                      enableFeedback: (_filterNumber == 0 ||
-                                  widget.startingFilterNumber == 0) &&
-                              widget.defaultCity == _cityTextField
+                      enableFeedback: (_isResetButtonEnabled())
                           ? false
                           : true,
                       elevation: _filterNumber == 0
                           ? null
                           : WidgetStateProperty.all(1),
-                      backgroundColor: WidgetStatePropertyAll(_filterNumber == 0
+                      backgroundColor: WidgetStatePropertyAll(_isResetButtonEnabled()
                           ? Colors.transparent
                           : ThemeManager()
                               .customTheme
                               .colorScheme
                               .primaryContainer),
                     ),
-                    onPressed: (_filterNumber == 0 ||
-                                widget.startingFilterNumber == 0) &&
-                            widget.defaultCity == _cityTextField
+                    onPressed: (_isResetButtonEnabled())
                         ? null
                         : widget.onReset,
                     child: Text(
                       'Resetta filtri',
                       style: TextStyle(
-                        color: (_filterNumber == 0 ||
-                                    widget.startingFilterNumber == 0) &&
-                                widget.defaultCity == _cityTextField
+                        color: (_isResetButtonEnabled())
                             ? Colors.grey
                             : theme.primaryColor,
                       ),
@@ -273,6 +268,10 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
+
+  /// Creates a _datePickerDialog.
+  /// Returns a Future<DateTimeRange?> containing the selected date range,
+  /// or `null` if the dialog is dismissed.
   Future<DateTimeRange?> _datePickerDialog() {
     return showDateRangePicker(
       context: context,
@@ -320,6 +319,18 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
+  /// Returns whether the reset button should be enabled or not as a boolean.
+  bool _isResetButtonEnabled() {
+    return (_filterNumber == 0 || widget.startingFilterNumber == 0) &&
+        widget.defaultCity == _cityTextField;
+  }
+
+
+
+  /// Creates a [FormBuilderTextField] for the city field.
+  /// Parameters:
+  /// - The [enabled] parameter is optional and defaults to `true`.
+  /// Returns a [FormBuilderTextField] widget.
   FormBuilderTextField _cityField({bool? enabled = true}) {
     return FormBuilderTextField(
       key: _cityKey,

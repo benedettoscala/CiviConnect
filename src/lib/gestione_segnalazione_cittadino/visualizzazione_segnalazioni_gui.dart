@@ -258,6 +258,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+
+                      /// Filter Button
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
@@ -478,6 +480,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
     _numberOfFilters += status?.length ?? 0;
     _numberOfFilters += priority?.length ?? 0;
     _numberOfFilters += category?.length ?? 0;
+    _numberOfFilters += dateRange != null ? 1 : 0;
 
     setState(() {
       _isLoading = true;
