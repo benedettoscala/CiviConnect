@@ -182,15 +182,19 @@ class CitizenReportManagementDAO {
   ///
   /// Parameters:
   /// - [city]: The name of the city for which to retrieve the reports.
-  /// - [lastDocument]: The last document retrieved in the previous query (optional).
   ///
   /// Returns:
-  /// - A `Future<List<Map<String, dynamic>>>` containing the next ten reports for the specified city.
+  /// - A `Future<List<Map<String, dynamic>>?>` containing the next ten reports for the specified city.
   ///
   /// Throws:
   /// - [Exception]: If there is an error retrieving the data.
   Future<List<Map<String, dynamic>>?> _getTenReportsByOffset(
       {required String city}) async {
+
+    if(_isEnded) {
+      return null;
+    }
+
     Query<Map<String, dynamic>> query = _firestore
         .collection('reports')
         .doc(city.toLowerCase())
@@ -205,10 +209,8 @@ class CitizenReportManagementDAO {
 
     try {
       final querySnapshot = await query.get();
-      // If the query is empty or the last document is the same as the previous one, the query is ended.
-      if (_isEnded ||
-          querySnapshot.docs.isEmpty ||
-          _lastDocument == querySnapshot.docs.last) {
+      // If the query is empty, the query is ended.
+      if (querySnapshot.docs.isEmpty) {
         _isEnded = true;
         return null;
       }
@@ -218,6 +220,9 @@ class CitizenReportManagementDAO {
         _isEnded = true;
       }
 
+      // Update the last document.
+      _lastDocument = querySnapshot.docs.last;
+
       //Retrieve the data from the query snapshot.
       var data = querySnapshot.docs.map((doc) {
         // Add the reportId to the data.
@@ -225,8 +230,6 @@ class CitizenReportManagementDAO {
         d['reportId'] = doc.id;
         return d;
       }).toList();
-      // Update the last document.
-      _lastDocument = querySnapshot.docs.last;
 
       return data;
     } catch (e) {
