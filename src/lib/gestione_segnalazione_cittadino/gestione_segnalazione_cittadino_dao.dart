@@ -30,7 +30,7 @@ class CitizenReportManagementDAO {
   ///
   /// Parameters:
   /// - [city]: The name of the city for which to retrieve the reports.
-  /// - [lastDocument]: The last document retrieved in the previous query (optional).
+  /// - [reset]: A `bool` indicating whether to reset the last document retrieved (optional).
   ///
   /// Returns:
   /// - A `Future<List<Map<String, dynamic>>?>` containing the list of reports for the specified city, or `null` if the user is not valid.
@@ -142,7 +142,7 @@ class CitizenReportManagementDAO {
     List<Map<String, dynamic>>? results;
     try {
       final querySnapshot = await query.limit(100).get(); // Check limit
-      print('QuerySnapshot: ${querySnapshot.docs.length}');
+
       if (querySnapshot.docs.isEmpty) {
         return null;
       }
@@ -245,11 +245,10 @@ class CitizenReportManagementDAO {
 
   ///
   /// Parameters:
-  /// - \[userId\]: The ID of the user for which to retrieve the reports.
-  /// - \[reset\]: A \`bool\` indicating whether to reset the last document retrieved (optional).
+  /// - [userId]: The ID of the user for which to retrieve the reports.
   ///
   /// Returns:
-  /// - A \`Future<List<Map<String, dynamic>>?>\` containing the next ten reports created by the specified user, or \`null\` if the user is not valid.
+  /// - A `Future<List<Map<String, dynamic>>?>` containing the next ten reports created by the specified user, or \`null\` if the user is not valid.
   Future<List<Map<String, dynamic>>?> _getTenReportsByUser(
       {required String userId}) async {
     List<Map<String, dynamic>> allReports = [];

@@ -104,6 +104,11 @@ class CitizenReportManagementController {
     return downloadUrl;
   }
 
+  /// Loads the current citizen user.
+  /// This method determines the user type and loads the current citizen user.
+  /// If the user is not logged in or is not a citizen, it throws an exception.
+  /// The citizen user is stored in the [_citizen] variable.
+  /// The method completes the [_citizenCompleter] when the initialization is complete.
   void _loadCitizen() async {
     try {
       final user = await _userManagementDAO.determineUserType();
