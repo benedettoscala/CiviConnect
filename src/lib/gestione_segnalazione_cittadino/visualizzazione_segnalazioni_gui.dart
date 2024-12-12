@@ -504,6 +504,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                 status: status,
                 priority: priority,
                 category: category,
+                dateRange: dateRange,
                 keyword: keyWords)
             .then((value) async {
           _userData.clear();

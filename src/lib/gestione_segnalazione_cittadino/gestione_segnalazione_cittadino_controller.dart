@@ -238,18 +238,20 @@ class CitizenReportManagementController {
       List<StatusReport>? status,
       List<PriorityReport>? priority,
       List<Category>? category,
-      List<DateTime>? reportDate,
+      DateTimeRange? dateRange,
       String? keyword}) async {
     Map<String, List<dynamic>> criteria = {
       if (status != null) 'status': status.map((e) => e.name).toList(),
       if (priority != null) 'priority': priority.map((e) => e.name).toList(),
       if (category != null) 'category': category.map((e) => e.name).toList(),
     };
+    Timestamp? startRange;
+    Timestamp? endRange;
 
-    Timestamp? startRange =
-        null == reportDate?[0] ? null : Timestamp.fromDate(reportDate![0]);
-    Timestamp? endRange =
-        null == reportDate?[1] ? null : Timestamp.fromDate(reportDate![1]);
+    if(dateRange != null) {
+      startRange = Timestamp.fromDate(dateRange.start);
+      endRange = Timestamp.fromDate(dateRange.end);
+    }
 
     List<Map<String, dynamic>>? snapshot = await _reportDAO.filterReportsBy(
         criteria: criteria,
