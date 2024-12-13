@@ -55,7 +55,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
   final List<Widget> _pages = <Widget>[
     const MyReportsViewGUI(),
     const ReportsViewCitizenGUI(),
@@ -64,7 +63,7 @@ class _HomePageState extends State<HomePage> {
     const ReportsViewMunicipalityGUI(),
     const UserProfile(),
   ];
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -85,7 +84,8 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _pages[_userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
+      body: _pages[
+          _userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: _userInfo is Citizen
             ? const [

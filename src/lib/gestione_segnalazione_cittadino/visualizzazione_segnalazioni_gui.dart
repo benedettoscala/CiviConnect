@@ -258,7 +258,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-
                       /// Filter Button
                       Stack(
                         clipBehavior: Clip.none,
@@ -475,7 +474,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       List<Category>? category,
       String? keyWords,
       DateTimeRange? dateRange,
-      bool? isCityEnabled, // Not used in this method but required for the method signature
+      bool?
+          isCityEnabled, // Not used in this method but required for the method signature
       bool? popNav = false}) async {
     _numberOfFilters = 0;
     _numberOfFilters += status?.length ?? 0;
@@ -494,13 +494,13 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _reportController.citizen.then((value) async {
         _citizen = value;
 
-          if (await _checkValidity(city ?? '')) {
-            _citySelected = city;
-          } else {
-            _citySelected = _citizen!.city;
-            showMessage(context, isError: true, message: 'Città non valida');
-            return null;
-          }
+        if (await _checkValidity(city ?? '')) {
+          _citySelected = city;
+        } else {
+          _citySelected = _citizen!.city;
+          showMessage(context, isError: true, message: 'Città non valida');
+          return null;
+        }
 
         _reportController
             .filterReportsBy(
@@ -524,7 +524,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           }
         });
       });
-
     } catch (e) {
       _errorText = 'Errore durante il caricamento filtrato: $e';
     } finally {
@@ -563,7 +562,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
     return allMunicipalities;
   }
-
 
   /// Checks if the city is valid.
   /// This method checks if the city is valid by comparing it to a list of valid cities.

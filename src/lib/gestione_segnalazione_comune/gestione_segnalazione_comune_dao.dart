@@ -33,8 +33,10 @@ class MunicipalityReportManagementDAO {
 
   /// The data access object for user management.
   final UserManagementDAO _userManagementDAO;
+
   /// The Firestore instance.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   /// The last document retrieved in the previous query.
   DocumentSnapshot? _lastDocument;
 
@@ -45,7 +47,8 @@ class MunicipalityReportManagementDAO {
   ///
   /// Parameters:
   /// - [userManagementDAO]: An optional instance of `UserManagementDAO`. If not provided, a new instance of `UserManagementDAO` will be created.
-  MunicipalityReportManagementDAO({UserManagementDAO? userManagementDAO}) : _userManagementDAO = userManagementDAO ?? UserManagementDAO();
+  MunicipalityReportManagementDAO({UserManagementDAO? userManagementDAO})
+      : _userManagementDAO = userManagementDAO ?? UserManagementDAO();
 
   /// Retrieves a list of reports for a given city.
   ///
@@ -61,13 +64,14 @@ class MunicipalityReportManagementDAO {
   ///
   /// Preconditions:
   /// - The user must be logged in and either a `Municipality` with the specified city name or a `Citizen`.
-  Future<List<Map<String, dynamic>>?> getReportList({required String city, bool? reset}) async {
-    if(reset == true){
+  Future<List<Map<String, dynamic>>?> getReportList(
+      {required String city, bool? reset}) async {
+    if (reset == true) {
       _isEnded = false;
       _lastDocument = null;
     }
 
-    if(! await _checkForUserValidity(city) || _isEnded){
+    if (!await _checkForUserValidity(city) || _isEnded) {
       return null;
     }
 
@@ -161,7 +165,6 @@ class MunicipalityReportManagementDAO {
     }
   }
 
-
   /// Retrieves a list of reports for a given city filtered by the specified criteria.
   /// The criteria are specified as a map where the key is the field to filter by and the value is a list of values to filter.
   ///
@@ -181,10 +184,10 @@ class MunicipalityReportManagementDAO {
   /// - A `Future<List<Map<String, dynamic>>?>` containing the list of reports for the specified city filtered by the criteria, or `null` if the user is not valid.
   Future<List<Map<String, dynamic>>?> filterMunicipalityReportsBy(
       {required Map<String, List<dynamic>> criteria,
-        required String city,
-        Timestamp? reportDateStart,
-        Timestamp? reportDateEnd,
-        String? keyword}) async {
+      required String city,
+      Timestamp? reportDateStart,
+      Timestamp? reportDateEnd,
+      String? keyword}) async {
     city = city.toLowerCase().trim();
     keyword = keyword?.toLowerCase().trim();
 
@@ -218,8 +221,8 @@ class MunicipalityReportManagementDAO {
       if (keyword != null && keyword.isNotEmpty) {
         results = results
             .where((report) =>
-        report['title'].toLowerCase().contains(keyword!) ||
-            report['description'].toLowerCase().contains(keyword))
+                report['title'].toLowerCase().contains(keyword!) ||
+                report['description'].toLowerCase().contains(keyword))
             .toList();
       }
 
@@ -229,8 +232,8 @@ class MunicipalityReportManagementDAO {
         reportDateEnd ??= Timestamp.now();
         results = results
             .where((report) =>
-        reportDateStart.compareTo(report['reportDate']) <= 0 &&
-            reportDateEnd!.compareTo(report['reportDate']) >= 0)
+                reportDateStart.compareTo(report['reportDate']) <= 0 &&
+                reportDateEnd!.compareTo(report['reportDate']) >= 0)
             .toList();
       }
 
@@ -242,9 +245,6 @@ class MunicipalityReportManagementDAO {
     }
     return results;
   }
-
-
-
 
   /* --------------------------- PRIVATE METHODS ---------------------------------- */
 
@@ -259,9 +259,14 @@ class MunicipalityReportManagementDAO {
   ///
   /// Throws:
   /// - [Exception]: If there is an error retrieving the data.
-  Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city}) async {
-    Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
-        .orderBy('title', descending: true).limit(10);
+  Future<List<Map<String, dynamic>>?> _getTenReportsByOffset(
+      {required String city}) async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection('reports')
+        .doc(city.toLowerCase())
+        .collection('${city.toLowerCase()}_reports')
+        .orderBy('title', descending: true)
+        .limit(10);
 
     // If the last document is not null, the query starts after the last document of the previous query.
     if (_lastDocument != null) {
@@ -271,7 +276,9 @@ class MunicipalityReportManagementDAO {
     try {
       final querySnapshot = await query.get();
       // If the query is empty or the last document is the same as the previous one, the query is ended.
-      if (_isEnded || querySnapshot.docs.isEmpty || _lastDocument == querySnapshot.docs.last){
+      if (_isEnded ||
+          querySnapshot.docs.isEmpty ||
+          _lastDocument == querySnapshot.docs.last) {
         _isEnded = true;
         return null;
       }
@@ -282,14 +289,11 @@ class MunicipalityReportManagementDAO {
         final d = doc.data();
         d['reportId'] = doc.id;
         return d;
-      }
-      ).toList();
+      }).toList();
       // Update the last document.
-      _lastDocument  = querySnapshot.docs.last;
-
+      _lastDocument = querySnapshot.docs.last;
 
       return data;
-
     } catch (e) {
       throw Exception('Error retrieving data: $e');
     }
@@ -312,6 +316,7 @@ class MunicipalityReportManagementDAO {
     if (user == null) {
       throw Exception('Utente non loggato!');
     }
-    return (user is Municipality && (user).municipalityName == city) || user is Citizen;
+    return (user is Municipality && (user).municipalityName == city) ||
+        user is Citizen;
   }
 }

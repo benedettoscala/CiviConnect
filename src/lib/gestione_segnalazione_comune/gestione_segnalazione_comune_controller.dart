@@ -40,13 +40,15 @@ import 'gestione_segnalazione_comune_dao.dart';
 class MunicipalityReportManagementController {
   /// The page to navigate to after certain actions, such as adding a report.
   final Widget? redirectPage;
+
   /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
-  final MunicipalityReportManagementDAO _reportDAO= MunicipalityReportManagementDAO();
+  final MunicipalityReportManagementDAO _reportDAO =
+      MunicipalityReportManagementDAO();
   final UserManagementDAO _userManagementDAO = UserManagementDAO();
   final BuildContext? _context;
   Municipality? _municipality;
-  final Completer<Municipality> _municipalityCompleter = Completer<Municipality>();
-
+  final Completer<Municipality> _municipalityCompleter =
+      Completer<Municipality>();
 
   /// Constructs a `CitizenReportManagementController`.
   ///
@@ -154,7 +156,6 @@ class MunicipalityReportManagementController {
     }
   }
 
-
   /// Loads the municipality data.
   /// This method loads the municipality data from the Firestore database.
   /// If the user is not logged in or is not a municipality, it throws an exception.
@@ -191,7 +192,8 @@ class MunicipalityReportManagementController {
   ///
   /// ### Returns:
   /// A `Future` that completes with a list of maps containing the report data, or an empty list if the municipality is not set.
-  Future<List<Map<String, dynamic>>?> getMunicipalityReports({bool reset = false}) async {
+  Future<List<Map<String, dynamic>>?> getMunicipalityReports(
+      {bool reset = false}) async {
     if (_municipality == null || _municipality!.municipalityName == null) {
       return [];
     }
@@ -202,7 +204,6 @@ class MunicipalityReportManagementController {
     );
     return snapshot;
   }
-
 
   /// Filters the reports based on the specified criteria.
   /// This method filters the reports based on the specified status, priority, and category of a specified city.
@@ -220,13 +221,12 @@ class MunicipalityReportManagementController {
   /// - If no reports are found, it returns an empty list.
   /// - If the user is not valid, it returns `null`.
   Future<List<Map<String, dynamic>>?> filterReportsBy(
-      { List<StatusReport>? status,
-        List<PriorityReport>? priority,
-        List<Category>? category,
-        DateTimeRange? dateRange,
-        String? keyword}) async {
-
-    if(_municipality == null || _municipality!.municipalityName == null) {
+      {List<StatusReport>? status,
+      List<PriorityReport>? priority,
+      List<Category>? category,
+      DateTimeRange? dateRange,
+      String? keyword}) async {
+    if (_municipality == null || _municipality!.municipalityName == null) {
       return null;
     }
 
@@ -238,20 +238,18 @@ class MunicipalityReportManagementController {
     Timestamp? startRange;
     Timestamp? endRange;
 
-    if(dateRange != null) {
+    if (dateRange != null) {
       startRange = Timestamp.fromDate(dateRange.start);
       endRange = Timestamp.fromDate(dateRange.end);
     }
 
-    List<Map<String, dynamic>>? snapshot = await _reportDAO.filterMunicipalityReportsBy(
-        criteria: criteria,
-        keyword: keyword,
-        reportDateStart: startRange,
-        reportDateEnd: endRange,
-        city: _municipality!.municipalityName!
-    );
+    List<Map<String, dynamic>>? snapshot =
+        await _reportDAO.filterMunicipalityReportsBy(
+            criteria: criteria,
+            keyword: keyword,
+            reportDateStart: startRange,
+            reportDateEnd: endRange,
+            city: _municipality!.municipalityName!);
     return snapshot;
   }
-
-
 }

@@ -17,7 +17,8 @@ class ReportsViewMunicipalityGUI extends StatefulWidget {
   const ReportsViewMunicipalityGUI({super.key});
 
   @override
-  State<ReportsViewMunicipalityGUI> createState() => _ReportsListMunicipalityState();
+  State<ReportsViewMunicipalityGUI> createState() =>
+      _ReportsListMunicipalityState();
 }
 
 class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
@@ -47,13 +48,14 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent &&
+                _scrollController.position.maxScrollExtent &&
             _hasMoreData &&
             !_isLoadingMore) {
           _loadUpdateData();
         }
       });
-    _reportController = MunicipalityReportManagementController(context: context);
+    _reportController =
+        MunicipalityReportManagementController(context: context);
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
   }
@@ -72,11 +74,11 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     if (_isLoading) {
       return _hasMoreData
           ? const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      )
+              body: Center(child: CircularProgressIndicator()),
+            )
           : const Scaffold(
-        body: Center(child: Text('Fine.')),
-      );
+              body: Center(child: Text('Fine.')),
+            );
     }
 
     return _buildScaffold();
@@ -178,21 +180,21 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                 child: _buildHeader(),
               ),
               (_userData.isEmpty)
-              // Check if there are any reports to show
-              // Show a message if there are no reports
+                  // Check if there are any reports to show
+                  // Show a message if there are no reports
                   ? SliverFillRemaining(
-                child: Center(
-                  child: Text(
-                    'Nessuna segnalazione trovata.',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-              )
+                      child: Center(
+                        child: Text(
+                          'Nessuna segnalazione trovata.',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    )
                   :
 
-              /// Show the list of reports if there are any
-              // Scrollable list
-              _buildReportsList(),
+                  /// Show the list of reports if there are any
+                  // Scrollable list
+                  _buildReportsList(),
             ],
           ),
         ),
@@ -221,13 +223,11 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
             elevation: 2,
             shadowColor: Colors.black.withOpacity(0.5),
             child: Padding(
-              padding:
-              const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-
                   /// Filter Button
                   Stack(
                     clipBehavior: Clip.none,
@@ -244,15 +244,17 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                               isScrollControlled: true,
                               builder: (context) => _municipality != null
                                   ? FilterModal(
-                                dateRange: _dateRange,
-                                defaultCity: _municipality!.municipalityName ?? '',
-                                categoryCriteria: _categoryCriteria,
-                                statusCriteria: _statusCriteria,
-                                priorityCriteria: _priorityCriteria,
-                                startCity: _municipality!.municipalityName ?? '',
-                                onSubmit: _filterData,
-                                onReset: _resetFilters,
-                              )
+                                      dateRange: _dateRange,
+                                      defaultCity:
+                                          _municipality!.municipalityName ?? '',
+                                      categoryCriteria: _categoryCriteria,
+                                      statusCriteria: _statusCriteria,
+                                      priorityCriteria: _priorityCriteria,
+                                      startCity:
+                                          _municipality!.municipalityName ?? '',
+                                      onSubmit: _filterData,
+                                      onReset: _resetFilters,
+                                    )
                                   : const SizedBox());
                         },
                       ),
@@ -291,53 +293,51 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-            (context, index) {
+        (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
           Report store = Report(
-            reportId: report['reportId'],
-            title: report['title'],
-            uid: report['uid'],
-            authorFirstName: '${report['authorFirstName']}',
-            authorLastName: '${report['authorLastName']}',
-            description: report['description'],
-            status: StatusReport.getStatus(report['status']) ??
-                StatusReport.rejected,
-            priority: PriorityReport.getPriority(report['priority']) ??
-                PriorityReport.unset,
-            reportDate: report['reportDate'],
-            address: report['address'] == null
-                ? {'street': 'N/A', 'number': 'N/A'}
-                : {
-              'street': report['address']['street'] ?? 'N/A',
-              'number': report['address']['number'] ?? 'N/A',
-            },
-            city: report['city'],
-              photo: report['photo']
-          );
+              reportId: report['reportId'],
+              title: report['title'],
+              uid: report['uid'],
+              authorFirstName: '${report['authorFirstName']}',
+              authorLastName: '${report['authorLastName']}',
+              description: report['description'],
+              status: StatusReport.getStatus(report['status']) ??
+                  StatusReport.rejected,
+              priority: PriorityReport.getPriority(report['priority']) ??
+                  PriorityReport.unset,
+              reportDate: report['reportDate'],
+              address: report['address'] == null
+                  ? {'street': 'N/A', 'number': 'N/A'}
+                  : {
+                      'street': report['address']['street'] ?? 'N/A',
+                      'number': report['address']['number'] ?? 'N/A',
+                    },
+              city: report['city'],
+              photo: report['photo']);
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-            report: store,
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          DettagliSegnalazioneComune(report: store)
-                  ),
-              );
-            },
-          );
+                  report: store,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              DettagliSegnalazioneComune(report: store)),
+                    );
+                  },
+                );
         },
       ),
     );
@@ -359,7 +359,6 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     });
     await Future.delayed(const Duration(seconds: 1));
   }
-
 
   /// Builds the search bar
   /// /// Builds the search bar widget.
@@ -391,7 +390,11 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                 onPressed: () {
                   if (_keyWords != null && _keyWords!.isNotEmpty ||
                       _numberOfFilters > 0) {
-                    _filterData(city: _municipality?.municipalityName, keyWords: _keyWords, popNav: false, isCityEnabled: false);
+                    _filterData(
+                        city: _municipality?.municipalityName,
+                        keyWords: _keyWords,
+                        popNav: false,
+                        isCityEnabled: false);
                   }
                 },
               ),
@@ -410,7 +413,11 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                   },
                   onSubmitted: (value) {
                     if (value.isNotEmpty || _numberOfFilters > 0) {
-                      _filterData(city: _municipality?.municipalityName, keyWords: _keyWords, popNav: false, isCityEnabled: false);
+                      _filterData(
+                          city: _municipality?.municipalityName,
+                          keyWords: _keyWords,
+                          popNav: false,
+                          isCityEnabled: false);
                     }
                   },
                 ),
@@ -422,7 +429,6 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     );
   }
 
-
   /// Filters the data based on the selected filters.
   /// Parameters:
   /// - status: The list of selected status filters.
@@ -432,15 +438,14 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
   /// This method fetches the reports based on the selected filters and updates the state with the new data.
   /// If an error occurs during the filtering process, the error message is displayed.
   Future<void> _filterData(
-      { String? city,
-        List<StatusReport>? status,
-        List<PriorityReport>? priority,
-        List<Category>? category,
-        String? keyWords,
-        DateTimeRange? dateRange,
-        bool? isCityEnabled,
-        bool? popNav = false}) async {
-
+      {String? city,
+      List<StatusReport>? status,
+      List<PriorityReport>? priority,
+      List<Category>? category,
+      String? keyWords,
+      DateTimeRange? dateRange,
+      bool? isCityEnabled,
+      bool? popNav = false}) async {
     _numberOfFilters = 0;
     _numberOfFilters += status?.length ?? 0;
     _numberOfFilters += priority?.length ?? 0;
@@ -455,28 +460,26 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     });
 
     try {
-        _reportController
-            .filterReportsBy(
-            status: status,
-            priority: priority,
-            category: category,
-            dateRange: dateRange,
-            keyword: keyWords)
-            .then((value) async {
+      _reportController
+          .filterReportsBy(
+              status: status,
+              priority: priority,
+              category: category,
+              dateRange: dateRange,
+              keyword: keyWords)
+          .then((value) async {
+        _userData.clear();
 
-          _userData.clear();
-
-          if (mounted) {
-            setState(() {
-              if (value != null && value.isNotEmpty) {
-                _userData.addAll(value);
-              } else {
-                _errorText = 'Nessuna segnalazione trovata';
-              }
-            });
-          }
-        });
-
+        if (mounted) {
+          setState(() {
+            if (value != null && value.isNotEmpty) {
+              _userData.addAll(value);
+            } else {
+              _errorText = 'Nessuna segnalazione trovata';
+            }
+          });
+        }
+      });
     } catch (e) {
       _errorText = 'Errore durante il caricamento filtrato: $e';
     } finally {
@@ -496,7 +499,4 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     Navigator.pop(context);
     await _pullRefresh();
   }
-
-
-
 }

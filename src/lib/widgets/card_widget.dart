@@ -80,8 +80,8 @@ class CardWidget extends StatelessWidget {
                             ],
                           ),
                         ),
-
                       ),
+
                       /// Right section containing the image.
                       Expanded(
                         child: ClipRRect(

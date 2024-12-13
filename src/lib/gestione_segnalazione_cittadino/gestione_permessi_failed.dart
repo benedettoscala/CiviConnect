@@ -10,11 +10,12 @@ import 'package:flutter/material.dart';
 class PermissionPage extends StatelessWidget {
   /// The page to navigate to when the button is pressed.
   final Widget redirectPage;
-/// The error message to display.
-final String error;
 
-/// The icon to display.
-final IconData icon;
+  /// The error message to display.
+  final String error;
+
+  /// The icon to display.
+  final IconData icon;
 
   /// Constructs a new `LocationPermissionPage` instance.
   ///
