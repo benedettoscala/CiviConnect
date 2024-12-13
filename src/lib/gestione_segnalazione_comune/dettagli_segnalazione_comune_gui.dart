@@ -60,7 +60,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
             ),
         onPriorityButton: () => onChangeValue(
               title: 'Cambia Priorità',
-              objectType: PriorityReport.values,
+              objectType: PriorityReport.values.where((value) => value != PriorityReport.unset).toList(),
               objectTarget: widget._report,
               onValueSelected: (value) {
                 //implement showMessage if it works
