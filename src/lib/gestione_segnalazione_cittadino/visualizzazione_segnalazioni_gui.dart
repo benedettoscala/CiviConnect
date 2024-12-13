@@ -469,12 +469,13 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// This method fetches the reports based on the selected filters and updates the state with the new data.
   /// If an error occurs during the filtering process, the error message is displayed.
   Future<void> _filterData(
-      {required String city,
+      {String? city,
       List<StatusReport>? status,
       List<PriorityReport>? priority,
       List<Category>? category,
       String? keyWords,
       DateTimeRange? dateRange,
+      bool? isCityEnabled, // Not used in this method but required for the method signature
       bool? popNav = false}) async {
     _numberOfFilters = 0;
     _numberOfFilters += status?.length ?? 0;
@@ -493,7 +494,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _reportController.citizen.then((value) async {
         _citizen = value;
 
-          if (await _checkValidity(city)) {
+          if (await _checkValidity(city ?? '')) {
             _citySelected = city;
           } else {
             _citySelected = _citizen!.city;
@@ -503,7 +504,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
         _reportController
             .filterReportsBy(
-                city: city,
+                city: city ?? '',
                 status: status,
                 priority: priority,
                 category: category,
