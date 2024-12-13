@@ -170,7 +170,7 @@ class _InserimentoSegnalazioneGUIState
           items: Category.values.map((category) {
             return DropdownMenuItem<Category>(
               value: category,
-              child: Text(category.name()),
+              child: Text(category.name),
             );
           }).toList(),
           onChanged: (value) => {
