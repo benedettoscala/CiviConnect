@@ -5,12 +5,12 @@ import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/widgets/logo_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter/foundation.dart';
 
 import 'firebase_options.dart';
 
