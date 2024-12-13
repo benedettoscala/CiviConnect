@@ -287,7 +287,7 @@ class _BottomLoginRedirectButtons extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const RegistrazioneUtenteGui()),
+                      builder: (context) => RegistrazioneUtenteGui()),
                 );
               },
               child: Text(
