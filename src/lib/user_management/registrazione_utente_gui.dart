@@ -325,7 +325,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
       return;
     }
 
-    bool isMatching = await isCapMatchingCityAPI(cap, city);
+    bool isMatching = await _controller.isCapMatchingCityAPI(cap, city);
     //print(isMatching);
     if (!isMatching) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -364,53 +364,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
         ),
       );
     }
-  }
-}
-
-/// Verifica se il CAP fornito corrisponde alla città utilizzando un file JSON locale.
-///
-/// Questo metodo legge un file JSON locale contenente una lista di CAP e città,
-/// e controlla se il CAP specificato corrisponde alla città data. Restituisce `true`
-/// se il CAP corrisponde alla città, altrimenti `false`.
-///
-/// Parametri:
-/// - [cap]: Il codice postale da verificare.
-/// - [city]: Il nome della città da verificare rispetto al CAP.
-///
-/// Ritorna:
-/// - Un `Future<bool>` che risolve a `true` se il CAP corrisponde alla città,
-///   altrimenti `false`.
-///
-/// Esempio:
-/// ```dart
-/// bool isMatching = await isCapMatchingCityAPI('00100', 'Rome');
-/// if (isMatching) {
-///   print('Il CAP corrisponde alla città.');
-/// } else {
-///   print('Il CAP non corrisponde alla città.');
-/// }
-/// ```
-
-Future<bool> isCapMatchingCityAPI(String cap, String city) async {
-  try {
-    // Legge il contenuto del file JSON dalla directory "files"
-    final jsonData = await rootBundle
-        .loadString('assets/files/comuni-localita-cap-italia.json');
-
-    // Decodifica il contenuto del file in una lista di mappe
-    final List<dynamic> comuniData =
-        json.decode(jsonData)['Sheet 1 - comuni-localita-cap-i'];
-
-    // Cerca se c'è un elemento con il CAP e il Comune corrispondente
-    final match = comuniData.any((element) =>
-        element['CAP'] == cap &&
-        element['Comune Localita’'].toLowerCase() == city.toLowerCase());
-
-    return match; // Restituisce true se corrisponde, altrimenti false
-  } catch (e) {
-    // In caso di errore (es. file non trovato), stampa il problema e restituisce false
-    //print('Errore nel controllo CAP-Città: $e');
-    return false;
   }
 }
 
