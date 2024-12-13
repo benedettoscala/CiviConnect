@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../model/report_model.dart';
 import '../model/users_model.dart';
 import '../user_management/user_management_dao.dart';
 import '../utils/report_status_priority.dart';
@@ -152,6 +154,11 @@ class MunicipalityReportManagementController {
     }
   }
 
+
+  /// Loads the municipality data.
+  /// This method loads the municipality data from the Firestore database.
+  /// If the user is not logged in or is not a municipality, it throws an exception.
+  /// If the municipality data is successfully loaded, it completes the `_municipalityCompleter`.
   void _loadMunicipality() async {
     try {
       final user = await _userManagementDAO.determineUserType();
@@ -195,4 +202,56 @@ class MunicipalityReportManagementController {
     );
     return snapshot;
   }
+
+
+  /// Filters the reports based on the specified criteria.
+  /// This method filters the reports based on the specified status, priority, and category of a specified city.
+  /// If no criteria are specified, it returns the list of all reports of the current city.
+  ///
+  /// Parameters:
+  /// - [city]: The city to filter by.
+  /// - [status]: The list of status criteria to filter by.
+  /// - [priority]: The list of priority criteria to filter by.
+  /// - [category]: The list of category criteria to filter by.
+  /// - [dateRange]: The date range to filter by, used as [startDate, endDate].
+  ///
+  /// Returns:
+  /// - A [Future] that resolves to a list of maps, where each map contains the report details.
+  /// - If no reports are found, it returns an empty list.
+  /// - If the user is not valid, it returns `null`.
+  Future<List<Map<String, dynamic>>?> filterReportsBy(
+      { List<StatusReport>? status,
+        List<PriorityReport>? priority,
+        List<Category>? category,
+        DateTimeRange? dateRange,
+        String? keyword}) async {
+
+    if(_municipality == null || _municipality!.municipalityName == null) {
+      return null;
+    }
+
+    Map<String, List<dynamic>> criteria = {
+      if (status != null) 'status': status.map((e) => e.name).toList(),
+      if (priority != null) 'priority': priority.map((e) => e.name).toList(),
+      if (category != null) 'category': category.map((e) => e.name).toList(),
+    };
+    Timestamp? startRange;
+    Timestamp? endRange;
+
+    if(dateRange != null) {
+      startRange = Timestamp.fromDate(dateRange.start);
+      endRange = Timestamp.fromDate(dateRange.end);
+    }
+
+    List<Map<String, dynamic>>? snapshot = await _reportDAO.filterMunicipalityReportsBy(
+        criteria: criteria,
+        keyword: keyword,
+        reportDateStart: startRange,
+        reportDateEnd: endRange,
+        city: _municipality!.municipalityName!
+    );
+    return snapshot;
+  }
+
+
 }
