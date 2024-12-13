@@ -9,8 +9,10 @@ class CitizenReportManagementDAO {
 
   /// The data access object for user management.
   final UserManagementDAO _userManagementDAO;
+
   /// The Firestore instance.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   /// The last document retrieved in the previous query.
   DocumentSnapshot? _lastDocument;
 
@@ -21,7 +23,8 @@ class CitizenReportManagementDAO {
   ///
   /// Parameters:
   /// - [userManagementDAO]: An optional instance of `UserManagementDAO`. If not provided, a new instance of `UserManagementDAO` will be created.
-  CitizenReportManagementDAO({UserManagementDAO? userManagementDAO}) : _userManagementDAO = userManagementDAO ?? UserManagementDAO();
+  CitizenReportManagementDAO({UserManagementDAO? userManagementDAO})
+      : _userManagementDAO = userManagementDAO ?? UserManagementDAO();
 
   /// Retrieves a list of reports for a given city.
   ///
@@ -37,31 +40,31 @@ class CitizenReportManagementDAO {
   ///
   /// Preconditions:
   /// - The user must be logged in and either a `Municipality` with the specified city name or a `Citizen`.
-  Future<List<Map<String, dynamic>>?> getReportList({required String city, bool? reset}) async {
-      if(reset == true){
-        _isEnded = false;
-        _lastDocument = null;
-      }
+  Future<List<Map<String, dynamic>>?> getReportList(
+      {required String city, bool? reset}) async {
+    if (reset == true) {
+      _isEnded = false;
+      _lastDocument = null;
+    }
 
-      if(! await _checkForUserValidity(city) || _isEnded){
-        return null;
-      }
+    if (!await _checkForUserValidity(city) || _isEnded) {
+      return null;
+    }
 
-      return await _getTenReportsByOffset(city: city);
+    return await _getTenReportsByOffset(city: city);
   }
 
-
-/// Adds a new report to the Firestore database.
-///
-/// Parameters:
-/// - [reportData]: The report data to be added.
-///
-/// Returns:
-/// - A `Future<bool>` indicating whether the report was successfully added.
-///
-/// Throws:
-/// - [Exception]: If there is an error adding the report.
-Future<bool> addReport(Report reportData) async {
+  /// Adds a new report to the Firestore database.
+  ///
+  /// Parameters:
+  /// - [reportData]: The report data to be added.
+  ///
+  /// Returns:
+  /// - A `Future<bool>` indicating whether the report was successfully added.
+  ///
+  /// Throws:
+  /// - [Exception]: If there is an error adding the report.
+  Future<bool> addReport(Report reportData) async {
     try {
       await _firebaseFirestore
           .collection('reports')
@@ -74,7 +77,6 @@ Future<bool> addReport(Report reportData) async {
     return true;
   }
 
-
   /// Retrieves a list of reports created by a specific user.
   ///
   /// Parameters:
@@ -86,7 +88,8 @@ Future<bool> addReport(Report reportData) async {
   ///
   /// Throws:
   /// - [Exception]: If the user is not logged in.
-  Future<List<Map<String, dynamic>>?> getUserReportList({required String userId, bool? reset}) async {
+  Future<List<Map<String, dynamic>>?> getUserReportList(
+      {required String userId, bool? reset}) async {
     if (reset == true) {
       _isEnded = false;
       _lastDocument = null;
@@ -98,8 +101,6 @@ Future<bool> addReport(Report reportData) async {
 
     return await _getTenReportsByUser(userId: userId);
   }
-
-
 
   /* --------------------------- PRIVATE METHODS ---------------------------------- */
 
@@ -114,9 +115,14 @@ Future<bool> addReport(Report reportData) async {
   ///
   /// Throws:
   /// - [Exception]: If there is an error retrieving the data.
-  Future<List<Map<String, dynamic>>?> _getTenReportsByOffset({required String city}) async {
-    Query<Map<String, dynamic>> query = _firestore.collection('reports').doc(city.toLowerCase()).collection('${city.toLowerCase()}_reports')
-      .orderBy('title', descending: true).limit(10);
+  Future<List<Map<String, dynamic>>?> _getTenReportsByOffset(
+      {required String city}) async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection('reports')
+        .doc(city.toLowerCase())
+        .collection('${city.toLowerCase()}_reports')
+        .orderBy('title', descending: true)
+        .limit(10);
 
     // If the last document is not null, the query starts after the last document of the previous query.
     if (_lastDocument != null) {
@@ -126,30 +132,28 @@ Future<bool> addReport(Report reportData) async {
     try {
       final querySnapshot = await query.get();
       // If the query is empty or the last document is the same as the previous one, the query is ended.
-      if (_isEnded || querySnapshot.docs.isEmpty || _lastDocument == querySnapshot.docs.last){
+      if (_isEnded ||
+          querySnapshot.docs.isEmpty ||
+          _lastDocument == querySnapshot.docs.last) {
         _isEnded = true;
         return null;
       }
 
-    //Retrieve the data from the query snapshot.
-    var data = querySnapshot.docs.map((doc) {
+      //Retrieve the data from the query snapshot.
+      var data = querySnapshot.docs.map((doc) {
         // Add the reportId to the data.
         final d = doc.data();
         d['reportId'] = doc.id;
         return d;
-    }
-    ).toList();
-    // Update the last document.
-    _lastDocument  = querySnapshot.docs.last;
-
+      }).toList();
+      // Update the last document.
+      _lastDocument = querySnapshot.docs.last;
 
       return data;
-
     } catch (e) {
       throw Exception('Error retrieving data: $e');
     }
   }
-
 
   ///
   /// Parameters:
@@ -158,13 +162,15 @@ Future<bool> addReport(Report reportData) async {
   ///
   /// Returns:
   /// - A \`Future<List<Map<String, dynamic>>?>\` containing the next ten reports created by the specified user, or \`null\` if the user is not valid.
-  Future<List<Map<String, dynamic>>?> _getTenReportsByUser({required String userId}) async {
+  Future<List<Map<String, dynamic>>?> _getTenReportsByUser(
+      {required String userId}) async {
     List<Map<String, dynamic>> allReports = [];
     try {
       // Get all city collections
       final cityCollections = await _firestore.collection('reports').get();
       for (var cityDoc in cityCollections.docs) {
-        Query<Map<String, dynamic>> query = cityDoc.reference.collection('${cityDoc.id}_reports')
+        Query<Map<String, dynamic>> query = cityDoc.reference
+            .collection('${cityDoc.id}_reports')
             .where('uid', isEqualTo: userId)
             .limit(10);
 
@@ -176,11 +182,11 @@ Future<bool> addReport(Report reportData) async {
         final querySnapshot = await query.get();
         if (querySnapshot.docs.isNotEmpty) {
           allReports.addAll(querySnapshot.docs.map((doc) {
-        // Add the reportId to the data.
-        final d = doc.data();
-        d['reportId'] = doc.id;
-        return d;
-        }).toList());
+            // Add the reportId to the data.
+            final d = doc.data();
+            d['reportId'] = doc.id;
+            return d;
+          }).toList());
           _lastDocument = querySnapshot.docs.last;
         }
       }
@@ -191,7 +197,6 @@ Future<bool> addReport(Report reportData) async {
       }
 
       return allReports;
-
     } catch (e) {
       throw Exception('Error retrieving data: $e');
     }
@@ -214,6 +219,7 @@ Future<bool> addReport(Report reportData) async {
     if (user == null) {
       throw Exception('Utente non loggato!');
     }
-    return (user is Municipality && (user).municipalityName == city) || user is Citizen;
+    return (user is Municipality && (user).municipalityName == city) ||
+        user is Citizen;
   }
 }

@@ -29,16 +29,14 @@ enum Category {
 
   /// Returns the category based on the [name].
   static Category? getCategory(String name) {
-    for(Category category in Category.values) {
-      if(category.name() == name) {
+    for (Category category in Category.values) {
+      if (category.name() == name) {
         return category;
       }
     }
     return null;
   }
 }
-
-
 
 /// Class representing a report in the system.
 ///
@@ -143,7 +141,6 @@ class Report {
     this.authorLastName,
     Map<String, String>? address,
   }) : address = Citizen.validateAddress(address);
-
 
   /// Converts a `Report` instance to a map.
   ///

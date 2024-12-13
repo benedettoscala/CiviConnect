@@ -148,7 +148,8 @@ class AdminManagementController {
     String emailGen = 'comune.$municipalityEmailPart@anci.gov';
     String passwordGen = generatePassword();
 
-    if (validateEmail(emailGen) != null || validatePassword(passwordGen) != null) {
+    if (validateEmail(emailGen) != null ||
+        validatePassword(passwordGen) != null) {
       throw ('Errore nella generazione delle credenziali');
     }
 

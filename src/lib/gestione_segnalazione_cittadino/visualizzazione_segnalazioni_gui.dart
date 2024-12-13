@@ -46,7 +46,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           _loadUpdateData();
         }
       });
-    _reportController = CitizenReportManagementController(redirectPage: const HomePage());
+    _reportController =
+        CitizenReportManagementController(redirectPage: const HomePage());
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
   }
