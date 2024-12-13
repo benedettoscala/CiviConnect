@@ -17,10 +17,15 @@ import 'login_utente_gui.dart';
 /// Registration page for new users.
 class RegistrazioneUtenteGui extends StatefulWidget {
   /// Registration page for new users.
-  const RegistrazioneUtenteGui({super.key});
+  RegistrazioneUtenteGui({super.key, UserManagementController? controller})
+      : _controller = (controller == null)
+            ? UserManagementController(redirectPage: const HomePage())
+            : controller;
+
+  final UserManagementController _controller;
 
   @override
-  State<RegistrazioneUtenteGui> createState() => _RegistrazioneUtenteGuiState();
+  State<RegistrazioneUtenteGui> createState() => _RegistrazioneUtenteGuiState(_controller);
 }
 
 class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
@@ -36,6 +41,20 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   };
   bool obscureText = true;
   final _formKey = GlobalKey<FormBuilderState>();
+  // Sends the email and password to the controller.
+  late UserManagementController _controller;
+  final _passKey = Key('passwordField');
+  final _emailKey = Key('emailField');
+  final _firstNameKey = Key('nameField');
+  final _lastNameKey = Key('surnameField');
+  final _cityKey = Key('cityField');
+  final _capKey = Key('capField');
+  final _streetKey = Key('viaField');
+  final _numberKey = Key('civicoField');
+  
+  _RegistrazioneUtenteGuiState(UserManagementController? controller) {
+    _controller = controller ?? UserManagementController(redirectPage: const HomePage());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +87,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _emailKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.email(),
                           FormBuilderValidators.required(),
@@ -84,6 +104,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _passKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.password(
                               minLength: 8, maxLength: 4096),
@@ -112,6 +133,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         ),
                       ),
                       FormBuilderTextField(
+                        key: _firstNameKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'Il nome è obbligatorio'),
@@ -134,6 +156,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _lastNameKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'Il cognome è obbligatorio'),
@@ -156,6 +179,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _cityKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'La città è obbligatoria'),
@@ -178,6 +202,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _capKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'Il CAP è obbligatorio'),
@@ -201,6 +226,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                           Expanded(
                             flex: 2,
                             child: FormBuilderTextField(
+                              key: _streetKey,
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
                                     errorText: 'La via è obbligatoria'),
@@ -223,6 +249,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                           Expanded(
                             flex: 1,
                             child: FormBuilderTextField(
+                              key: _numberKey,
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
                                     errorText: 'N. Civico obbligatorio'),
@@ -252,6 +279,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
+                    key: const Key('registerButton'),
                     style: Theme.of(context).elevatedButtonTheme.style,
                     onPressed: () => _sendData(email, password, firstName,
                         lastName, city, cap, address),
@@ -314,11 +342,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
       return;
     }
 
-    // Sends the email and password to the controller.
-    UserManagementController controller =
-        UserManagementController(redirectPage: const HomePage());
-
-    validUser = await controller.register(context,
+    validUser = await _controller.register(context,
         email: email,
         password: password,
         name: firstName,
