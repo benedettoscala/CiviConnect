@@ -38,44 +38,50 @@ class CardWidget extends StatelessWidget {
               child: Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       /// Left section containing name, status, and description.
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.55,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: AssetImage(
-                                      'assets/images/profile/${_report.uid.hashCode % 6}.jpg'),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    '${_report.authorFirstName} ${_report.authorLastName}',
-                                    style: textTheme.titleMedium,
-                                    overflow: TextOverflow.ellipsis,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 5, 3, 3),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.55,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundImage: AssetImage(
+                                        'assets/images/profile/${_report.uid.hashCode % 6}.jpg'),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                _report.description!,
-                                style: textTheme.bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      '${_report.authorFirstName} ${_report.authorLastName}',
+                                      style: textTheme.titleMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  _report.description!,
+                                  style: textTheme.bodyMedium,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
+                              ),
+                              //const Expanded(child: SizedBox(height: 10)),
+                            ],
+                          ),
                         ),
-                      ),
 
+                      ),
                       /// Right section containing the image.
                       Expanded(
                         child: ClipRRect(
@@ -175,7 +181,7 @@ class _StatusReport extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(7.0),
             child: Text(
-              status.name(),
+              status.name,
               style: textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),
