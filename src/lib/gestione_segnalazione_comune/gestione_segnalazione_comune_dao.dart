@@ -66,7 +66,7 @@ class MunicipalityReportManagementDAO {
           .doc(city?.toLowerCase())
           .collection('${city?.toLowerCase()}_reports')
           .doc(reportId)
-          .update({'status': newStatus.name()});
+          .update({'status': newStatus.name});
     } catch (e) {
       throw const PermissionDeniedException(
           'You do not have the permissions to modify the status of the report');
