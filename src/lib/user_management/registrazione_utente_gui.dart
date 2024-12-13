@@ -1,11 +1,9 @@
-import 'dart:convert';
 
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 //import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
@@ -43,14 +41,14 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   final _formKey = GlobalKey<FormBuilderState>();
   // Sends the email and password to the controller.
   late UserManagementController _controller;
-  final _passKey = Key('passwordField');
-  final _emailKey = Key('emailField');
-  final _firstNameKey = Key('nameField');
-  final _lastNameKey = Key('surnameField');
-  final _cityKey = Key('cityField');
-  final _capKey = Key('capField');
-  final _streetKey = Key('viaField');
-  final _numberKey = Key('civicoField');
+  final _passKey = const Key('passwordField');
+  final _emailKey = const Key('emailField');
+  final _firstNameKey = const Key('nameField');
+  final _lastNameKey = const Key('surnameField');
+  final _cityKey = const Key('cityField');
+  final _capKey = const Key('capField');
+  final _streetKey = const Key('viaField');
+  final _numberKey = const Key('civicoField');
   
   _RegistrazioneUtenteGuiState(UserManagementController? controller) {
     _controller = controller ?? UserManagementController(redirectPage: const HomePage());
