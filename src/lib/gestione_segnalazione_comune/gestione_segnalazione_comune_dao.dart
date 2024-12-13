@@ -161,6 +161,91 @@ class MunicipalityReportManagementDAO {
     }
   }
 
+
+  /// Retrieves a list of reports for a given city filtered by the specified criteria.
+  /// The criteria are specified as a map where the key is the field to filter by and the value is a list of values to filter.
+  ///
+  /// The reports are filtered by the specified criteria and the city.
+  /// At a given time, all criteria are applied to a specific city.
+  /// The criteria are combined with an AND operator.
+  ///
+  /// Parameters:
+  /// - [criteria]: A map containing the criteria to filter by.
+  ///   It is a map where the key is the field to filter by and the value is a list of values to filter.
+  /// - [city]: The name of the city for which to retrieve the reports.
+  /// - [reportDateStart]: An optional start date to filter the reports.
+  /// - [reportDateEnd]: An optional end date to filter the reports.
+  /// - [keyword]: An optional keyword to filter the reports by title or description.
+  ///
+  /// Returns:
+  /// - A `Future<List<Map<String, dynamic>>?>` containing the list of reports for the specified city filtered by the criteria, or `null` if the user is not valid.
+  Future<List<Map<String, dynamic>>?> filterMunicipalityReportsBy(
+      {required Map<String, List<dynamic>> criteria,
+        required String city,
+        Timestamp? reportDateStart,
+        Timestamp? reportDateEnd,
+        String? keyword}) async {
+    city = city.toLowerCase().trim();
+    keyword = keyword?.toLowerCase().trim();
+
+    Query<Map<String, dynamic>> query = _firestore
+        .collection('reports')
+        .doc(city.toLowerCase())
+        .collection('${city.toLowerCase()}_reports');
+
+    for (var key in criteria.keys) {
+      if (criteria[key] != null && criteria[key]!.isNotEmpty) {
+        query = query.where(key, whereIn: criteria[key]);
+      }
+    }
+
+    List<Map<String, dynamic>>? results;
+    try {
+      final querySnapshot = await query.limit(100).get(); // Check limit
+
+      if (querySnapshot.docs.isEmpty) {
+        return null;
+      }
+
+      // Local Filtering Data since Firebase is not supporting OR operator
+      // and it does not support string.contains or similar methods
+      // Note: This is not efficient for large data
+      // Note: could be done in the backend by using Algolia or ElasticSearch
+      // or adding a new field with the concatenated data as an array in the report document
+
+      results = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+      if (keyword != null && keyword.isNotEmpty) {
+        results = results
+            .where((report) =>
+        report['title'].toLowerCase().contains(keyword!) ||
+            report['description'].toLowerCase().contains(keyword))
+            .toList();
+      }
+
+      // Date filter is applied after the keyword filter
+      // It is applied locally since Firebase requires an index for composite queries for each document (city)
+      if (reportDateStart != null) {
+        reportDateEnd ??= Timestamp.now();
+        results = results
+            .where((report) =>
+        reportDateStart.compareTo(report['reportDate']) <= 0 &&
+            reportDateEnd!.compareTo(report['reportDate']) >= 0)
+            .toList();
+      }
+
+      if (reportDateEnd != null) {
+        query = query.where('reportDate', isLessThanOrEqualTo: reportDateEnd);
+      }
+    } catch (e) {
+      return null;
+    }
+    return results;
+  }
+
+
+
+
   /* --------------------------- PRIVATE METHODS ---------------------------------- */
 
   /// Retrieves the next ten reports for a given city, starting from the last retrieved report.
