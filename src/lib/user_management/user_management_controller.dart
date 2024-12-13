@@ -1,4 +1,5 @@
 import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../model/users_model.dart';
@@ -243,7 +244,11 @@ class UserManagementController {
   ///   print("User type could not be determined");
   /// }
   /// ```
-  Future<GenericUser?> determineUserType() async {
-    return await UserManagementDAO().determineUserType();
+Future<GenericUser?> determineUserType() async {
+  return await UserManagementDAO().determineUserType();
+}
+
+  User? getcurrentUser() {
+    return UserManagementDAO().currentUser;
   }
 }
