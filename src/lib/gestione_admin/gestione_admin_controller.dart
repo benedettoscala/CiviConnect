@@ -152,10 +152,6 @@ class AdminManagementController {
       throw ('Errore nella generazione delle credenziali');
     }
 
-    emailComune = 'spidertoro.cit@gmail.comv';
-    print(emailGen);
-    print(passwordGen);
-    print(emailComune);
     await _daoAdmin.createAccountAndSendCredentials(emailGen, passwordGen, emailComune, selectedMunicipality, adminPassword);
 
     // Save credentials to the database

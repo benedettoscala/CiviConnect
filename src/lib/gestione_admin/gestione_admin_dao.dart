@@ -143,6 +143,7 @@ class AdminManagementDAO {
       String comune = selectedComune['Comune']!.toLowerCase();
       String provincia = selectedComune['Provincia']!;
 
+      print(emailComune);
 
       // Logged as admin
       // Save the municipality data to Firestore.
