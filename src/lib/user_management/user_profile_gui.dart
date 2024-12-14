@@ -106,7 +106,7 @@ class _UserProfileState extends State<UserProfile> {
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const FirstPage()),
+                                  builder: (context) => const FirstPage(isLogout: true)),
                               (route) => false,
                             );
                           } catch (e) {
