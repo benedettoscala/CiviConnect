@@ -234,8 +234,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                               _allMunicipalities, textEditingValue.text);
                         }
                       },
-                      displayStringForOption: (comune) =>
-                          comune['Comune']!,
+                      displayStringForOption: (comune) => comune['Comune']!,
                       fieldViewBuilder: (
                         context,
                         textEditingController,

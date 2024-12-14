@@ -38,8 +38,6 @@ enum Category {
   }
 }
 
-
-
 /// Class representing a report in the system.
 ///
 /// This class encapsulates the details of a report, including its
@@ -143,7 +141,6 @@ class Report {
     this.authorLastName,
     Map<String, String>? address,
   }) : address = Citizen.validateAddress(address);
-
 
   /// Converts a `Report` instance to a map.
   ///
