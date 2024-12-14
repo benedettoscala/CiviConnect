@@ -42,6 +42,16 @@ class _InserimentoSegnalazioneGUIState
   List<String>? _badWords;
   late bool _isLoading = false;
 
+  final _titoloKey = Key('Titolo');
+  final _categoriaKey = Key('Categoria');
+  final _cittaKey = Key('Città');
+  final _indirizzoKey = Key('Indirizzo');
+  final _descrizioneKey = Key('Descrizione');
+  final _photoKey = Key('Foto');
+  final _photoSubmitKey = Key('FotoSubmit');
+  final _submitKey = Key('Invia');
+
+
   @override
   void initState() {
     super.initState();
@@ -128,6 +138,7 @@ class _InserimentoSegnalazioneGUIState
         const Text('Titolo', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+          key: _titoloKey,
           //decoration: TextFieldInputDecoration(context, labelText: 'Titolo'),
           validator: FormBuilderValidators.compose(
             [
@@ -161,6 +172,7 @@ class _InserimentoSegnalazioneGUIState
 
   Widget _buildCategoryField() {
     return Column(
+      key: _categoriaKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Categoria', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -191,6 +203,7 @@ class _InserimentoSegnalazioneGUIState
         const Text('Città', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+            key: _cittaKey,
             controller: _cittaController,
             //decoration: TextFieldInputDecoration(context, labelText: 'Città'),
             validator: FormBuilderValidators.required(),
@@ -211,6 +224,7 @@ class _InserimentoSegnalazioneGUIState
         const Text('Indirizzo', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+          key: _indirizzoKey,
           controller: _indirizzoController,
           //decoration: TextFieldInputDecoration(context, labelText: 'Indirizzo'),
           validator: FormBuilderValidators.required(),
@@ -239,6 +253,7 @@ class _InserimentoSegnalazioneGUIState
             style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+          key: _descrizioneKey,
           //decoration:TextFieldInputDecoration(context, labelText: 'Descrizione'),
           maxLines: 3,
           validator: FormBuilderValidators.compose(
@@ -275,6 +290,7 @@ class _InserimentoSegnalazioneGUIState
       elevation: 4,
       child: _selectedImage != null
           ? Image.file(
+              key: _photoKey,
               _selectedImage!,
               width: 450, // Set the desired width
               height: 325, // Set the desired height
@@ -296,6 +312,7 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildSelectPhotoButton() {
     return Center(
       child: ElevatedButton.icon(
+        key: _photoSubmitKey,
         onPressed: _pickImageFromCamera,
         icon: const Icon(Icons.camera_alt, color: Colors.white),
         label: const Text('Scatta Foto',
@@ -312,6 +329,7 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildSubmitButton() {
     return Center(
         child: ElevatedButton.icon(
+          key: _submitKey,
       onPressed: _isLoading ? null : _onSubmit,
       icon: const Icon(Icons.send, color: Colors.white),
       label: const Text('Invia Segnalazione',
