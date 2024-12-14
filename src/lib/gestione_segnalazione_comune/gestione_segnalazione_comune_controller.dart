@@ -152,21 +152,18 @@ class MunicipalityReportManagementController {
     required PriorityReport newPriority,
   }) async {
     try {
-      if(newPriority.value != PriorityReport.high.value && newPriority.value != PriorityReport.medium.value && newPriority.value != PriorityReport.low.value){
-        if (_context != null) {
-          showMessage(
-            _context,
-            message: 'Errore durante l\'aggiornamento della priorità',
-            isError: true,
-          );
-        }
+      final String message;
+      if (newPriority == PriorityReport.high || newPriority == PriorityReport.low || newPriority == PriorityReport.medium) {
+        await _reportDAO.editReportPriority(city: city, reportId: reportId, newPriority: newPriority);
+        message = 'Priorità segnalazione cambiata';
       }
-      await _reportDAO.editReportPriority(
-          city: city, reportId: reportId, newPriority: newPriority);
+      else{
+        message = 'Errore durante l\'aggiornamento della priorità';
+      }
       if (_context != null) {
         showMessage(
           _context,
-          message: 'Priorità segnalazione cambiata',
+          message: message,
         );
       }
     } catch (e) {
