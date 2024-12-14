@@ -1,5 +1,11 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../model/report_model.dart';
+import '../model/users_model.dart';
+import '../user_management/user_management_dao.dart';
 import '../utils/report_status_priority.dart';
 import '../utils/snackbar_riscontro.dart';
 import 'gestione_segnalazione_comune_dao.dart';
@@ -32,23 +38,28 @@ import 'gestione_segnalazione_comune_dao.dart';
 /// );
 /// ```
 class MunicipalityReportManagementController {
-  /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
-  final MunicipalityReportManagementDAO _reportDAO;
-  final BuildContext? _context;
+  /// The page to navigate to after certain actions, such as adding a report.
+  final Widget? redirectPage;
 
-  /// Constructs a `MunicipalityReportManagementController`.
+  /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
+  final MunicipalityReportManagementDAO _reportDAO =
+      MunicipalityReportManagementDAO();
+  final UserManagementDAO _userManagementDAO = UserManagementDAO();
+  final BuildContext? _context;
+  Municipality? _municipality;
+  final Completer<Municipality> _municipalityCompleter =
+      Completer<Municipality>();
+
+  /// Constructs a `CitizenReportManagementController`.
   ///
-  /// If a `MunicipalityReportManagementDAO` instance is not provided, a new
-  /// instance is initialized internally.
+  /// This constructor initializes the controller and loads the municipality data.
   ///
   /// ### Parameters:
-  /// - `reportDAO`: An optional instance of `MunicipalityReportManagementDAO`
-  ///   to be used by this controller. If not provided, a default instance is created.
-  /// - `context`: An optional `BuildContext` to be used for UI operations.
-  ///  This is required for displaying messages or dialogs.
-  MunicipalityReportManagementController({reportDAO, context})
-      : _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(),
-        _context = context;
+  /// - `redirectPage`: The page to redirect to after loading the municipality data.
+  MunicipalityReportManagementController({this.redirectPage, context})
+      : _context = context {
+    _loadMunicipality();
+  }
 
   /// Edits the status of a specific report.
   ///
@@ -84,7 +95,6 @@ class MunicipalityReportManagementController {
         showMessage(
           _context,
           message: 'Stato aggiornato correttamente',
-          isError: true,
         );
       }
     } catch (e) {
@@ -143,5 +153,102 @@ class MunicipalityReportManagementController {
         );
       }
     }
+  }
+
+  /// Loads the municipality data.
+  /// This method loads the municipality data from the Firestore database.
+  /// If the user is not logged in or is not a municipality, it throws an exception.
+  /// If the municipality data is successfully loaded, it completes the `_municipalityCompleter`.
+  void _loadMunicipality() async {
+    try {
+      final user = await _userManagementDAO.determineUserType();
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+
+      if (user is Municipality) {
+        _municipality = user;
+        _municipalityCompleter
+            .complete(user); // Segnala che l'inizializzazione è completa
+      } else {
+        throw Exception('User is not a citizen');
+      }
+    } catch (e) {
+      _municipalityCompleter.completeError('Error determining user type: $e');
+    }
+  }
+
+  /// Returns the current citizen user.
+  Future<Municipality> get municipality async => _municipalityCompleter.future;
+
+  /// Retrieves the list of municipality reports.
+  ///
+  /// This method fetches the list of reports for the current municipality.
+  /// If the municipality is not set or its name is null, an empty list is returned.
+  ///
+  /// ### Parameters:
+  /// - `reset`: A boolean flag indicating whether to reset the report list. Defaults to `false`.
+  ///
+  /// ### Returns:
+  /// A `Future` that completes with a list of maps containing the report data, or an empty list if the municipality is not set.
+  Future<List<Map<String, dynamic>>?> getMunicipalityReports(
+      {bool reset = false}) async {
+    if (_municipality == null || _municipality!.municipalityName == null) {
+      return [];
+    }
+
+    List<Map<String, dynamic>>? snapshot = await _reportDAO.getReportList(
+      city: _municipality!.municipalityName!,
+      reset: reset,
+    );
+    return snapshot;
+  }
+
+  /// Filters the reports based on the specified criteria.
+  /// This method filters the reports based on the specified status, priority, and category of a specified city.
+  /// If no criteria are specified, it returns the list of all reports of the current city.
+  ///
+  /// Parameters:
+  /// - [city]: The city to filter by.
+  /// - [status]: The list of status criteria to filter by.
+  /// - [priority]: The list of priority criteria to filter by.
+  /// - [category]: The list of category criteria to filter by.
+  /// - [dateRange]: The date range to filter by, used as [startDate, endDate].
+  ///
+  /// Returns:
+  /// - A [Future] that resolves to a list of maps, where each map contains the report details.
+  /// - If no reports are found, it returns an empty list.
+  /// - If the user is not valid, it returns `null`.
+  Future<List<Map<String, dynamic>>?> filterReportsBy(
+      {List<StatusReport>? status,
+      List<PriorityReport>? priority,
+      List<Category>? category,
+      DateTimeRange? dateRange,
+      String? keyword}) async {
+    if (_municipality == null || _municipality!.municipalityName == null) {
+      return null;
+    }
+
+    Map<String, List<dynamic>> criteria = {
+      if (status != null) 'status': status.map((e) => e.name).toList(),
+      if (priority != null) 'priority': priority.map((e) => e.name).toList(),
+      if (category != null) 'category': category.map((e) => e.name).toList(),
+    };
+    Timestamp? startRange;
+    Timestamp? endRange;
+
+    if (dateRange != null) {
+      startRange = Timestamp.fromDate(dateRange.start);
+      endRange = Timestamp.fromDate(dateRange.end);
+    }
+
+    List<Map<String, dynamic>>? snapshot =
+        await _reportDAO.filterMunicipalityReportsBy(
+            criteria: criteria,
+            keyword: keyword,
+            reportDateStart: startRange,
+            reportDateEnd: endRange,
+            city: _municipality!.municipalityName!);
+    return snapshot;
   }
 }

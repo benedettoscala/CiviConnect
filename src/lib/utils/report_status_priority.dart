@@ -39,7 +39,7 @@ enum StatusReport implements Comparable<StatusReport> {
   /// Returns the human-readable name of the status.
   ///
   /// This can be used for display purposes.
-  String name() => _name;
+  String get name => _name;
 
   @override
   int compareTo(StatusReport other) => value - other.value;
@@ -50,7 +50,7 @@ enum StatusReport implements Comparable<StatusReport> {
   /// Returns the status of the report based on the [name].
   static StatusReport? getStatus(String? name) {
     for (StatusReport status in StatusReport.values) {
-      if (status.name() == name) {
+      if (status.name == name) {
         return status;
       }
     }

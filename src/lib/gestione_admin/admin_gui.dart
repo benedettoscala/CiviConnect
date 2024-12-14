@@ -27,8 +27,14 @@ import '../utils/snackbar_riscontro.dart';
 /// The page uses the `_isMunicipalityExisting` to store whether the municipality is already present in the database.
 /// The page uses the `_showAdminPasswordAndMunicipalityEmailDialog` function to show a dialog for entering the Admin password and municipality email.
 class AdminHomePage extends StatefulWidget {
+  /// The controller for the Admin Home Page.
+  final AdminManagementController controller;
+
   /// Creates an Admin Home Page widget.
-  const AdminHomePage({super.key});
+  AdminHomePage({super.key, AdminManagementController? controller})
+      : controller = (controller == null)
+      ? AdminManagementController()
+      : controller;
 
   @override
   AdminHomePageState createState() => AdminHomePageState();
@@ -38,7 +44,7 @@ class AdminHomePage extends StatefulWidget {
 /// This state manages the state of the Admin Home Page widget.
 /// The state uses the `AdminManagementController` to handle the business logic.
 class AdminHomePageState extends State<AdminHomePage> {
-  final AdminManagementController _controller = AdminManagementController();
+  late final AdminManagementController _controller;
   // Controller fo searched field
   TextEditingController? _textEditingControllerAutocomplete;
   List<Map<String, String>> _allMunicipalities = [];
@@ -48,6 +54,7 @@ class AdminHomePageState extends State<AdminHomePage> {
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller;
     _loadMunicipalities();
   }
 
