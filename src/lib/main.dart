@@ -27,7 +27,7 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  
+
   // Init Hive for Local Storage
   await Hive.initFlutter();
   // Open box called "settings"
