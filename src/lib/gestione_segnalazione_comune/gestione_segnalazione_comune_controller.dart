@@ -87,8 +87,10 @@ class MunicipalityReportManagementController {
     required String city,
     required String reportId,
     required StatusReport newStatus,
+    required StatusReport currentStatus,
   }) async {
     try {
+      isValidStatusChange(currentStatus, newStatus);
       await _reportDAO.editReportStatus(
           city: city, reportId: reportId, newStatus: newStatus);
       if (_context != null) {
@@ -101,10 +103,35 @@ class MunicipalityReportManagementController {
       if (_context != null) {
         showMessage(
           _context,
-          message: 'Errore durante l\'aggiornamento dello stato',
+          message: e,
           isError: true,
         );
       }
+    }
+  }
+
+  /// Checks if the status change is valid.
+  /// This method checks if the status change is valid based on the current and new status.
+  /// If the status change is not valid, it throws an exception.
+  /// Parameters:
+  /// - [currentStatus]: The current status of the report.
+  /// - [newStatus]: The new status to set for the report.
+  /// Throws:
+  /// - An exception if the status change is not valid.
+  void isValidStatusChange(StatusReport currentStatus, StatusReport newStatus) {
+    final currentStatusIndex = StatusReport.values.indexOf(currentStatus);
+    final newStatusIndex = StatusReport.values.indexOf(newStatus);
+
+    if (currentStatusIndex == StatusReport.rejected.index) {
+      throw Exception('Transizione da stato scartata non consentita.');
+    }
+
+    if (newStatusIndex < StatusReport.underReview.index || newStatusIndex > StatusReport.rejected.index) {
+      throw Exception('Stato non valido');
+    }
+
+    if (newStatusIndex < currentStatusIndex) {
+      throw Exception('Transizione verso stato precedente non consentita.');
     }
   }
 
