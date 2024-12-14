@@ -133,17 +133,24 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
   }
 
   Widget _statusPriority(context) {
-    return Row(
+    return Wrap(
       children: [
-        widget._onPriorityButton == null
-            ? _priorityCard(context)
-            : InkWell(
-                onTap: widget._onPriorityButton, child: _priorityCard(context)),
-        widget._onStateButton == null
-            ? _statusCard(context)
-            : InkWell(
-                onTap: widget._onStateButton, child: _statusCard(context)),
-        _categoryCard(context),
+        IntrinsicWidth(
+          child: widget._onPriorityButton == null
+              ? _priorityCard(context)
+              : InkWell(
+                  onTap: widget._onPriorityButton,
+                  child: _priorityCard(context)),
+        ),
+        IntrinsicWidth(
+          child: widget._onStateButton == null
+              ? _statusCard(context)
+              : InkWell(
+                  onTap: widget._onStateButton, child: _statusCard(context)),
+        ),
+        IntrinsicWidth(
+          child: _categoryCard(context),
+        )
       ],
     );
   }
@@ -234,8 +241,7 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
             children: [
               Text(
                   'Segnalato il: ${dateTime.day}/${dateTime.month}/${dateTime.year}',
