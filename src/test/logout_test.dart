@@ -10,8 +10,10 @@ import 'package:mockito/mockito.dart';
 class MockUser extends Mock implements User {}
 class MockMunicipality extends Mock implements Municipality {}
 class FakeUser extends Fake implements User {
+  @override
   String? get photoURL => null;
 
+  @override
   String email = 'email';
 
   @override
