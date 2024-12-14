@@ -88,7 +88,7 @@ class UserManagementDAO {
           .doc(uid)
           .set({...additionalData});
     } catch (e) {
-      throw Exception("Email gia in uso");
+      throw Exception('Email gia in uso');
     }
     return true;
   }
