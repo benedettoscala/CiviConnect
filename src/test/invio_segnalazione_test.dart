@@ -151,6 +151,6 @@ void _testValidation(
 Future<void> _pumpWidgetAndTestEnv({required WidgetTester tester}) async {
   // Load Insert Report Widget
   await tester
-      .pumpWidget(MaterialApp(home: InserimentoSegnalazioneGUI()));
+      .pumpWidget(MaterialApp(home: InserimentoSegnalazioneGUI(controller: FakeInserimentoSegnalazioneController())));
   await tester.pumpAndSettle();
 }
