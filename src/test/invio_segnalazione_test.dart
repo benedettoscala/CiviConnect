@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:civiconnect/firebase_options.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/inserimento_segnalazione_gui.dart';
 import 'package:civiconnect/model/report_model.dart';
