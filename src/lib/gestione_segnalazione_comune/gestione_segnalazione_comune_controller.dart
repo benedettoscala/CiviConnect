@@ -96,7 +96,7 @@ class MunicipalityReportManagementController {
       if (_context != null) {
         showMessage(
           _context,
-          message: 'Stato aggiornato correttamente',
+          message: 'Stato aggiornato correttamente.',
         );
       }
     } catch (e) {
@@ -123,7 +123,7 @@ class MunicipalityReportManagementController {
     final newStatusIndex = StatusReport.values.indexOf(newStatus);
 
     if (currentStatusIndex == StatusReport.rejected.index) {
-      throw Exception('Transizione da stato scartata non consentita.');
+      throw Exception('Transizione da stato Scartata non consentita.');
     }
 
     if (newStatusIndex < StatusReport.underReview.index || newStatusIndex > StatusReport.rejected.index) {
