@@ -5,6 +5,7 @@ import 'package:civiconnect/user_management/registrazione_utente_gui.dart';
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/widgets/logo_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -16,11 +17,16 @@ import 'firebase_options.dart';
 Future<void> main() async {
   //Firebase Initialization example code
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    name: 'civiconnect-13aeb',
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } else {
+    await Firebase.initializeApp(
+      name: 'civiconnect-13aeb',
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   // Init Hive for Local Storage
   await Hive.initFlutter();
   // Open box called "settings"
