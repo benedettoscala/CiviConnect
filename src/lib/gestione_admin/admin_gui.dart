@@ -27,6 +27,7 @@ import '../utils/snackbar_riscontro.dart';
 /// The page uses the `_isMunicipalityExisting` to store whether the municipality is already present in the database.
 /// The page uses the `_showAdminPasswordAndMunicipalityEmailDialog` function to show a dialog for entering the Admin password and municipality email.
 class AdminHomePage extends StatefulWidget {
+  /// The controller for the Admin Home Page.
   final AdminManagementController controller;
 
   /// Creates an Admin Home Page widget.
