@@ -25,7 +25,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   // Esegui i test
-  _testComune(description: "TC_6.0_8",input: "a"*300, expected: "Lunghezza comune inferiore a 255",reason: "Il campo comune deve rispettare la lunghezza massima di 255 caratteri");
+ _testComune(description: "TC_6.0_8",input: "a"*300, expected: "Lunghezza comune inferiore a 255",reason: "Il campo comune deve rispettare la lunghezza massima di 255 caratteri");
  _testComune(description: "TC_6.0_9",input: "a",expected: null,reason: "Il campo comune ha lungezza minore di 255 caratteri");
   /*
   _testForm(description: 'TC_6.0_1', status: StatusReport.accepted , priority:PriorityReport.medium , category: Category.values[8], data: DateTime.now(), expected: 'Errore Categoria non valida', reason: 'Categoria non valida');
@@ -35,8 +35,10 @@ void main() {
   _testForm(description: 'TC_6.0_5', status:  StatusReport.values[10], priority: PriorityReport.medium, category: Category.roadDamage, data: DateTime.now(), expected: 'Errore Stato non valido', reason: 'Stato non valido');
   _testForm(description: 'TC_6.0_6', status: StatusReport.accepted, priority: PriorityReport.medium, category: Category.roadDamage, data: DateTime.now(), expected: null, reason: 'Corretto');
   _testForm(description: 'TC_6.0_7', status: StatusReport.accepted, priority: PriorityReport.medium, category: Category.roadDamage, data: DateTime.now(), expected: null, reason: 'Corretto');
-
+_
 */
+  _testSearch(description: 'TC_6.0_7', input: 'a'*300, expected: 'Lunghezza search inferiore a 255', reason: 'Il campo search deve rispettare la lunghezza massima di 255 caratteri');
+  _testSearch(description: 'TC_6.0_7', input: 'a', expected: null, reason: 'corretto');
 }
 void _testComune({required String description,required String input,required String? expected,required String reason}) {
   testWidgets(description, (WidgetTester tester) async {
@@ -76,6 +78,59 @@ void _testComune({required String description,required String input,required Str
         reason: reason);
 
 
+  });
+}
+void _testSearch({required String description,required String input,required String? expected,required String reason}) {
+  testWidgets(description, (WidgetTester tester) async {
+    // Crea il widget da testare
+    final key = GlobalKey<FormBuilderFieldState>();
+    String errorText = '';
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Card(
+              color: Colors.white70,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: TextField(
+                        onSubmitted: (value) {
+                          if (value.length > 255) {
+                            errorText = expected!;
+                          }
+                        },
+                        decoration: const InputDecoration(
+                          hintText: 'Cerca segnalazione...',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    print("Stampa dell input"+input);
+
+    // Trova il TextField e inserisci il testo lungo
+    await tester.enterText(find.byType(TextField), input);
+
+    // Simula l'invio del testo
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    print(key.currentState?.validate());
+    // Verifica il risultato
+    expect(errorText, expected, reason: reason);
   });
 }
 

@@ -383,6 +383,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// The search icon does not have any functionality implemented yet.
   Widget _searchBar() {
     return Padding(
+
       padding: const EdgeInsets.all(10.0),
       child: Card(
         color: Colors.white70,
@@ -425,6 +426,9 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                     _keyWords = value;
                   },
                   onSubmitted: (value) {
+                    if(value.length >255) { //prova
+                      _errorText='Lunghezza comune inferiore a 255';
+                    }
                     if (value.isNotEmpty || _numberOfFilters > 0) {
                       _filterData(
                           city: _citizen?.city ?? '', keyWords: _keyWords);
