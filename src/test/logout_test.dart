@@ -1,87 +1,70 @@
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
+import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/user_management/user_profile_gui.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 
-/// Implementazione fake del controller UserManagement per i test.
-class FakeUserManagementController extends Fake implements UserManagementController {
-  final bool _isLoggedIn;
+class MockUser extends Mock implements User {}
+class MockMunicipality extends Mock implements Municipality {}
+class FakeUser extends Fake implements User {
+  String? get photoURL => null;
 
-  FakeUserManagementController({required bool isLoggedIn}) : _isLoggedIn = isLoggedIn;
+  String email = 'email';
 
   @override
-  Future<void> logOut() async {
-    if (!_isLoggedIn) {
-      throw Exception('Errore durante il logout');
-    }
+  String get uid => '123';
+}
+///MockUser us = MockUser();
+FakeUser us = FakeUser();
+MockMunicipality mun = MockMunicipality();
+
+/// Implementazione fake del controller UserManagement per i test.
+class FakeUserManagementDAO extends Fake implements UserManagementDAO {
+  final bool isLoggedIn;
+
+  FakeUserManagementDAO({required this.isLoggedIn});
+
+  @override
+  Future<GenericUser?> determineUserType() {
+    // TODO: implement determineUserType
+    return Future.value(mun);
   }
 
   @override
-  User? getcurrentUser() => FakeUser();
+  Future<Map<String, String>> getMunicipalityData() {
+    return Future(() => {'municipalityName': 'Arezzo', 'email': 'email',
+      'province': 'PR',});
+  }
 
   @override
-  Future<Map<String, dynamic>> getUserData() async => {
-    'firstName': FakeUser().displayName,
-    'lastName': FakeUser().displayName,
-    'address': {
-      'via': FakeUser().via,
-      'civ': FakeUser().civ,
-    },
-    'city': FakeUser().city,
-    'cap': FakeUser().cap,
-  };
+  Future<Map<String, dynamic>> getUserData() {
+    throw UnimplementedError();
+  }
 
   @override
-  Future<GenericUser?> determineUserType() async => Citizen(user: FakeUser());
+  User? get currentUser => us;
 
   @override
-  Future<Map<String, String>> getMunicipalityData() async => {
-    'municipalityName': 'Roma',
-    'province': 'RM',
-  };
-
-  @override
-  Future<void> updateUserData(Map<String, dynamic> data) async {}
-
-  @override
-  Future<void> changeEmail(BuildContext context,
-      {required String newEmail, required String currentPassword}) async {}
-
-  @override
-  Future<void> changePassword(BuildContext context,
-      {required String newPassword, required String currentPassword}) async {}
+  Future<void> logOut() async {
+    if(isLoggedIn) {
+      return;
+    } else {
+      throw Exception('Errore durante il logout');
+    }
+  }
 }
 
-/// Implementazione fake della classe User per i test.
-class FakeUser extends Fake implements User {
-  @override
-  String get email => 'Testing@gmail.com';
 
-  @override
-  String get displayName => 'Test User';
-
-  @override
-  String get uid => '2';
-
-  String get via => 'Via Roma';
-  String get civ => '12';
-  String get city => 'Roma';
-  String get cap => '00100';
-  @override
-  String? get photoURL => null;
-
-  @override
-  Future<void> reload() async {}
-
-  @override
-  Future<void> delete() async {}
-}
-
+bool isLoggedIn = false;
 void main() {
+
+
     testWidgets('Logout TC_2.0.1', (tester) async {
-      final controller = FakeUserManagementController(isLoggedIn: false);
+      isLoggedIn = false;
+      final controller = UserManagementController(userManagementDAO: FakeUserManagementDAO(isLoggedIn: isLoggedIn));
 
       await _setUpTestEnv(tester: tester, controller: controller);
 
@@ -92,35 +75,41 @@ void main() {
           reason: 'Expected an error message when logout fails');
     });
 
-    /*testWidgets('TC_2.0.2: Logout succeeds when user is logged in', (tester) async {
-      final controller = FakeUserManagementController(isLoggedIn: true);
+
+
+    testWidgets('TC_2.0.2: Logout succeeds when user is logged in', (tester) async {
+      isLoggedIn = true;
+      final controller = UserManagementController(userManagementDAO: FakeUserManagementDAO(isLoggedIn: isLoggedIn));
 
       await _setUpTestEnv(tester: tester, controller: controller);
 
       await _performLogout(tester);
 
       // Verifica che l'utente venga reindirizzato alla pagina di login
-      expect(find.text('Logout'), findsOneWidget,
+      expect(find.text('Logout'), findsNothing,
           reason: 'Expected user to be redirected to the login page after logout');
-    });*/
+    });
 }
 
 /// Configura l'ambiente di test e inietta il controller fake.
 Future<void> _setUpTestEnv({
   required WidgetTester tester,
-  required FakeUserManagementController controller,
+  required UserManagementController controller,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
-      home: UserProfile(controller: controller),
+      home: UserProfile(controller: controller, redirectLogOutPage: const Placeholder(),),
     ),
   );
+
+
   await tester.pumpAndSettle();
 
   // Verifica che la pagina del profilo utente sia visualizzata correttamente
   expect(find.text('Logout'), findsOneWidget,
       reason: 'Logout button should be present on the UserProfile page');
 }
+
 
 /// Simula il processo di logout.
 Future<void> _performLogout(WidgetTester tester) async {
