@@ -1,6 +1,7 @@
 import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../model/users_model.dart';
 
@@ -9,6 +10,14 @@ import '../model/users_model.dart';
 /// This class provides methods for:
 /// - Checking if a municipality already exists in the database.
 /// - Generating credentials for municipalities.
+/// - Validating the admin password.
+/// - Determining the user type.
+/// - Creating a new user in Firebase Authentication.
+/// - Saving municipality data to Firestore.
+/// - Reauthenticating the admin user.
+/// - Sending credentials via email.
+/// - Retrieving the authenticated user.
+/// - Retrieving the municipality data.
 class AdminManagementDAO {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -26,6 +35,7 @@ class AdminManagementDAO {
   /// - An exception if an error occurs during the process.
   Future<bool> municipalityExistsInDatabase(String comune) async {
     try {
+      comune = comune.toLowerCase();
       final querySnapshot = await _firebaseFirestore
           .collection('municipality')
           .where('municipalityName', isEqualTo: comune)
@@ -37,74 +47,60 @@ class AdminManagementDAO {
     }
   }
 
-  /// Save credentials for the municipality in the database.
-  /// The method saves the municipality's email, password, and province to Firestore.
-  /// It also creates a user with Firebase Authentication.
-  /// The method also logs in as the admin and logs out after saving the credentials.
-  /// The method throws an exception if an error occurs during the process.
+  /// Generate credentials for the municipality.
+  /// The method generates credentials for the municipality and sends them via email.
+  /// The method creates a new user in Firebase Authentication and saves the municipality data to Firestore.
   /// Parameters:
-  /// - [emailGen]: The email for the municipality user.
-  /// - [emailComune]: The email for the municipality.
+  /// - [emailGen]: The email address for the municipality user.
   /// - [passwordGen]: The password for the municipality user.
+  /// - [emailComune]: The email address for the municipality.
+  /// - [selectedComune]: The selected municipality data.
   /// - [passwordAdmin]: The password for the admin user.
-  /// - [selectedComune]: A map containing the name of the municipality and its province.
   /// Throws:
   /// - An exception if an error occurs during the process.
   /// - An exception if the admin password is incorrect.
-  /// - An exception if the user type is not an admin.
-  /// - An exception if the credentials cannot
-  ///  be saved to the database.
-  Future<void> saveCredentialsToDatabase(
+  /// - An exception if the authenticated user is not found.
+  /// - An exception if the municipality data cannot be saved to Firestore.
+  Future<void> createAccountAndSendCredentials(
       String emailGen,
-      String emailComune,
       String passwordGen,
-      String passwordAdmin,
-      Map<String, String> selectedComune) async {
+      String emailComune,
+      Map<String, String> selectedComune,
+      String passwordAdmin) async {
     UserManagementDAO userManagementDAO = UserManagementDAO();
     GenericUser? genericUser = await userManagementDAO.determineUserType();
-    if (genericUser == null || genericUser is! Admin) {
-      throw ('Errore nel salvataggio delle credenziali');
-    }
+    String adminEmail = genericUser?.email?.trim() ?? '';
 
+    // Log in as admin
     try {
-      // Save the Admin email
-      String adminEmail = genericUser.email?.trim() ?? '';
-
-      // Check if Admin password is correct
-      bool isCorrect = await validateAdminPassword(passwordAdmin);
-
-      if (!isCorrect) {
-        throw ('Password Admin non corretta');
-      }
-
-      // Create the user with Firebase Authentication.
-      UserCredential userCredential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
-              email: emailGen, password: passwordGen);
-
-      // Logged as municipality and need to log out
-      await _firebaseAuth.signOut();
-
-      // Log in as admin
       await _firebaseAuth.signInWithEmailAndPassword(
           email: adminEmail, password: passwordAdmin);
-
-      // Logged as admin
-      // Save the municipality data to Firestore.
-      await _firebaseFirestore
-          .collection('municipality')
-          .doc(userCredential.user!.uid)
-          .set({
-        'municipalityName': selectedComune['Comune']!.toLowerCase(),
-        'province': selectedComune['Provincia'],
-      });
-
-      // Send email to verify the email
-      // Workaround to send email verification works only with emailComune alredy verified
-      await _firebaseAuth.sendPasswordResetEmail(email: emailComune);
     } catch (e) {
-      throw ('Errore nel salvataggio delle credenziali, $e');
+      throw ('Password Admin errata.');
     }
+
+    if (FirebaseAuth.instance.currentUser == null) {
+      throw ('Errore di autenticazione Admin.');
+    }
+
+    // Save comune and provincia in variables
+    String comune = selectedComune['Comune']!.toLowerCase();
+    String provincia = selectedComune['Provincia']!;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.getIdToken(true);
+    }
+
+    final callable = FirebaseFunctions.instance
+        .httpsCallable('createAccountAndSendCredentialsv1');
+    await callable.call({
+      'emailGen': emailGen,
+      'passwordGen': passwordGen,
+      'emailComune': emailComune,
+      'comune': comune,
+      'provincia': provincia
+    });
   }
 
   /// Validate the admin password.

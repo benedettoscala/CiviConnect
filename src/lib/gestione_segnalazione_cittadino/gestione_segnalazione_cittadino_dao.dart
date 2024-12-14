@@ -88,7 +88,6 @@ class CitizenReportManagementDAO {
   ///
   /// Throws:
   /// - [Exception]: If the user is not logged in.
-
   Future<List<Map<String, dynamic>>?> getUserReportList(
       {required String userId}) async {
     return await _getReportsByUser(userId: userId);
@@ -144,7 +143,6 @@ class CitizenReportManagementDAO {
       // Note: This is not efficient for large data
       // Note: could be done in the backend by using Algolia or ElasticSearch
       // or adding a new field with the concatenated data as an array in the report document
-
       results = querySnapshot.docs.map((doc) => doc.data()).toList();
 
       if (keyword != null && keyword.isNotEmpty) {
