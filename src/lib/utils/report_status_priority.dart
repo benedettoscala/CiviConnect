@@ -49,9 +49,7 @@ enum StatusReport implements Comparable<StatusReport> {
 
   /// Returns the status of the report based on the [name].
   static StatusReport? getStatus(String? name) {
-        Filtro_segnalazione_amministratore
     for (StatusReport status in StatusReport.values) {
-        merge/testing
       if (status.name == name) {
         return status;
       }
