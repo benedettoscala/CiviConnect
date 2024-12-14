@@ -134,7 +134,9 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
 
   Widget _statusPriority(context) {
     return Wrap(
+      alignment: WrapAlignment.start,
       children: [
+        const SizedBox(width: double.infinity),
         IntrinsicWidth(
           child: widget._onPriorityButton == null
               ? _priorityCard(context)
@@ -150,7 +152,7 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
         ),
         IntrinsicWidth(
           child: _categoryCard(context),
-        )
+        ),
       ],
     );
   }
@@ -235,25 +237,23 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(width: double.infinity),
           Text(
             '${widget._report.city!}, ${widget._report.address!.values.toList().join(', ')}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 10),
-          Wrap(
-            children: [
-              Text(
-                  'Segnalato il: ${dateTime.day}/${dateTime.month}/${dateTime.year}',
-                  style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(width: 50),
-              Text(
-                  endDate != null
-                      ? 'Completato il: ${endDate.day}/${endDate.month}/${endDate.year}'
-                      : 'Ancora non completato',
-                  style: Theme.of(context).textTheme.bodySmall),
-            ],
-          )
+          Text(
+              'Segnalato il: ${dateTime.day}/${dateTime.month}/${dateTime.year}',
+              style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(width: 50),
+          Text(
+              endDate != null
+                  ? 'Completato il: ${endDate.day}/${endDate.month}/${endDate.year}'
+                  : 'Ancora non completato',
+              style: Theme.of(context).textTheme.bodySmall)
         ],
       ),
     );
