@@ -292,7 +292,6 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
       String cap,
       Map<String, String> indirizzo) async {
     final formState = _formKey.currentState;
-    bool validUser;
     if (formState == null || !formState.saveAndValidate()) {
       return;
     }
@@ -317,17 +316,17 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
     // Sends the email and password to the controller.
     UserManagementController controller =
         UserManagementController(redirectPage: const HomePage());
-
-    validUser = await controller.register(context,
-        email: email,
-        password: password,
-        name: firstName,
-        surname: lastName,
-        address: indirizzo,
-        city: city,
-        cap: cap);
-    // If the user is not valid, a snackbar is displayed.
-    if (!validUser) {
+    try {
+      await controller.register(context,
+          email: email,
+          password: password,
+          name: firstName,
+          surname: lastName,
+          address: indirizzo,
+          city: city,
+          cap: cap);
+    } catch (e) {
+      // If the user is not valid, a snackbar is displayed.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -336,7 +335,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          content: const Text('Invalid email or password'),
+          content: const Text('Email già utilizzata'),
         ),
       );
     }
