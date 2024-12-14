@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 
-class fakeInserimentoSegnalazioneController extends Fake implements CitizenReportManagementController{
+class FakeInserimentoSegnalazioneController extends Fake implements CitizenReportManagementController{
   @override
   Future<bool> addReport(BuildContext context,
       {required String citta,
@@ -151,6 +151,6 @@ void _testValidation(
 Future<void> _pumpWidgetAndTestEnv({required WidgetTester tester}) async {
   // Load Insert Report Widget
   await tester
-      .pumpWidget(const MaterialApp(home: InserimentoSegnalazioneGUI()));
+      .pumpWidget(MaterialApp(home: InserimentoSegnalazioneGUI()));
   await tester.pumpAndSettle();
 }

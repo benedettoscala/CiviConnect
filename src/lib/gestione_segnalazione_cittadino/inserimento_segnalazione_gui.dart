@@ -14,8 +14,12 @@ import '../theme.dart';
 
 /// A widget that provides a GUI for inserting a citizen report.
 class InserimentoSegnalazioneGUI extends StatefulWidget {
+
+  /// Controller for managing citizen reports if not provided a new default instance is created.
+  final CitizenReportManagementController controller;
   /// Creates an instance of InserimentoSegnalazioneGUI.
-  const InserimentoSegnalazioneGUI({super.key});
+  InserimentoSegnalazioneGUI({super.key, CitizenReportManagementController? controller})
+      : controller = controller ?? CitizenReportManagementController(redirectPage: const HomePage());
 
   @override
   State<InserimentoSegnalazioneGUI> createState() =>
@@ -28,8 +32,8 @@ class _InserimentoSegnalazioneGUIState
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
-  final CitizenReportManagementController _controller =
-      CitizenReportManagementController(redirectPage: const HomePage());
+  late final CitizenReportManagementController _controller;
+
 
   late Category _categoria;
   String? _descrizione;
@@ -42,19 +46,20 @@ class _InserimentoSegnalazioneGUIState
   List<String>? _badWords;
   late bool _isLoading = false;
 
-  final _titoloKey = Key('Titolo');
-  final _categoriaKey = Key('Categoria');
-  final _cittaKey = Key('Città');
-  final _indirizzoKey = Key('Indirizzo');
-  final _descrizioneKey = Key('Descrizione');
-  final _photoKey = Key('Foto');
-  final _photoSubmitKey = Key('FotoSubmit');
-  final _submitKey = Key('Invia');
+  final _titoloKey = const Key('Titolo');
+  final _categoriaKey = const Key('Categoria');
+  final _cittaKey = const Key('Città');
+  final _indirizzoKey = const Key('Indirizzo');
+  final _descrizioneKey = const Key('Descrizione');
+  final _photoKey = const Key('Foto');
+  final _photoSubmitKey = const Key('FotoSubmit');
+  final _submitKey = const Key('Invia');
 
 
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller;
     _indirizzoController.text = 'Caricamento Posizione...';
     _cittaController.text = 'Caricamento Città...';
     _fetchLocation();

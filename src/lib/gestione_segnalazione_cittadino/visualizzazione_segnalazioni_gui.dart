@@ -218,7 +218,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const InserimentoSegnalazioneGUI()),
+                builder: (context) => InserimentoSegnalazioneGUI()),
           );
         },
         backgroundColor: theme.colorScheme.primary,
