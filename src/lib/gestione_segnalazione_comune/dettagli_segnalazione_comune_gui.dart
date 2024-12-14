@@ -34,12 +34,13 @@ List<StatusReport> _filteredStatusValues(StatusReport currentStatus) {
 }
 
 class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
-  void _saveReportState() {
+  void _saveReportState(StatusReport oldStatus) {
     // Implement the logic to save the current state of the report
     MunicipalityReportManagementController(context: context).editReportStatus(
       city: widget._report.city!,
       reportId: widget._report.reportId!,
       newStatus: widget._report.status!,
+      currentStatus: oldStatus,
     );
   }
 
@@ -112,6 +113,8 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
     showDialog(
       context: context,
       builder: (context) {
+        // Save the current state of the report
+        final oldStatusLocal = objectTarget.status as StatusReport;
         T? selectedValue = objectTarget.status as T;
         return StatefulBuilder(
           builder: (context, setState) {
@@ -147,7 +150,7 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
                 TextButton(
                   onPressed: () {
                     // Implement the logic for the confirm action
-                    _saveReportState();
+                    _saveReportState(oldStatusLocal);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Aggiorna'),
