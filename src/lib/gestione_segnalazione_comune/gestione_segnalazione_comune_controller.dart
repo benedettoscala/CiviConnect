@@ -40,26 +40,42 @@ import 'gestione_segnalazione_comune_dao.dart';
 class MunicipalityReportManagementController {
   /// The page to navigate to after certain actions, such as adding a report.
   final Widget? redirectPage;
-
   /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
-  final MunicipalityReportManagementDAO _reportDAO =
-      MunicipalityReportManagementDAO();
-  final UserManagementDAO _userManagementDAO = UserManagementDAO();
+  final MunicipalityReportManagementDAO _reportDAO;
+  final UserManagementDAO _userManagementDAO ;
   final BuildContext? _context;
   Municipality? _municipality;
-  final Completer<Municipality> _municipalityCompleter =
-      Completer<Municipality>();
+  final Completer<Municipality> _municipalityCompleter = Completer<Municipality>();
 
-  /// Constructs a `CitizenReportManagementController`.
+
+  /// Constructs a `MunicipalityReportManagementController`.
   ///
   /// This constructor initializes the controller and loads the municipality data.
   ///
   /// ### Parameters:
   /// - `redirectPage`: The page to redirect to after loading the municipality data.
-  MunicipalityReportManagementController({this.redirectPage, context})
-      : _context = context {
+  MunicipalityReportManagementController({rdao, udao, this.redirectPage, context})
+      : _context = context, _reportDAO = rdao ?? MunicipalityReportManagementDAO(), _userManagementDAO = udao ?? UserManagementDAO() {
     _loadMunicipality();
   }
+
+  /// Constructs a `MunicipalityReportManagementController` for testing purposes.
+  ///
+  /// This constructor initializes the controller with mock data for testing.
+  ///
+  /// ### Parameters:
+  /// - `rdao`: The mock DAO for report management.
+  /// - `udao`: The mock DAO for user management.
+  /// - `m`: The mock municipality data.
+  /// - `redirectPage`: The page to redirect to after loading the municipality data.
+  /// - `context`: The build context for showing messages.
+  MunicipalityReportManagementController.forTest({
+    rdao,
+    udao,
+    m,
+    this.redirectPage, context,
+  })  : _reportDAO = rdao,
+        _context = context, _userManagementDAO = udao, _municipality = m ;
 
   /// Edits the status of a specific report.
   ///
@@ -123,15 +139,15 @@ class MunicipalityReportManagementController {
     final newStatusIndex = StatusReport.values.indexOf(newStatus);
 
     if (currentStatusIndex == StatusReport.rejected.index) {
-      throw Exception('Transizione da stato Scartata non consentita.');
+      throw ('Transizione da stato Scartata non consentita.');
     }
 
     if (newStatusIndex < StatusReport.underReview.index || newStatusIndex > StatusReport.rejected.index) {
-      throw Exception('Stato non valido');
+      throw ('Stato non valido');
     }
 
     if (newStatusIndex < currentStatusIndex) {
-      throw Exception('Transizione verso stato precedente non consentita.');
+      throw ('Transizione verso stato precedente non consentita.');
     }
   }
 
