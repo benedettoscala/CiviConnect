@@ -31,10 +31,10 @@ class MockBuildContext extends Mock implements BuildContext {}
 
 class MockUser extends Mock implements User {}
 
-Municipality m =
+Municipality municipality =
     Municipality(user: MockUser(), municipalityName: 'municipalityName');
 
-Report r = Report(
+Report report = Report(
     city: 'testCity',
     reportId: 'report123',
     priority: PriorityReport.high,
@@ -56,7 +56,7 @@ class FakeReportDAO extends Fake implements MunicipalityReportManagementDAO {
     required String? reportId,
     required StatusReport newStatus,
   }) async {
-    r.status = newStatus;
+    report.status = newStatus;
   }
 }
 
@@ -100,16 +100,16 @@ void _testState(
   const reportId = 'report123';
 
   testWidgets(description, (tester) async {
-    r.status = currentStatus;
+    report.status = currentStatus;
     // Costruisci un widget con un contesto reale
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: Builder(builder: (context) {
           final controller = MunicipalityReportManagementController.forTest(
-            rdao: mockReportDAO,
-            udao: mockUserDAO,
+            reportDAO: mockReportDAO,
+            userDAO: mockUserDAO,
             context: context,
-            m: m,
+            municipality: municipality,
           );
 
           return ElevatedButton(
@@ -130,6 +130,6 @@ void _testState(
     await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
 
-    expect(r.status, equals(expectedStatus));
+    expect(report.status, equals(expectedStatus));
   });
 }
