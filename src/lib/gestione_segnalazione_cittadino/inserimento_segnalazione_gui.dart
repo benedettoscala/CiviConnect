@@ -1,25 +1,27 @@
 import 'dart:io';
 
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_permessi_failed.dart';
+//import 'package:civiconnect/widgets/input_textfield_decoration.dart';
+import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/model/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-//import 'package:civiconnect/widgets/input_textfield_decoration.dart';
-import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../theme.dart';
 
 /// A widget that provides a GUI for inserting a citizen report.
 class InserimentoSegnalazioneGUI extends StatefulWidget {
-
   /// Controller for managing citizen reports if not provided a new default instance is created.
   final CitizenReportManagementController controller;
+
   /// Creates an instance of InserimentoSegnalazioneGUI.
-  InserimentoSegnalazioneGUI({super.key, CitizenReportManagementController? controller})
-      : controller = controller ?? CitizenReportManagementController(redirectPage: const HomePage());
+  InserimentoSegnalazioneGUI(
+      {super.key, CitizenReportManagementController? controller})
+      : controller = controller ??
+            CitizenReportManagementController(redirectPage: const HomePage());
 
   @override
   State<InserimentoSegnalazioneGUI> createState() =>
@@ -33,7 +35,6 @@ class _InserimentoSegnalazioneGUIState
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
   late final CitizenReportManagementController _controller;
-
 
   late Category _categoria;
   String? _descrizione;
@@ -54,7 +55,7 @@ class _InserimentoSegnalazioneGUIState
   final _photoKey = const Key('Foto');
   final _photoSubmitKey = const Key('FotoSubmit');
   final _submitKey = const Key('Invia');
-
+  final _list = const Key('InserimentoSegnalazione');
 
   @override
   void initState() {
@@ -94,34 +95,36 @@ class _InserimentoSegnalazioneGUIState
         backgroundColor: theme.colorScheme.primary,
       ),
       body: Stack(
-        key: const Key('InserimentoSegnalazione'),
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
               key: _formKey,
-              child: ListView(
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 20),
-                  _buildTitleField(),
-                  const SizedBox(height: 16),
-                  _buildCategoryField(),
-                  const SizedBox(height: 20),
-                  _buildCityField(),
-                  const SizedBox(height: 20),
-                  _buildAddressField(),
-                  const SizedBox(height: 16),
-                  _buildDescriptionField(),
-                  const SizedBox(height: 20),
-                  _buildImageCard(),
-                  const SizedBox(height: 20),
-                  _buildSelectPhotoButton(),
-                  const SizedBox(height: 20),
-                  _buildSubmitButton(),
-                  const SizedBox(height: 20),
-                  _buildFooter(),
-                ],
+              child: SingleChildScrollView(
+                key: _list,
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 20),
+                    _buildTitleField(),
+                    const SizedBox(height: 16),
+                    _buildCategoryField(),
+                    const SizedBox(height: 20),
+                    _buildCityField(),
+                    const SizedBox(height: 20),
+                    _buildAddressField(),
+                    const SizedBox(height: 16),
+                    _buildDescriptionField(),
+                    const SizedBox(height: 20),
+                    _buildImageCard(),
+                    const SizedBox(height: 20),
+                    _buildSelectPhotoButton(),
+                    const SizedBox(height: 20),
+                    _buildSubmitButton(),
+                    const SizedBox(height: 20),
+                    _buildFooter(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -335,7 +338,7 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildSubmitButton() {
     return Center(
         child: ElevatedButton.icon(
-          key: _submitKey,
+      key: _submitKey,
       onPressed: _isLoading ? null : _onSubmit,
       icon: const Icon(Icons.send, color: Colors.white),
       label: const Text('Invia Segnalazione',
@@ -423,7 +426,8 @@ class _InserimentoSegnalazioneGUIState
         titolo: _titolo!,
         descrizione: _descrizione!,
         categoria: _categoria,
-        location: _location, // Replace with actual location data
+        location: _location,
+        // Replace with actual location data
         indirizzo: _indirizzo,
         photo: _selectedImage,
       );
@@ -455,7 +459,9 @@ class _InserimentoSegnalazioneGUIState
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
             builder: (context) => const PermissionPage(
-                  redirectPage: HomePage(), error:'Abilita i permessi della fotocamera', icon: Icons.camera_alt,
+                  redirectPage: HomePage(),
+                  error: 'Abilita i permessi della fotocamera',
+                  icon: Icons.camera_alt,
                 )),
       );
     }
