@@ -95,7 +95,6 @@ class MunicipalityReportManagementController {
         showMessage(
           _context,
           message: 'Stato aggiornato correttamente',
-          isError: true,
         );
       }
     } catch (e) {

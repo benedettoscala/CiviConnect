@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (_userInfo is Admin) {
-      return const AdminHomePage();
+      return AdminHomePage();
     }
 
     return Scaffold(

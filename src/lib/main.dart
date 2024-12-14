@@ -27,6 +27,7 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+  
   // Init Hive for Local Storage
   await Hive.initFlutter();
   // Open box called "settings"
@@ -38,13 +39,17 @@ Future<void> main() async {
 /// This is the main application widget.
 class FirstPage extends StatelessWidget {
   /// This is the main application widget.
-  const FirstPage({super.key});
+  const FirstPage({super.key, this.isLogout});
+
+  /// This notify the user after logout. (The user will be redirected to
+  /// the login page, so i need a parameter for check the reason of Navigation).
+  final bool? isLogout;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeManager().customTheme,
-      home: const _FirstPage(),
+      home: _FirstPage(isLogout: isLogout),
       supportedLocales: const [
         Locale('it'),
       ],
@@ -57,13 +62,32 @@ class FirstPage extends StatelessWidget {
 }
 
 class _FirstPage extends StatefulWidget {
-  const _FirstPage();
+  const _FirstPage({this.isLogout});
+  final bool? isLogout;
 
   @override
   State<_FirstPage> createState() => _FirstPageState();
 }
 
 class _FirstPageState extends State<_FirstPage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isLogout ?? false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        const message = 'Logout effettuato con successo';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 7),
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Change color navgationbar
