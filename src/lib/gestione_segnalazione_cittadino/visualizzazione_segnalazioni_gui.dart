@@ -358,6 +358,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                     'number': report['address']['number'] ?? 'N/A',
                   },
             city: report['city'],
+            category: Category.getCategory(report['category']),
           );
           return (_errorText != '')
               ? Text(_errorText)

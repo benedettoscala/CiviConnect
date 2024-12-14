@@ -143,6 +143,7 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
             ? _statusCard(context)
             : InkWell(
                 onTap: widget._onStateButton, child: _statusCard(context)),
+        _categoryCard(context),
       ],
     );
   }
@@ -168,6 +169,21 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _categoryCard(context) {
+    String category =
+        widget._report.category != null ? widget._report.category!.name : 'N/A';
+    return Card(
+      elevation: 0.5,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          category,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ),
     );
