@@ -67,7 +67,7 @@ enum PriorityReport implements Comparable<PriorityReport> {
   unset(value: 1, name: 'Non impostata', color: Colors.grey),
 
   /// Low priority level.
-  low(value: 1, name: 'Bassa', color: Colors.yellow),
+  low(value: 2, name: 'Bassa', color: Colors.yellow),
 
   /// Medium priority level.
   medium(value: 3, name: 'Media', color: Colors.orange),
