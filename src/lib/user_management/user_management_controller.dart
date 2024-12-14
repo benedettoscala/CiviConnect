@@ -22,7 +22,7 @@ class UserManagementController {
   /// Parameters:
   /// - [redirectPage]: The target page to navigate to after a successful login.
   UserManagementController({this.redirectPage, userManagementDAO})
-      : userManagementDAO = userManagementDAO ?? userManagementDAO();
+      : userManagementDAO = userManagementDAO ?? UserManagementDAO();
 
   /// Handles user login.
   ///
