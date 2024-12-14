@@ -54,8 +54,8 @@ class MunicipalityReportManagementController {
   ///
   /// ### Parameters:
   /// - `redirectPage`: The page to redirect to after loading the municipality data.
-  MunicipalityReportManagementController({rdao, udao, this.redirectPage, context})
-      : _context = context, _reportDAO = rdao ?? MunicipalityReportManagementDAO(), _userManagementDAO = udao ?? UserManagementDAO() {
+  MunicipalityReportManagementController({reportDao, userManagementDao, this.redirectPage, context})
+      : _context = context, _reportDAO = reportDao ?? MunicipalityReportManagementDAO(), _userManagementDAO = userManagementDao ?? UserManagementDAO() {
     _loadMunicipality();
   }
 
@@ -70,12 +70,12 @@ class MunicipalityReportManagementController {
   /// - `redirectPage`: The page to redirect to after loading the municipality data.
   /// - `context`: The build context for showing messages.
   MunicipalityReportManagementController.forTest({
-    rdao,
-    udao,
-    m,
+    reportDao,
+    userManagementDao,
+    municipality,
     this.redirectPage, context,
-  })  : _reportDAO = rdao,
-        _context = context, _userManagementDAO = udao, _municipality = m ;
+  })  : _reportDAO = reportDao,
+        _context = context, _userManagementDAO = userManagementDao, _municipality = municipality ;
 
   /// Edits the status of a specific report.
   ///

@@ -61,10 +61,10 @@ void main() {
         home: Scaffold(
           body: Builder(builder: (context) {
             final controller = MunicipalityReportManagementController.forTest(
-              rdao: mockReportDAO,
-              udao: mockUserDAO,
+              reportDao: mockReportDAO,
+              userManagementDao: mockUserDAO,
               context: context,
-              m: m,
+              municipality: m,
             );
 
             return ElevatedButton(
@@ -97,10 +97,10 @@ void main() {
         home: Scaffold(
           body: Builder(builder: (context) {
             final controller = MunicipalityReportManagementController.forTest(
-              rdao: mockReportDAO,
-              udao: mockUserDAO,
+              reportDao: mockReportDAO,
+              userManagementDao: mockUserDAO,
               context: context,
-              m: m,
+              municipality: m,
             );
 
             return ElevatedButton(
