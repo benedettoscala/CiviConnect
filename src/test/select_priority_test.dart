@@ -89,7 +89,7 @@ void main() {
       expect(r.priority, equals(initialPriority));
     });
 
-    /// Test Case TC_8.0_1
+    /// Test Case TC_8.0_2
     testWidgets('editReportPriority changes the priority', (tester) async {
       PriorityReport newPriority = PriorityReport.high;
       // Costruisci un widget con un contesto reale
