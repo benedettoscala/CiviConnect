@@ -13,7 +13,8 @@ void showMessage(BuildContext context, {isError = false, message = ''}) {
     SnackBar(
       content: Text(message),
       backgroundColor: isError ? Colors.red : Colors.green,
-      duration: const Duration(seconds: 70),
+      duration:
+          isError ? const Duration(seconds: 7) : const Duration(seconds: 5),
     ),
   );
 }

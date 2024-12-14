@@ -431,7 +431,9 @@ class _InserimentoSegnalazioneGUIState
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
             builder: (context) => const PermissionPage(
-                  redirectPage: HomePage(), error:'Abilita i permessi della fotocamera', icon: Icons.camera_alt,
+                  redirectPage: HomePage(),
+                  error: 'Abilita i permessi della fotocamera',
+                  icon: Icons.camera_alt,
                 )),
       );
     }

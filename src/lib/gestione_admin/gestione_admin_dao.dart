@@ -72,14 +72,12 @@ class AdminManagementDAO {
     String adminEmail = genericUser?.email?.trim() ?? '';
 
     // Log in as admin
-    try{
+    try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: adminEmail, password: passwordAdmin);
     } catch (e) {
       throw ('Password Admin errata.');
     }
-
-
 
     if (FirebaseAuth.instance.currentUser == null) {
       throw ('Errore di autenticazione Admin.');

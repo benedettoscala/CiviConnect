@@ -43,8 +43,6 @@ class AdminHomePageState extends State<AdminHomePage> {
   TextEditingController? _textEditingControllerAutocomplete;
   List<Map<String, String>> _allMunicipalities = [];
   Map<String, String>? _selectedMunicipality;
-  String? _generatedEmail;
-  String? _generatedPassword;
   bool _isMunicipalityExisting = false;
 
   @override
@@ -173,7 +171,8 @@ class AdminHomePageState extends State<AdminHomePage> {
   /// Generate credentials for the selected municipality.
   void _generateCredentials(String adminPassword, String comuneEmail) async {
     try {
-      await _controller.generateCredentials(_selectedMunicipality!, adminPassword, comuneEmail);
+      await _controller.generateCredentials(
+          _selectedMunicipality!, adminPassword, comuneEmail);
 
       _textEditingControllerAutocomplete!.clear();
 
@@ -222,8 +221,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                               _allMunicipalities, textEditingValue.text);
                         }
                       },
-                      displayStringForOption: (comune) =>
-                          comune['Comune']!,
+                      displayStringForOption: (comune) => comune['Comune']!,
                       fieldViewBuilder: (
                         context,
                         textEditingController,

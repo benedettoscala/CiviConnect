@@ -117,6 +117,13 @@ class AdminManagementController {
 
   /// Checks if the municipality exists in the database.
   /// The municipality name is used to check if it exists in the database.
+  /// Returns a boolean indicating whether the municipality exists in the database.
+  /// Parameters:
+  /// - [comune]: The name of the municipality to check.
+  /// Returns:
+  /// - A `Future<bool>` indicating whether the municipality exists in the database.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
   Future<bool> municipalityExistsInDatabase(String comune) async {
     return await _daoAdmin.municipalityExistsInDatabase(comune);
   }
@@ -131,27 +138,31 @@ class AdminManagementController {
   /// Throws an exception if an error occurs during the process.
   /// Throws:
   /// - An exception if an error occurs during the process.
-  Future<void> generateCredentials(
-      Map<String, String> selectedMunicipality,
-      String adminPassword,
-      String emailComune) async {
+  /// - An exception if the admin password is incorrect.
+  /// - An exception if the authenticated user is not found.
+  /// - An exception if the municipality data cannot be saved to Firestore.
+  Future<void> generateCredentials(Map<String, String> selectedMunicipality,
+      String adminPassword, String emailComune) async {
     String municipalityEmailPart =
         selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
     String emailGen = 'comune.$municipalityEmailPart@anci.gov';
     String passwordGen = generatePassword();
 
-    if (validateEmail(emailGen) != null || validatePassword(passwordGen) != null) {
+    if (validateEmail(emailGen) != null ||
+        validatePassword(passwordGen) != null) {
       throw ('Errore nella generazione delle credenziali');
     }
 
     // Save municipality credentials to database
-    await _daoAdmin.createAccountAndSendCredentials(emailGen, passwordGen, emailComune, selectedMunicipality, adminPassword);
+    await _daoAdmin.createAccountAndSendCredentials(emailGen, passwordGen,
+        emailComune, selectedMunicipality, adminPassword);
   }
 
   /// Generate a random password for the municipality.
   /// The password is 15 characters long and contains uppercase, lowercase, numbers, and special characters.
   /// The password is shuffled for added security.
   /// Returns the generated password.
+  /// Throws an exception if an error occurs during the process.
   String generatePassword() {
     const length = 15;
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

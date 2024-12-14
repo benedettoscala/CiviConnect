@@ -23,8 +23,9 @@ class DataAnalysisManagementController {
   /// If not provided, a new instance of `DataAnalysisManagementDAO` will be created.
   /// - [userDAO]: An optional instance of `UserManagementDAO`.
   /// If not provided, a new instance of `UserManagementDAO` will be created.
-  DataAnalysisManagementController({DataAnalysisManagementDAO? analysisDAO, UserManagementDAO? userDAO}) :
-        _analysisDAO = analysisDAO ?? DataAnalysisManagementDAO(),
+  DataAnalysisManagementController(
+      {DataAnalysisManagementDAO? analysisDAO, UserManagementDAO? userDAO})
+      : _analysisDAO = analysisDAO ?? DataAnalysisManagementDAO(),
         _userDAO = userDAO ?? UserManagementDAO();
 
   /// Retrieves the municipality user from the database.
@@ -32,7 +33,7 @@ class DataAnalysisManagementController {
   /// Throws an exception if the user is not a municipality.
   Future<Municipality?> retrieveUser() async {
     // If the municipality is already available, return it.
-    if(_municipality != null) {
+    if (_municipality != null) {
       return _municipality;
     }
     // Retrieve the user from the database.
@@ -46,11 +47,11 @@ class DataAnalysisManagementController {
   }
 
   /// Returns the name of the municipality.
-/// If the municipality was not retrieved before, it is retrieved from the database.
-Future<String?> cityOfMunicipality() async {
-  _municipality ??= await retrieveUser();
-  return _municipality?.municipalityName?.toLowerCase();
-}
+  /// If the municipality was not retrieved before, it is retrieved from the database.
+  Future<String?> cityOfMunicipality() async {
+    _municipality ??= await retrieveUser();
+    return _municipality?.municipalityName?.toLowerCase();
+  }
 
   /// Retrieves the data for the HeatMap from the database.
   /// - [city]: The name of the city for which to retrieve the data.
@@ -58,7 +59,8 @@ Future<String?> cityOfMunicipality() async {
   /// - A `Future<List<WeightedLatLng>?>` containing the data for the HeatMap,
   /// or `null` if no data is available.
   Future<List<WeightedLatLng>?> dataHeatMap() async {
-    final List<WeightedLatLng>? data = await _analysisDAO.retrieveDataHeatMap(city: await cityOfMunicipality())
+    final List<WeightedLatLng>? data = await _analysisDAO
+        .retrieveDataHeatMap(city: await cityOfMunicipality())
         .then((data) => data);
     _cityCoordinates = data?.first.latLng;
     return data;
@@ -94,7 +96,8 @@ Future<String?> cityOfMunicipality() async {
 
       // Effettua la richiesta GET
       final response = await http.get(uri, headers: {
-          'User-Agent': 'CiviConnect/1.0 (civiconnect.unisa@gmail.com)' // Specifica un User-Agent
+        'User-Agent':
+            'CiviConnect/1.0 (civiconnect.unisa@gmail.com)' // Specifica un User-Agent
       });
 
       // Controlla se la risposta è valida
