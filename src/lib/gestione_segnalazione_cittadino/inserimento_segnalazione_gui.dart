@@ -94,6 +94,7 @@ class _InserimentoSegnalazioneGUIState
         backgroundColor: theme.colorScheme.primary,
       ),
       body: Stack(
+        key: const Key('InserimentoSegnalazione'),
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
