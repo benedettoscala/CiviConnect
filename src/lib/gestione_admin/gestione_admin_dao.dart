@@ -38,24 +38,20 @@ class AdminManagementDAO {
     }
   }
 
-  /// Save credentials for the municipality in the database.
-  /// The method saves the municipality's email, password, and province to Firestore.
-  /// It also creates a user with Firebase Authentication.
-  /// The method also logs in as the admin and logs out after saving the credentials.
-  /// The method throws an exception if an error occurs during the process.
+  /// Generate credentials for the municipality.
+  /// The method generates credentials for the municipality and sends them via email.
+  /// The method creates a new user in Firebase Authentication and saves the municipality data to Firestore.
   /// Parameters:
-  /// - [emailGen]: The email for the municipality user.
-  /// - [emailComune]: The email for the municipality.
+  /// - [emailGen]: The email address for the municipality user.
   /// - [passwordGen]: The password for the municipality user.
+  /// - [emailComune]: The email address for the municipality.
+  /// - [selectedComune]: The selected municipality data.
   /// - [passwordAdmin]: The password for the admin user.
-  /// - [selectedComune]: A map containing the name of the municipality and its province.
   /// Throws:
   /// - An exception if an error occurs during the process.
   /// - An exception if the admin password is incorrect.
-  /// - An exception if the user type is not an admin.
-  /// - An exception if the credentials cannot
-  ///  be saved to the database.
-
+  /// - An exception if the authenticated user is not found.
+  /// - An exception if the municipality data cannot be saved to Firestore.
   Future<void> createAccountAndSendCredentials(
       String emailGen,
       String passwordGen,
@@ -84,15 +80,6 @@ class AdminManagementDAO {
       await user.getIdToken(true);
     }
 
-    print('UID utente loggato: ${FirebaseAuth.instance.currentUser?.uid}');
-
-    print(emailGen);
-    print(passwordGen);
-    print(emailComune);
-    print(comune);
-    print(provincia);
-
-
     final callable = FirebaseFunctions.instance.httpsCallable('createAccountAndSendCredentialsv1');
     final result = await callable.call({
       'emailGen': emailGen,
@@ -101,9 +88,9 @@ class AdminManagementDAO {
       'comune': comune,
       'provincia': provincia
     });
-    print(result.data);
   }
 
+  /// Deprecated method to save credentials to the database.
   Future<void> saveCredentialsToDatabase(
       String emailGen,
       String emailComune,

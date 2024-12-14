@@ -173,13 +173,7 @@ class AdminHomePageState extends State<AdminHomePage> {
   /// Generate credentials for the selected municipality.
   void _generateCredentials(String adminPassword, String comuneEmail) async {
     try {
-      Map<String, String> credentials = await _controller.generateCredentials(
-          _selectedMunicipality!, adminPassword, comuneEmail);
-
-      setState(() {
-        _generatedEmail = credentials['email'];
-        _generatedPassword = credentials['password'];
-      });
+      await _controller.generateCredentials(_selectedMunicipality!, adminPassword, comuneEmail);
 
       _textEditingControllerAutocomplete!.clear();
 
@@ -342,15 +336,6 @@ class AdminHomePageState extends State<AdminHomePage> {
                                   },
                                   child: const Text('Genera Credenziali'),
                                 ),
-                        ],
-                      ),
-                    // TODO: Remoove this after email sent is handled
-                    if (_generatedEmail != null && _generatedPassword != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Email: $_generatedEmail'),
-                          Text('Password: $_generatedPassword'),
                         ],
                       ),
                   ],
