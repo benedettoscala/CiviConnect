@@ -49,7 +49,7 @@ enum StatusReport implements Comparable<StatusReport> {
 
   /// Returns the status of the report based on the [name].
   static StatusReport? getStatus(String? name) {
-    for(StatusReport status in StatusReport.values) {
+    for (StatusReport status in StatusReport.values) {
       if (status.name == name) {
         return status;
       }

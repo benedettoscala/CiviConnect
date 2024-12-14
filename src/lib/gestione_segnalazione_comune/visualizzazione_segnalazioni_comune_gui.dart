@@ -1,6 +1,8 @@
 import 'package:civiconnect/gestione_segnalazione_comune/dettagli_segnalazione_comune_gui.dart';
+import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/utils/report_status_priority.dart';
+import 'package:civiconnect/widgets/filter_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -15,7 +17,8 @@ class ReportsViewMunicipalityGUI extends StatefulWidget {
   const ReportsViewMunicipalityGUI({super.key});
 
   @override
-  State<ReportsViewMunicipalityGUI> createState() => _ReportsListMunicipalityState();
+  State<ReportsViewMunicipalityGUI> createState() =>
+      _ReportsListMunicipalityState();
 }
 
 class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
@@ -27,6 +30,13 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
   bool _isLoading = true;
   String _errorText = '';
   late ScrollController _scrollController;
+  Municipality? _municipality;
+  int _numberOfFilters = 0;
+  final List<StatusReport> _statusCriteria = [];
+  final List<PriorityReport> _priorityCriteria = [];
+  final List<Category> _categoryCriteria = [];
+  String? _keyWords;
+  DateTimeRange? _dateRange;
 
   /// Initializes the state of the widget.
   ///
@@ -38,15 +48,22 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent &&
+                _scrollController.position.maxScrollExtent &&
             _hasMoreData &&
             !_isLoadingMore) {
           _loadUpdateData();
         }
       });
-    _reportController = MunicipalityReportManagementController(context: context);
+    _reportController =
+        MunicipalityReportManagementController(context: context);
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Libera il controller dello scroll
+    super.dispose();
   }
 
   /// Build the widget
@@ -57,11 +74,11 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     if (_isLoading) {
       return _hasMoreData
           ? const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      )
+              body: Center(child: CircularProgressIndicator()),
+            )
           : const Scaffold(
-        body: Center(child: Text('Fine.')),
-      );
+              body: Center(child: Text('Fine.')),
+            );
     }
 
     return _buildScaffold();
@@ -78,6 +95,7 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     });
     try {
       _reportController.municipality.then((value) {
+        _municipality = value;
         _reportController.getMunicipalityReports(reset: true).then((value) {
           _userData.clear();
           setState(() {
@@ -162,21 +180,21 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                 child: _buildHeader(),
               ),
               (_userData.isEmpty)
-              // Check if there are any reports to show
-              // Show a message if there are no reports
+                  // Check if there are any reports to show
+                  // Show a message if there are no reports
                   ? SliverFillRemaining(
-                child: Center(
-                  child: Text(
-                    'Nessuna segnalazione trovata.',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-              )
+                      child: Center(
+                        child: Text(
+                          'Nessuna segnalazione trovata.',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ),
+                    )
                   :
 
-              /// Show the list of reports if there are any
-              // Scrollable list
-              _buildReportsList(),
+                  /// Show the list of reports if there are any
+                  // Scrollable list
+                  _buildReportsList(),
             ],
           ),
         ),
@@ -196,7 +214,9 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: Card(
-            color: Colors.white70,
+            color: _numberOfFilters > 0
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Colors.white70,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -208,14 +228,55 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.filter_list,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
-                    onPressed: () {
-                      // TODO: Implementa il metodo di selezione del filtro
-                    },
+                  /// Filter Button
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.filter_list,
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                        onPressed: () {
+                          /// Show the filter modal
+                          showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (context) => _municipality != null
+                                  ? FilterModal(
+                                      dateRange: _dateRange,
+                                      defaultCity:
+                                          _municipality!.municipalityName ?? '',
+                                      categoryCriteria: _categoryCriteria,
+                                      statusCriteria: _statusCriteria,
+                                      priorityCriteria: _priorityCriteria,
+                                      startCity:
+                                          _municipality!.municipalityName ?? '',
+                                      onSubmit: _filterData,
+                                      onReset: _resetFilters,
+                                    )
+                                  : const SizedBox());
+                        },
+                      ),
+
+                      /// Show the number of filters applied if there are any
+                      if (_numberOfFilters > 0)
+                        Positioned(
+                          right: -5,
+                          top: -5,
+                          child: CircleAvatar(
+                            radius: 8,
+                            backgroundColor: Colors.red,
+                            child: Text(
+                              _numberOfFilters.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -232,51 +293,51 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + (_hasMoreData ? 1 : 0),
-            (context, index) {
+        (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             _loadUpdateData();
             return (_isLoading)
                 ? const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
           Report store = Report(
-            reportId: report['reportId'],
-            title: report['title'],
-            uid: report['uid'],
-            authorFirstName: '${report['authorFirstName']}',
-            authorLastName: '${report['authorLastName']}',
-            description: report['description'],
-            status: StatusReport.getStatus(report['status']) ??
-                StatusReport.rejected,
-            priority: PriorityReport.getPriority(report['priority']) ??
-                PriorityReport.unset,
-            reportDate: report['reportDate'],
-            address: report['address'] == null
-                ? {'street': 'N/A', 'number': 'N/A'}
-                : {
-              'street': report['address']['street'] ?? 'N/A',
-              'number': report['address']['number'] ?? 'N/A',
-            },
-            city: report['city'],
-              photo: report['photo']
-          );
+              reportId: report['reportId'],
+              title: report['title'],
+              uid: report['uid'],
+              authorFirstName: '${report['authorFirstName']}',
+              authorLastName: '${report['authorLastName']}',
+              description: report['description'],
+              status: StatusReport.getStatus(report['status']) ??
+                  StatusReport.rejected,
+              priority: PriorityReport.getPriority(report['priority']) ??
+                  PriorityReport.unset,
+              reportDate: report['reportDate'],
+              address: report['address'] == null
+                  ? {'street': 'N/A', 'number': 'N/A'}
+                  : {
+                      'street': report['address']['street'] ?? 'N/A',
+                      'number': report['address']['number'] ?? 'N/A',
+                    },
+              city: report['city'],
+              photo: report['photo']);
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-            report: store,
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          DettagliSegnalazioneComune(report: store)));
-            },
-          );
+                  report: store,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              DettagliSegnalazioneComune(report: store)),
+                    );
+                  },
+                );
         },
       ),
     );
@@ -287,6 +348,15 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
   /// This method reloads the initial data and waits for a short delay before completing.
   Future<void> _pullRefresh() async {
     _loadInitialData();
+    _categoryCriteria.clear();
+    _statusCriteria.clear();
+    _priorityCriteria.clear();
+    setState(() {
+      _dateRange = null;
+      _numberOfFilters = 0;
+      _keyWords = '';
+      _errorText = '';
+    });
     await Future.delayed(const Duration(seconds: 1));
   }
 
@@ -318,12 +388,19 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
                 onPressed: () {
-                  // TODO - Implement search functionality
+                  if (_keyWords != null && _keyWords!.isNotEmpty ||
+                      _numberOfFilters > 0) {
+                    _filterData(
+                        city: _municipality?.municipalityName,
+                        keyWords: _keyWords,
+                        popNav: false,
+                        isCityEnabled: false);
+                  }
                 },
               ),
-              const Flexible(
+              Flexible(
                 child: TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       fillColor: Colors.white,
                       filled: true,
                       border: OutlineInputBorder(
@@ -331,6 +408,18 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
                         borderSide: BorderSide.none,
                       ),
                       hintText: 'Cerca segnalazione...'),
+                  onChanged: (value) {
+                    _keyWords = value;
+                  },
+                  onSubmitted: (value) {
+                    if (value.isNotEmpty || _numberOfFilters > 0) {
+                      _filterData(
+                          city: _municipality?.municipalityName,
+                          keyWords: _keyWords,
+                          popNav: false,
+                          isCityEnabled: false);
+                    }
+                  },
                 ),
               ),
             ],
@@ -338,5 +427,76 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
         ),
       ),
     );
+  }
+
+  /// Filters the data based on the selected filters.
+  /// Parameters:
+  /// - status: The list of selected status filters.
+  /// - priority: The list of selected priority filters.
+  /// - category: The list of selected category filters.
+  /// - city: The city to filter the reports by.
+  /// This method fetches the reports based on the selected filters and updates the state with the new data.
+  /// If an error occurs during the filtering process, the error message is displayed.
+  Future<void> _filterData(
+      {String? city,
+      List<StatusReport>? status,
+      List<PriorityReport>? priority,
+      List<Category>? category,
+      String? keyWords,
+      DateTimeRange? dateRange,
+      bool? isCityEnabled,
+      bool? popNav = false}) async {
+    _numberOfFilters = 0;
+    _numberOfFilters += status?.length ?? 0;
+    _numberOfFilters += priority?.length ?? 0;
+    _numberOfFilters += category?.length ?? 0;
+    _numberOfFilters += dateRange != null ? 1 : 0;
+
+    setState(() {
+      _isLoading = true;
+      _hasMoreData = true;
+      _errorText = '';
+      _dateRange = dateRange;
+    });
+
+    try {
+      _reportController
+          .filterReportsBy(
+              status: status,
+              priority: priority,
+              category: category,
+              dateRange: dateRange,
+              keyword: keyWords)
+          .then((value) async {
+        _userData.clear();
+
+        if (mounted) {
+          setState(() {
+            if (value != null && value.isNotEmpty) {
+              _userData.addAll(value);
+            } else {
+              _errorText = 'Nessuna segnalazione trovata';
+            }
+          });
+        }
+      });
+    } catch (e) {
+      _errorText = 'Errore durante il caricamento filtrato: $e';
+    } finally {
+      if (popNav!) {
+        Navigator.pop(context);
+      }
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+    }
+  }
+
+  /// Resets the filters and reloads the initial data.
+  /// This method resets the filters and reloads the initial data.
+  void _resetFilters() async {
+    Navigator.pop(context);
+    await _pullRefresh();
   }
 }

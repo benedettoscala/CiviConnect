@@ -29,8 +29,8 @@ enum Category {
 
   /// Returns the category based on the [name].
   static Category? getCategory(String name) {
-    for(Category category in Category.values) {
-      if(category.name == name) {
+    for (Category category in Category.values) {
+      if (category.name == name) {
         return category;
       }
     }
