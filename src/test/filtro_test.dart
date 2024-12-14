@@ -9,8 +9,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   // Esegui i test
-  _testCategoria(description: "TC_6.0_1",input: "a"*300, expected: "Lunghezza comune inferiore a 255",reason: "Il campo comune deve rispettare la lunghezza massima di 255 caratteri");
-  _testCategoria(description: "TC_6.0_1",input: "a",expected: null,reason: "Il campo comune ha lungezza minore di 255 caratteri");
+  _testComune(description: "TC_6.0_1",input: "a"*300, expected: "Lunghezza comune inferiore a 255",reason: "Il campo comune deve rispettare la lunghezza massima di 255 caratteri");
+  _testComune(description: "TC_6.0_1",input: "a",expected: null,reason: "Il campo comune ha lungezza minore di 255 caratteri");
+
   _testData(
       description: 'Test Date Range Picker with valid dates',
       input1: '2024-12-10T12:30:00.000Z',
@@ -20,7 +21,7 @@ void main() {
   );
 }
 
-void _testCategoria({required String description,required String input,required String? expected,required String reason}) {
+void _testComune({required String description,required String input,required String? expected,required String reason}) {
   testWidgets(description, (WidgetTester tester) async {
     final key = GlobalKey<FormBuilderFieldState>();
 
