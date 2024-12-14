@@ -21,15 +21,14 @@ class DettagliSegnalazioneComune extends StatefulWidget {
 List<StatusReport> _filteredStatusValues(StatusReport currentStatus) {
   switch (currentStatus) {
     case StatusReport.underReview:
-      return StatusReport.values.sublist(0);
+      return [StatusReport.accepted, StatusReport.inProgress, StatusReport.rejected];
     case StatusReport.accepted:
-      return StatusReport.values.sublist(1);
+      return [StatusReport.inProgress];
     case StatusReport.inProgress:
-      return StatusReport.values.sublist(2);
+      return [StatusReport.completed];
     case StatusReport.completed:
-      return StatusReport.values.sublist(3);
     case StatusReport.rejected:
-      return StatusReport.values.sublist(4);
+      return [];
   }
 }
 
@@ -49,39 +48,39 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
     return SingleDetailsReport(
         report: widget._report,
         onStateButton: () => _onChangeValue(
-              title: 'Cambia Stato',
-              objectType: StatusReport.values,
-              objectTarget: widget._report,
-              onValueSelected: (value) {
-                setState(() {
-                  widget._report.status = value;
-                });
-              },
-              clickableValues: _filteredStatusValues(widget._report.status!),
-            ),
+          title: 'Cambia Stato',
+          objectType: StatusReport.values,
+          objectTarget: widget._report,
+          onValueSelected: (value) {
+            setState(() {
+              widget._report.status = value;
+            });
+          },
+          clickableValues: _filteredStatusValues(widget._report.status!),
+        ),
         onPriorityButton: () => onChangeValue(
-              title: 'Cambia Priorità',
-              objectType: PriorityReport.values.where((value) => value != PriorityReport.unset).toList(),
-              objectTarget: widget._report,
-              onValueSelected: (value) {
-                //implement showMessage if it works
-                MunicipalityReportManagementController().editReportPriority(
-                    city: widget._report.city!,
-                    reportId: widget._report.reportId!,
-                    newPriority: value);
-                setState(() {
-                  widget._report.priority = value;
-                });
-              },
-            ));
+          title: 'Cambia Priorità',
+          objectType: PriorityReport.values.where((value) => value != PriorityReport.unset).toList(),
+          objectTarget: widget._report,
+          onValueSelected: (value) {
+            //implement showMessage if it works
+            MunicipalityReportManagementController().editReportPriority(
+                city: widget._report.city!,
+                reportId: widget._report.reportId!,
+                newPriority: value);
+            setState(() {
+              widget._report.priority = value;
+            });
+          },
+        ));
   }
 
   // Need only for priority
   void onChangeValue<T extends Enum>(
       {required String title,
-      required List<T> objectType,
-      required Report objectTarget,
-      required void Function(T) onValueSelected}) {
+        required List<T> objectType,
+        required Report objectTarget,
+        required void Function(T) onValueSelected}) {
     showDialog(
         context: context,
         builder: (context) {
@@ -89,16 +88,16 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
               title: Text(title),
               content: SingleChildScrollView(
                   child: ListBody(
-                children: objectType.map((value) {
-                  return ListTile(
-                    title: Text(value.toString()),
-                    onTap: () {
-                      onValueSelected(value);
-                      Navigator.of(context).pop();
-                    },
-                  );
-                }).toList(),
-              )));
+                    children: objectType.map((value) {
+                      return ListTile(
+                        title: Text(value.toString()),
+                        onTap: () {
+                          onValueSelected(value);
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    }).toList(),
+                  )));
         });
   }
 
@@ -129,12 +128,11 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
                       selected: selectedValue == value,
                       onTap: clickableValues.contains(value)
                           ? () {
-                              setState(() {
-                                selectedValue = value;
-                              });
-                              onValueSelected(value);
-                              //Navigator.of(context).pop();
-                            }
+                        setState(() {
+                          selectedValue = value;
+                        });
+                        onValueSelected(value);
+                      }
                           : null,
                     );
                   }).toList(),
@@ -148,11 +146,13 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
                   child: const Text('Annulla'),
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: clickableValues.isNotEmpty
+                      ? () {
                     // Implement the logic for the confirm action
                     _saveReportState(oldStatusLocal);
                     Navigator.of(context).pop();
-                  },
+                  }
+                      : null,
                   child: const Text('Aggiorna'),
                 ),
               ],
