@@ -158,7 +158,7 @@ class _FirstPageState extends State<_FirstPage> {
                             Navigator.push(
                               context,
                               _transitionAnimationLogin(
-                                  (context) => const RegistrazioneUtenteGui()),
+                                  (context) => RegistrazioneUtenteGui()),
                             );
                           },
                           child: const Text('Registrazione')),
