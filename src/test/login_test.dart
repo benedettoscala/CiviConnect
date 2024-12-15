@@ -76,7 +76,7 @@ void _testEmail({required String description,  required String input, required S
   testWidgets('Login: $description', (tester) async {
 
     // Load Login Widget and Test Environment
-    await _pumpWidgetAndTestEnv(tester: tester);
+    await _pumpWidgetAndTestEnv(tester: tester, controller: FakeUserManagementController());
 
     // Insert text in the email field
     // Tested input is injected here
@@ -106,7 +106,7 @@ void _testPassword({required String description, required String input, required
   testWidgets('Login $description', (tester) async {
 
     // Load Login Widget and Test Environment
-    await _pumpWidgetAndTestEnv(tester: tester);
+    await _pumpWidgetAndTestEnv(tester: tester, controller: FakeUserManagementController());
 
 
     //await tester.tap(find.text('Login'));
