@@ -12,15 +12,21 @@ import '../utils/snackbar_riscontro.dart';
 class UserProfile extends StatefulWidget {
   /// The controller for user management operations if not provided a new one is created.
   final UserManagementController userController;
+
   /// The page to navigate to after a successful logout.
   final Widget redirectLogOutPage;
+
   /// Widget stateful for viewing and editing user profile data.
   /// Params:
   /// - [controller]: The controller for user management operations if not provided a new one is created from UserManagementController.
   /// - [key]: The key for the widget.
   /// - [redirectLogOutPage]: The page to navigate to after a successful logout if not provided a new one is created from FirstPage.
-    UserProfile({UserManagementController? controller, super.key, Widget? redirectLogOutPage})
-    : userController = controller ?? UserManagementController(), redirectLogOutPage = redirectLogOutPage ??  const FirstPage();
+  UserProfile(
+      {UserManagementController? controller,
+      super.key,
+      Widget? redirectLogOutPage})
+      : userController = controller ?? UserManagementController(),
+        redirectLogOutPage = redirectLogOutPage ?? const FirstPage();
 
   @override
   State<UserProfile> createState() => _UserProfileState(userController);
@@ -115,7 +121,8 @@ class _UserProfileState extends State<UserProfile> {
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => widget.redirectLogOutPage),
+                                  builder: (context) =>
+                                      widget.redirectLogOutPage),
                               (route) => false,
                             );
                           } catch (e) {
@@ -188,7 +195,6 @@ class _UserProfileState extends State<UserProfile> {
       'Città': userData['city'] ?? 'N/A',
       'CAP': userData['cap'] ?? 'N/A',
     };
-
 
     return personalFields.keys.toList().map((field) {
       if (field == 'Indirizzo') {

@@ -48,16 +48,16 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
     return SingleDetailsReport(
         report: widget._report,
         onStateButton: () => _onChangeValue(
-          title: 'Cambia Stato',
-          objectType: StatusReport.values,
-          objectTarget: widget._report,
-          onValueSelected: (value) {
-            setState(() {
-              widget._report.status = value;
-            });
-          },
-          clickableValues: _filteredStatusValues(widget._report.status!),
-        ),
+              title: 'Cambia Stato',
+              objectType: StatusReport.values,
+              objectTarget: widget._report,
+              onValueSelected: (value) {
+                setState(() {
+                  widget._report.status = value;
+                });
+              },
+              clickableValues: _filteredStatusValues(widget._report.status!),
+            ),
         onPriorityButton: () => onChangeValue(
               title: 'Cambia Priorità',
               objectType: PriorityReport.values
@@ -80,9 +80,9 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
   // Need only for priority
   void onChangeValue<T extends Enum>(
       {required String title,
-        required List<T> objectType,
-        required Report objectTarget,
-        required void Function(T) onValueSelected}) {
+      required List<T> objectType,
+      required Report objectTarget,
+      required void Function(T) onValueSelected}) {
     showDialog(
         context: context,
         builder: (context) {
@@ -90,16 +90,16 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
               title: Text(title),
               content: SingleChildScrollView(
                   child: ListBody(
-                    children: objectType.map((value) {
-                      return ListTile(
-                        title: Text(value.toString()),
-                        onTap: () {
-                          onValueSelected(value);
-                          Navigator.of(context).pop();
-                        },
-                      );
-                    }).toList(),
-                  )));
+                children: objectType.map((value) {
+                  return ListTile(
+                    title: Text(value.toString()),
+                    onTap: () {
+                      onValueSelected(value);
+                      Navigator.of(context).pop();
+                    },
+                  );
+                }).toList(),
+              )));
         });
   }
 
@@ -130,11 +130,11 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
                       selected: selectedValue == value,
                       onTap: clickableValues.contains(value)
                           ? () {
-                        setState(() {
-                          selectedValue = value;
-                        });
-                        onValueSelected(value);
-                      }
+                              setState(() {
+                                selectedValue = value;
+                              });
+                              onValueSelected(value);
+                            }
                           : null,
                     );
                   }).toList(),
@@ -150,10 +150,10 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
                 TextButton(
                   onPressed: clickableValues.isNotEmpty
                       ? () {
-                    // Implement the logic for the confirm action
-                    _saveReportState(oldStatusLocal);
-                    Navigator.of(context).pop();
-                  }
+                          // Implement the logic for the confirm action
+                          _saveReportState(oldStatusLocal);
+                          Navigator.of(context).pop();
+                        }
                       : null,
                   child: const Text('Aggiorna'),
                 ),

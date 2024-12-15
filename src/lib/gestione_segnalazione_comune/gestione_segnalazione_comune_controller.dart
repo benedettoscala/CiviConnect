@@ -40,13 +40,14 @@ import 'gestione_segnalazione_comune_dao.dart';
 class MunicipalityReportManagementController {
   /// The page to navigate to after certain actions, such as adding a report.
   final Widget? redirectPage;
+
   /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
   final MunicipalityReportManagementDAO _reportDAO;
-  final UserManagementDAO _userManagementDAO ;
+  final UserManagementDAO _userManagementDAO;
   final BuildContext? _context;
   Municipality? _municipality;
-  final Completer<Municipality> _municipalityCompleter = Completer<Municipality>();
-
+  final Completer<Municipality> _municipalityCompleter =
+      Completer<Municipality>();
 
   /// Constructs a `MunicipalityReportManagementController`.
   ///
@@ -54,8 +55,11 @@ class MunicipalityReportManagementController {
   ///
   /// ### Parameters:
   /// - `redirectPage`: The page to redirect to after loading the municipality data.
-  MunicipalityReportManagementController({reportDAO, userManagementDAO, this.redirectPage, context})
-      : _context = context, _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(), _userManagementDAO = userManagementDAO ?? UserManagementDAO() {
+  MunicipalityReportManagementController(
+      {reportDAO, userManagementDAO, this.redirectPage, context})
+      : _context = context,
+        _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(),
+        _userManagementDAO = userManagementDAO ?? UserManagementDAO() {
     _loadMunicipality();
   }
 
@@ -73,9 +77,12 @@ class MunicipalityReportManagementController {
     reportDAO,
     userManagementDAO,
     municipality,
-    this.redirectPage, context,
+    this.redirectPage,
+    context,
   })  : _reportDAO = reportDAO,
-        _context = context, _userManagementDAO = userManagementDAO, _municipality = municipality ;
+        _context = context,
+        _userManagementDAO = userManagementDAO,
+        _municipality = municipality;
 
   /// Edits the status of a specific report.
   ///
@@ -140,22 +147,26 @@ class MunicipalityReportManagementController {
     final newStatusIndex = newStatus.index;
 
     // Rule 1: Transitions from 'completed' or 'rejected' are not allowed
-    if (currentStatus == StatusReport.completed || currentStatus == StatusReport.rejected) {
+    if (currentStatus == StatusReport.completed ||
+        currentStatus == StatusReport.rejected) {
       throw ('Transizione da stato ${currentStatus.name} non consentita.');
     }
 
     // Rule 2: 'rejected' can only be accessed from 'underReview'
-    if (newStatus == StatusReport.rejected && currentStatus != StatusReport.underReview) {
+    if (newStatus == StatusReport.rejected &&
+        currentStatus != StatusReport.underReview) {
       throw ('La transizione a "rejected" è consentita solo dallo stato "underReview".');
     }
 
     // Rule 3: Ensure the new status follows the correct order
-    if (newStatusIndex != currentStatusIndex + 1 && newStatus != StatusReport.rejected) {
+    if (newStatusIndex != currentStatusIndex + 1 &&
+        newStatus != StatusReport.rejected) {
       throw ('Transizione non valida. Lo stato successivo consentito è ${StatusReport.values[currentStatusIndex + 1].name}.');
     }
 
     // Rule 4: Check if newStatus is within the valid range
-    if (newStatusIndex < StatusReport.underReview.index || newStatusIndex > StatusReport.rejected.index) {
+    if (newStatusIndex < StatusReport.underReview.index ||
+        newStatusIndex > StatusReport.rejected.index) {
       throw ('Stato non valido: ${newStatus.name}');
     }
   }
@@ -188,16 +199,18 @@ class MunicipalityReportManagementController {
     required PriorityReport newPriority,
   }) async {
     try {
-      if (newPriority == PriorityReport.high || newPriority == PriorityReport.low || newPriority == PriorityReport.medium) {
-        await _reportDAO.editReportPriority(city: city, reportId: reportId, newPriority: newPriority);
+      if (newPriority == PriorityReport.high ||
+          newPriority == PriorityReport.low ||
+          newPriority == PriorityReport.medium) {
+        await _reportDAO.editReportPriority(
+            city: city, reportId: reportId, newPriority: newPriority);
         if (_context != null) {
           showMessage(
             _context,
             message: 'Priorità segnalazione cambiata',
           );
         }
-      }
-      else{
+      } else {
         if (_context != null) {
           showMessage(
             _context,

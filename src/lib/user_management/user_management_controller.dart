@@ -53,8 +53,8 @@ class UserManagementController {
   /// Returns:
   /// - A `Future<bool>` indicating whether the authentication was successful.
   Future<bool> _validateAuth(BuildContext context, email, password) async {
-    final bool result = await userManagementDAO
-        .signInWithEmailAndPassword(email: email, password: password);
+    final bool result = await userManagementDAO.signInWithEmailAndPassword(
+        email: email, password: password);
 
     if (result) {
       Navigator.pushAndRemoveUntil(
@@ -103,8 +103,8 @@ class UserManagementController {
   /// - [currentPassword]: The user's current password for authentication.
   Future<void> changeEmail(BuildContext context,
       {required String newEmail, required String currentPassword}) async {
-    await userManagementDAO
-        .updateEmail(newEmail: newEmail, currentPassword: currentPassword);
+    await userManagementDAO.updateEmail(
+        newEmail: newEmail, currentPassword: currentPassword);
   }
 
   /// Changes the user's password.
@@ -248,10 +248,9 @@ class UserManagementController {
   ///   print("User type could not be determined");
   /// }
   /// ```
-Future<GenericUser?> determineUserType() async {
-  return await userManagementDAO.determineUserType();
-}
-
+  Future<GenericUser?> determineUserType() async {
+    return await userManagementDAO.determineUserType();
+  }
 
   /// Returns the current user.
   User? getcurrentUser() {
