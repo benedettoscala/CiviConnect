@@ -142,6 +142,7 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
               priority: PriorityReport.getPriority(report['priority']) ??
                   PriorityReport.unset,
               reportDate: report['reportDate'],
+              endDate: report['endDate'],
               address: report['address'] == null
                   ? {'street': 'N/A', 'number': 'N/A'}
                   : {
