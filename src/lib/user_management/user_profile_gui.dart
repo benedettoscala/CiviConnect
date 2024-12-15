@@ -26,7 +26,8 @@ class UserProfile extends StatefulWidget {
       super.key,
       Widget? redirectLogOutPage})
       : userController = controller ?? UserManagementController(),
-        redirectLogOutPage = redirectLogOutPage ?? const FirstPage();
+        redirectLogOutPage =
+            redirectLogOutPage ?? const FirstPage(isLogout: true);
 
   @override
   State<UserProfile> createState() => _UserProfileState(userController);
