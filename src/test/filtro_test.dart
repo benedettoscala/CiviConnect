@@ -3,6 +3,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 //import 'package:form_builder_validators/form_builder_validators.dart';
+
+
 /// | **Test Case ID** | **Test Frame**          | **Esito**                         |
 /// |------------------|-------------------------|------------------------------------|
 /// | TC_6.0_1         | VC1                     | Errore: Categoria non valida      | enum is tested by the enum itself
@@ -12,9 +14,10 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 /// | TC_6.0_5         | VC2 FD2 VS2 VP2 VS1     | Errore: Stato non valido          | enum is tested by the enum itself
 /// | TC_6.0_6         | VC2 FD2 VS2 VP2 VS2     | Corretto                          |
 /// | TC_6.0_7         | LR1                     | Errore: Lunghezza ricerca non corretta    |
-/// | TC_6.0_8         | LA1                     | Errore: Lunghezza Comune non corretta |
-/// | TC_6.0_9         | LA2                     | Corretto                          |
-/// | TC_6.0_10        | VC2 FD2 VS2 VP2 VS2     | Corretto                          |
+/// | TC_6.0_8         | LR2                    | Corretto                           |
+/// | TC_6.0_9         | LA1                     | Errore: Lunghezza Comune non corretta |
+/// | TC_6.0_10         | LA2                     | Corretto                          |
+/// | TC_6.0_11        | VC2 FD2 VS2 VP2 VS2     | Corretto                          |
 
 
 
@@ -24,9 +27,10 @@ void main() {
   // Inizializza il binding per i test Flutter
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // Esegui i test
- _testComune(description: "TC_6.0_8",input: "a"*300, expected: "Lunghezza comune inferiore a 255",reason: "Il campo comune deve rispettare la lunghezza massima di 255 caratteri");
- _testComune(description: "TC_6.0_9",input: "a",expected: null,reason: "Il campo comune ha lungezza minore di 255 caratteri");
+  _testSearch(description: 'TC_6.0_7', input: 'a'*300, expected: 'Lunghezza search deve essere inferiore a 255', reason: 'Il campo search deve rispettare la lunghezza massima di 255 caratteri');
+  _testSearch(description: 'TC_6.0_8', input: 'a'*254, expected: '', reason: 'Il campo search ha lungezza minore di 255 caratteri');
+ _testComune(description: 'TC_6.0_9',input: 'a'*300, expected: 'Lunghezza comune deve essere inferiore a 255',reason: 'Il campo comune deve rispettare la lunghezza massima di 255 caratteri');
+ _testComune(description: 'TC_6.0_10',input: 'a',expected: null,reason: 'Il campo comune ha lungezza minore di 255 caratteri');
   /*
   _testForm(description: 'TC_6.0_1', status: StatusReport.accepted , priority:PriorityReport.medium , category: Category.values[8], data: DateTime.now(), expected: 'Errore Categoria non valida', reason: 'Categoria non valida');
  _testForm(description: 'TC_6.0_2', status: StatusReport.accepted, priority: PriorityReport.medium , category: Category.roadDamage, data: DateTime.parse("2022-10-11"), expected: 'Errore Formato data non valido', reason: '');
@@ -37,8 +41,7 @@ void main() {
   _testForm(description: 'TC_6.0_7', status: StatusReport.accepted, priority: PriorityReport.medium, category: Category.roadDamage, data: DateTime.now(), expected: null, reason: 'Corretto');
 _
 */
-  _testSearch(description: 'TC_6.0_7', input: 'a'*300, expected: 'Lunghezza search inferiore a 255', reason: 'Il campo search deve rispettare la lunghezza massima di 255 caratteri');
-  _testSearch(description: 'TC_6.0_7', input: 'a', expected: null, reason: 'corretto');
+
 }
 void _testComune({required String description,required String input,required String? expected,required String reason}) {
   testWidgets(description, (WidgetTester tester) async {
@@ -55,7 +58,7 @@ void _testComune({required String description,required String input,required Str
               initialValue: input, // Valore iniziale valido
               validator: FormBuilderValidators.maxLength(
                 255,
-                errorText: 'Lunghezza comune inferiore a 255',
+                errorText: 'Lunghezza comune deve essere inferiore a 255',
               ),
             ),
           ),
@@ -67,11 +70,18 @@ void _testComune({required String description,required String input,required Str
     final comuneField = find.byType(FormBuilderTextField);
     expect(comuneField, findsOneWidget,
         reason: 'Il campo comune deve essere presente nel widget tree.');
-    print(input);
-    print(comuneField.hasFound);
+    //print(input);
+    //print(comuneField.hasFound);
 
     // Esegui la validazione del campo
-    print(key.currentState?.validate());
+   key.currentState?.validate();
+    String error_text= 'null';
+    if(expected==null){
+      print(description + ":" + "expected:"+" "+error_text + " "+ "reason:" +" "+ reason);
+    }
+    else{
+      print(description + ":" + "expected:"+""+ expected + " "+ "reason:" +" "+ reason);
+    }
 
     // Verifica che l'errore sia quello atteso
     expect(key.currentState?.errorText, expected,
@@ -83,7 +93,7 @@ void _testComune({required String description,required String input,required Str
 void _testSearch({required String description,required String input,required String? expected,required String reason}) {
   testWidgets(description, (WidgetTester tester) async {
     // Crea il widget da testare
-    final key = GlobalKey<FormBuilderFieldState>();
+
     String errorText = '';
     await tester.pumpWidget(
       MaterialApp(
@@ -120,7 +130,7 @@ void _testSearch({required String description,required String input,required Str
         ),
       ),
     );
-    print("Stampa dell input"+input);
+    //print("Stampa dell input" +input);
 
     // Trova il TextField e inserisci il testo lungo
     await tester.enterText(find.byType(TextField), input);
@@ -128,9 +138,11 @@ void _testSearch({required String description,required String input,required Str
     // Simula l'invio del testo
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump();
-    print(key.currentState?.validate());
+
     // Verifica il risultato
     expect(errorText, expected, reason: reason);
+
+    print(description + ":" + "expected:"+" "+ errorText + " "+"reason:" + reason);
   });
 }
 

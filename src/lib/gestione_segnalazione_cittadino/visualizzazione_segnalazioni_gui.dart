@@ -427,7 +427,7 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                   },
                   onSubmitted: (value) {
                     if(value.length >255) { //prova
-                      _errorText='Lunghezza comune inferiore a 255';
+                      _errorText='Lunghezza search deve essere inferiore a 255';
                     }
                     if (value.isNotEmpty || _numberOfFilters > 0) {
                       _filterData(
