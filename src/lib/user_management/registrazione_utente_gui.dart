@@ -1,11 +1,9 @@
-import 'dart:convert';
 
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
 import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 //import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
@@ -17,10 +15,15 @@ import 'login_utente_gui.dart';
 /// Registration page for new users.
 class RegistrazioneUtenteGui extends StatefulWidget {
   /// Registration page for new users.
-  const RegistrazioneUtenteGui({super.key});
+  RegistrazioneUtenteGui({super.key, UserManagementController? controller})
+      : _controller = (controller == null)
+            ? UserManagementController(redirectPage: const HomePage())
+            : controller;
+
+  final UserManagementController _controller;
 
   @override
-  State<RegistrazioneUtenteGui> createState() => _RegistrazioneUtenteGuiState();
+  State<RegistrazioneUtenteGui> createState() => _RegistrazioneUtenteGuiState(_controller);
 }
 
 class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
@@ -36,6 +39,20 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
   };
   bool obscureText = true;
   final _formKey = GlobalKey<FormBuilderState>();
+  // Sends the email and password to the controller.
+  late UserManagementController _controller;
+  final _passKey = const Key('passwordField');
+  final _emailKey = const Key('emailField');
+  final _firstNameKey = const Key('nameField');
+  final _lastNameKey = const Key('surnameField');
+  final _cityKey = const Key('cityField');
+  final _capKey = const Key('capField');
+  final _streetKey = const Key('viaField');
+  final _numberKey = const Key('civicoField');
+  
+  _RegistrazioneUtenteGuiState(UserManagementController? controller) {
+    _controller = controller ?? UserManagementController(redirectPage: const HomePage());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +85,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _emailKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.email(),
                           FormBuilderValidators.required(),
@@ -84,6 +102,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _passKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.password(
                               minLength: 8, maxLength: 4096),
@@ -112,6 +131,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                         ),
                       ),
                       FormBuilderTextField(
+                        key: _firstNameKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'Il nome è obbligatorio'),
@@ -134,6 +154,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _lastNameKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'Il cognome è obbligatorio'),
@@ -156,6 +177,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _cityKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'La città è obbligatoria'),
@@ -178,6 +200,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                       ),
                       const SizedBox(height: 20),
                       FormBuilderTextField(
+                        key: _capKey,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(
                               errorText: 'Il CAP è obbligatorio'),
@@ -201,6 +224,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                           Expanded(
                             flex: 2,
                             child: FormBuilderTextField(
+                              key: _streetKey,
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
                                     errorText: 'La via è obbligatoria'),
@@ -223,6 +247,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                           Expanded(
                             flex: 1,
                             child: FormBuilderTextField(
+                              key: _numberKey,
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(
                                     errorText: 'N. Civico obbligatorio'),
@@ -252,6 +277,7 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
+                    key: const Key('registerButton'),
                     style: Theme.of(context).elevatedButtonTheme.style,
                     onPressed: () => _sendData(email, password, firstName,
                         lastName, city, cap, address),
@@ -292,12 +318,11 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
       String cap,
       Map<String, String> indirizzo) async {
     final formState = _formKey.currentState;
-    bool validUser;
     if (formState == null || !formState.saveAndValidate()) {
       return;
     }
 
-    bool isMatching = await isCapMatchingCityAPI(cap, city);
+    bool isMatching = await _controller.isCapMatchingCityAPI(cap, city);
     //print(isMatching);
     if (!isMatching) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -314,20 +339,17 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
       return;
     }
 
-    // Sends the email and password to the controller.
-    UserManagementController controller =
-        UserManagementController(redirectPage: const HomePage());
-
-    validUser = await controller.register(context,
-        email: email,
-        password: password,
-        name: firstName,
-        surname: lastName,
-        address: indirizzo,
-        city: city,
-        cap: cap);
-    // If the user is not valid, a snackbar is displayed.
-    if (!validUser) {
+    try {
+      await _controller.register(context,
+          email: email,
+          password: password,
+          name: firstName,
+          surname: lastName,
+          address: indirizzo,
+          city: city,
+          cap: cap);
+    } catch (e) {
+      // If the user is not valid, a snackbar is displayed.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -336,57 +358,10 @@ class _RegistrazioneUtenteGuiState extends State<RegistrazioneUtenteGui> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          content: const Text('Invalid email or password'),
+          content: const Text('Email già utilizzata'),
         ),
       );
     }
-  }
-}
-
-/// Verifica se il CAP fornito corrisponde alla città utilizzando un file JSON locale.
-///
-/// Questo metodo legge un file JSON locale contenente una lista di CAP e città,
-/// e controlla se il CAP specificato corrisponde alla città data. Restituisce `true`
-/// se il CAP corrisponde alla città, altrimenti `false`.
-///
-/// Parametri:
-/// - [cap]: Il codice postale da verificare.
-/// - [city]: Il nome della città da verificare rispetto al CAP.
-///
-/// Ritorna:
-/// - Un `Future<bool>` che risolve a `true` se il CAP corrisponde alla città,
-///   altrimenti `false`.
-///
-/// Esempio:
-/// ```dart
-/// bool isMatching = await isCapMatchingCityAPI('00100', 'Rome');
-/// if (isMatching) {
-///   print('Il CAP corrisponde alla città.');
-/// } else {
-///   print('Il CAP non corrisponde alla città.');
-/// }
-/// ```
-
-Future<bool> isCapMatchingCityAPI(String cap, String city) async {
-  try {
-    // Legge il contenuto del file JSON dalla directory "files"
-    final jsonData = await rootBundle
-        .loadString('assets/files/comuni-localita-cap-italia.json');
-
-    // Decodifica il contenuto del file in una lista di mappe
-    final List<dynamic> comuniData =
-        json.decode(jsonData)['Sheet 1 - comuni-localita-cap-i'];
-
-    // Cerca se c'è un elemento con il CAP e il Comune corrispondente
-    final match = comuniData.any((element) =>
-        element['CAP'] == cap &&
-        element['Comune Localita’'].toLowerCase() == city.toLowerCase());
-
-    return match; // Restituisce true se corrisponde, altrimenti false
-  } catch (e) {
-    // In caso di errore (es. file non trovato), stampa il problema e restituisce false
-    //print('Errore nel controllo CAP-Città: $e');
-    return false;
   }
 }
 

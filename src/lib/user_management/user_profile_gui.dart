@@ -1,7 +1,6 @@
 import 'package:civiconnect/model/users_model.dart';
 import 'package:civiconnect/theme.dart';
 import 'package:civiconnect/user_management/user_management_controller.dart';
-import 'package:civiconnect/user_management/user_management_dao.dart';
 import 'package:civiconnect/widgets/modal_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +10,27 @@ import '../utils/snackbar_riscontro.dart';
 
 /// Widget stateful for viewing and editing user profile data.
 class UserProfile extends StatefulWidget {
+  /// The controller for user management operations if not provided a new one is created.
+  final UserManagementController userController;
+
+  /// The page to navigate to after a successful logout.
+  final Widget redirectLogOutPage;
+
   /// Widget stateful for viewing and editing user profile data.
-  const UserProfile({super.key});
+  /// Params:
+  /// - [controller]: The controller for user management operations if not provided a new one is created from UserManagementController.
+  /// - [key]: The key for the widget.
+  /// - [redirectLogOutPage]: The page to navigate to after a successful logout if not provided a new one is created from FirstPage.
+  UserProfile(
+      {UserManagementController? controller,
+      super.key,
+      Widget? redirectLogOutPage})
+      : userController = controller ?? UserManagementController(),
+        redirectLogOutPage =
+            redirectLogOutPage ?? const FirstPage(isLogout: true);
 
   @override
-  State<UserProfile> createState() => _UserProfileState();
+  State<UserProfile> createState() => _UserProfileState(userController);
 }
 
 class _UserProfileState extends State<UserProfile> {
@@ -27,15 +42,16 @@ class _UserProfileState extends State<UserProfile> {
   late ThemeData theme;
   late TextStyle textStyle;
   late GenericUser userInfo;
-  User _user = UserManagementDAO().currentUser!;
+  User? _user;
+
+  _UserProfileState(this.userController);
 
   @override
   void initState() {
     super.initState();
     theme = ThemeManager().customTheme;
     textStyle = theme.textTheme.titleMedium!.copyWith(fontSize: 16);
-    userController =
-        UserManagementController(redirectPage: const UserProfile());
+    _user = userController.getcurrentUser();
     _loadUserData();
   }
 
@@ -43,7 +59,7 @@ class _UserProfileState extends State<UserProfile> {
   void _loadUserData() async {
     late Map<String, dynamic> data;
     try {
-      userInfo = (await UserManagementController().determineUserType())!;
+      userInfo = (await userController.determineUserType())!;
       if (userInfo is Citizen) {
         data = await userController.getUserData();
       } else {
@@ -102,11 +118,12 @@ class _UserProfileState extends State<UserProfile> {
                       child: ElevatedButton(
                         onPressed: () async {
                           try {
-                            await UserManagementController().logOut();
+                            await userController.logOut();
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const FirstPage()),
+                                  builder: (context) =>
+                                      widget.redirectLogOutPage),
                               (route) => false,
                             );
                           } catch (e) {
@@ -371,16 +388,16 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   Widget _buildProfileHeader(
-      ThemeData theme, User user, Map<String, dynamic> userData) {
+      ThemeData theme, User? user, Map<String, dynamic> userData) {
     return Center(
       child: Column(
         children: [
           CircleAvatar(
             radius: 80,
-            backgroundImage: user.photoURL != null
-                ? NetworkImage(user.photoURL!)
+            backgroundImage: user?.photoURL != null
+                ? NetworkImage(user!.photoURL!)
                 : AssetImage(
-                    'assets/images/profile/${user.uid.hashCode % 6}.jpg'),
+                    'assets/images/profile/${user!.uid.hashCode % 6}.jpg'),
             //child: user.photoURL == null ? Icon(Icons.person, size: 80) : null,
           ),
           const SizedBox(height: 5),
@@ -393,7 +410,7 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  Widget _buildAccountData(User user, ThemeData theme) {
+  Widget _buildAccountData(User? user, ThemeData theme) {
     Widget buildRow(String label, String value) => Row(
           children: [
             Expanded(
@@ -424,7 +441,7 @@ class _UserProfileState extends State<UserProfile> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildRow('Email:', user.email ?? 'N/A'),
+        buildRow('Email:', user?.email ?? 'N/A'),
         const SizedBox(height: 10),
         if (userInfo is Citizen) ...[
           buildRow('Password:', '********'),
@@ -479,7 +496,7 @@ class _UserProfileState extends State<UserProfile> {
 
       // Update the user data in the state
       setState(() {
-        _user = UserManagementDAO().currentUser!;
+        _user = userController.getcurrentUser();
       });
 
       showMessage(context, message: 'Email aggiornata con successo');

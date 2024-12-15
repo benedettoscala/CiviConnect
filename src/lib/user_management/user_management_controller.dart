@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:civiconnect/user_management/user_management_dao.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../model/users_model.dart';
 
@@ -13,11 +17,15 @@ class UserManagementController {
   /// The page to navigate to after a successful login.
   final Widget? redirectPage;
 
+  /// The DAO for user management operations.
+  final UserManagementDAO userManagementDAO;
+
   /// Constructs a `UserManagementController` instance.
   ///
   /// Parameters:
   /// - [redirectPage]: The target page to navigate to after a successful login.
-  UserManagementController({this.redirectPage});
+  UserManagementController({this.redirectPage, userManagementDAO})
+      : userManagementDAO = userManagementDAO ?? UserManagementDAO();
 
   /// Handles user login.
   ///
@@ -48,8 +56,8 @@ class UserManagementController {
   /// Returns:
   /// - A `Future<bool>` indicating whether the authentication was successful.
   Future<bool> _validateAuth(BuildContext context, email, password) async {
-    final bool result = await UserManagementDAO()
-        .signInWithEmailAndPassword(email: email, password: password);
+    final bool result = await userManagementDAO.signInWithEmailAndPassword(
+        email: email, password: password);
 
     if (result) {
       Navigator.pushAndRemoveUntil(
@@ -67,7 +75,7 @@ class UserManagementController {
   /// Returns:
   /// - A `Future<Map<String, dynamic>>` containing the user's data.
   Future<Map<String, dynamic>> getUserData() async {
-    return await UserManagementDAO().getUserData();
+    return await userManagementDAO.getUserData();
   }
 
   /// Fetches the municipality data.
@@ -75,7 +83,7 @@ class UserManagementController {
   /// Returns:
   /// - A `Future<Map<String, String>>` containing the municipality data.
   Future<Map<String, String>> getMunicipalityData() async {
-    return await UserManagementDAO().getMunicipalityData();
+    return await userManagementDAO.getMunicipalityData();
   }
 
   /// Updates the user's data.
@@ -83,7 +91,7 @@ class UserManagementController {
   /// Parameters:
   /// - [userData]: A map containing the user's updated data.
   Future<void> updateUserData(Map<String, dynamic> userData) async {
-    await UserManagementDAO().updateUserData(userData);
+    await userManagementDAO.updateUserData(userData);
   }
 
   // -------------------- User Data Modification Methods --------------------
@@ -98,8 +106,8 @@ class UserManagementController {
   /// - [currentPassword]: The user's current password for authentication.
   Future<void> changeEmail(BuildContext context,
       {required String newEmail, required String currentPassword}) async {
-    await UserManagementDAO()
-        .updateEmail(newEmail: newEmail, currentPassword: currentPassword);
+    await userManagementDAO.updateEmail(
+        newEmail: newEmail, currentPassword: currentPassword);
   }
 
   /// Changes the user's password.
@@ -112,7 +120,7 @@ class UserManagementController {
   /// - [newPassword]: The new password to set.
   Future<void> changePassword(BuildContext context,
       {required String currentPassword, required String newPassword}) async {
-    await UserManagementDAO().updatePassword(
+    await userManagementDAO.updatePassword(
         currentPassword: currentPassword, newPassword: newPassword);
   }
 
@@ -174,7 +182,7 @@ class UserManagementController {
 
   Future<bool> _validateRegistration(BuildContext context, email, password,
       name, surname, address, city, cap) async {
-    UserManagementDAO userDao = UserManagementDAO();
+    UserManagementDAO userDao = userManagementDAO;
     final bool result = await userDao.createUserWithEmailAndPassword(
         email: email,
         password: password!,
@@ -199,7 +207,7 @@ class UserManagementController {
 
   /// Checks if the current user is an administrator.
   Future<bool> checkIfUserIsAdmin() async {
-    return await UserManagementDAO().determineUserType() is Admin;
+    return await userManagementDAO.determineUserType() is Admin;
   }
 
   /// By Marco: MI MANCA MARTINA :(
@@ -218,7 +226,7 @@ class UserManagementController {
   /// - An exception if an error occurs during the process.
   Future<void> logOut() async {
     try {
-      await UserManagementDAO().logOut();
+      await userManagementDAO.logOut();
     } catch (e) {
       throw Exception('Errore durante il logout');
     }
@@ -244,6 +252,57 @@ class UserManagementController {
   /// }
   /// ```
   Future<GenericUser?> determineUserType() async {
-    return await UserManagementDAO().determineUserType();
+    return await userManagementDAO.determineUserType();
+  }
+
+  /// Returns the current user.
+  User? getcurrentUser() {
+    return userManagementDAO.currentUser;
+  }
+
+  /// Verifica se il CAP fornito corrisponde alla città utilizzando un file JSON locale.
+  ///
+  /// Questo metodo legge un file JSON locale contenente una lista di CAP e città,
+  /// e controlla se il CAP specificato corrisponde alla città data. Restituisce `true`
+  /// se il CAP corrisponde alla città, altrimenti `false`.
+  ///
+  /// Parametri:
+  /// - [cap]: Il codice postale da verificare.
+  /// - [city]: Il nome della città da verificare rispetto al CAP.
+  ///
+  /// Ritorna:
+  /// - Un `Future<bool>` che risolve a `true` se il CAP corrisponde alla città,
+  ///   altrimenti `false`.
+  ///
+  /// Esempio:
+  /// ```dart
+  /// bool isMatching = await isCapMatchingCityAPI('00100', 'Rome');
+  /// if (isMatching) {
+  ///   print('Il CAP corrisponde alla città.');
+  /// } else {
+  ///   print('Il CAP non corrisponde alla città.');
+  /// }
+  /// ```
+  Future<bool> isCapMatchingCityAPI(String cap, String city) async {
+    try {
+      // Legge il contenuto del file JSON dalla directory "files"
+      final jsonData = await rootBundle
+          .loadString('assets/files/comuni-localita-cap-italia.json');
+
+      // Decodifica il contenuto del file in una lista di mappe
+      final List<dynamic> comuniData =
+      json.decode(jsonData)['Sheet 1 - comuni-localita-cap-i'];
+
+      // Cerca se c'è un elemento con il CAP e il Comune corrispondente
+      final match = comuniData.any((element) =>
+      element['CAP'] == cap &&
+          element['Comune Localita’'].toLowerCase() == city.toLowerCase());
+
+      return match; // Restituisce true se corrisponde, altrimenti false
+    } catch (e) {
+      // In caso di errore (es. file non trovato), stampa il problema e restituisce false
+      //print('Errore nel controllo CAP-Città: $e');
+      return false;
+    }
   }
 }

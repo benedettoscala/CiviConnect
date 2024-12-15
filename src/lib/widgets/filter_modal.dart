@@ -16,6 +16,7 @@ class FilterModal extends StatefulWidget {
       List<PriorityReport>? priority,
       List<Category>? category,
       DateTimeRange? dateRange,
+      bool? isCityEnabled,
       bool? popNav}) onSubmit;
 
   /// Callback function that is triggered when the form is reset.

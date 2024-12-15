@@ -88,8 +88,8 @@ class CitizenReportManagementDAO {
   ///
   /// Throws:
   /// - [Exception]: If the user is not logged in.
-
-  Future<List<Map<String, dynamic>>?> getUserReportList({required String userId}) async {
+  Future<List<Map<String, dynamic>>?> getUserReportList(
+      {required String userId}) async {
     return await _getReportsByUser(userId: userId);
   }
 
@@ -143,7 +143,6 @@ class CitizenReportManagementDAO {
       // Note: This is not efficient for large data
       // Note: could be done in the backend by using Algolia or ElasticSearch
       // or adding a new field with the concatenated data as an array in the report document
-
       results = querySnapshot.docs.map((doc) => doc.data()).toList();
 
       if (keyword != null && keyword.isNotEmpty) {
@@ -241,13 +240,15 @@ class CitizenReportManagementDAO {
   /// Returns:
 
   /// - A \`Future<List<Map<String, dynamic>>?>\` containing the next ten reports created by the specified user, or \`null\` if the user is not valid.
-  Future<List<Map<String, dynamic>>?> _getReportsByUser({required String userId}) async {
+  Future<List<Map<String, dynamic>>?> _getReportsByUser(
+      {required String userId}) async {
     List<Map<String, dynamic>> allReports = [];
     try {
       // Get all city collections
       final cityCollections = await _firestore.collection('reports').get();
       for (var cityDoc in cityCollections.docs) {
-        Query<Map<String, dynamic>> query = cityDoc.reference.collection('${cityDoc.id}_reports')
+        Query<Map<String, dynamic>> query = cityDoc.reference
+            .collection('${cityDoc.id}_reports')
             .where('uid', isEqualTo: userId);
 
         final querySnapshot = await query.get();
