@@ -78,7 +78,7 @@ void main() {
           'TC_7.0.3 StatusReport from not in Attesa to Scartata Expected: changeStatus Fails',
       currentStatus: StatusReport.inProgress,
       newStatus: StatusReport.rejected,
-      expectedStatus: StatusReport.rejected);
+      expectedStatus: StatusReport.inProgress);
 
   /// TC_7.0.4 transition to previus state Expected: changeStatus Fails
   _testState(
