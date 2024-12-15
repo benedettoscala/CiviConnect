@@ -115,6 +115,14 @@ class MunicipalityReportManagementDAO {
           .collection('${city?.toLowerCase()}_reports')
           .doc(reportId)
           .update({'status': newStatus.name});
+      if (newStatus == StatusReport.completed) {
+        await _firestore
+            .collection('reports')
+            .doc(city?.toLowerCase())
+            .collection('${city?.toLowerCase()}_reports')
+            .doc(reportId)
+            .update({'endDate': Timestamp.now()});
+      }
     } catch (e) {
       throw const PermissionDeniedException(
           'You do not have the permissions to modify the status of the report');
