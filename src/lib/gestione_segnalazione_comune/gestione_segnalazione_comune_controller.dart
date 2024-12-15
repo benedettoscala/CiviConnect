@@ -135,12 +135,32 @@ class MunicipalityReportManagementController {
 
   /// Checks if the status change is valid.
   /// This method checks if the status change is valid based on the current and new status.
-  /// If the status change is not valid, it throws an exception.
+  /// If the status change is not valid, it throws an exception with the corresponding error message.
+  /// The following rules are enforced:
+  /// 1. Transitions from 'completed' or 'rejected' are not allowed.
+  /// 2. 'rejected' can only be accessed from 'underReview'.
+  /// 3. Ensure the new status follows the correct order.
+  /// 4. Check if newStatus is within the valid range.
   /// Parameters:
   /// - [currentStatus]: The current status of the report.
   /// - [newStatus]: The new status to set for the report.
   /// Throws:
-  /// - An exception if the status change is not valid.
+  /// - An exception with the corresponding error message if the status change is not valid.
+  /// Example:
+  /// ```dart
+  /// isValidStatusChange(
+  ///  currentStatus: StatusReport.underReview,
+  ///  newStatus: StatusReport.accepted,
+  ///  );
+  ///  ```
+  ///  This example checks if the status change from 'underReview' to 'accepted' is valid.
+  ///  If the status change is not valid, it throws an exception with the corresponding error message.
+  ///  ```dart
+  ///  isValidStatusChange(
+  ///  currentStatus: StatusReport.inProgress,
+  ///  newStatus: StatusReport.completed,
+  ///  );
+  ///  ```
   void isValidStatusChange(StatusReport currentStatus, StatusReport newStatus) {
     // Get the indices of the current and new status
     final currentStatusIndex = currentStatus.index;
@@ -155,7 +175,7 @@ class MunicipalityReportManagementController {
     // Rule 2: 'rejected' can only be accessed from 'underReview'
     if (newStatus == StatusReport.rejected &&
         currentStatus != StatusReport.underReview) {
-      throw ('La transizione a "rejected" è consentita solo dallo stato "underReview".');
+      throw ('La transizione a "Rifiutata" è consentita solo dallo stato "In Verifica".');
     }
 
     // Rule 3: Ensure the new status follows the correct order
