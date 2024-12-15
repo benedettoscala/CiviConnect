@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_permessi_failed.dart';
+
 //import 'package:civiconnect/widgets/input_textfield_decoration.dart';
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/model/report_model.dart';
+import 'package:civiconnect/utils/snackbar_riscontro.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -199,7 +201,21 @@ class _InserimentoSegnalazioneGUIState
               _categoria = value!;
             }),
           },
-          validator: FormBuilderValidators.required(),
+          validator: FormBuilderValidators.compose(
+            [
+              FormBuilderValidators.required(
+                  errorText: 'Il campo è obbligatorio'),
+              (value) {
+                if (value != Category.waste &&
+                    value != Category.maintenance &&
+                    value != Category.roadDamage &&
+                    value != Category.lighting) {
+                  return 'Categoria non valida';
+                }
+                return null;
+              },
+            ],
+          ),
         ),
       ],
     );
@@ -236,7 +252,9 @@ class _InserimentoSegnalazioneGUIState
           key: _indirizzoKey,
           controller: _indirizzoController,
           //decoration: TextFieldInputDecoration(context, labelText: 'Indirizzo'),
-          validator: FormBuilderValidators.required(),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+          ]),
           enabled: false,
           onSaved: (value) => {
             setState(() {
@@ -247,7 +265,8 @@ class _InserimentoSegnalazioneGUIState
                     .join(' '),
                 'number': value.split(' ').last
               };
-            })
+            }
+            ),
           },
         )
       ],
@@ -450,10 +469,12 @@ class _InserimentoSegnalazioneGUIState
     try {
       final pickedFile =
           await ImagePicker().pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
+      if (pickedFile != null && pickedFile.path.toLowerCase().endsWith('.jpg')) {
         setState(() {
           _selectedImage = File(pickedFile.path);
         });
+      } else {
+        showMessage(context, isError: true, message: 'Estensione immagine non valida');
       }
     } catch (e) {
       Navigator.of(context).pushReplacement(
