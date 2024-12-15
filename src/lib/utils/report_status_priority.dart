@@ -49,8 +49,8 @@ enum StatusReport implements Comparable<StatusReport> {
 
   /// Returns the status of the report based on the [name].
   static StatusReport? getStatus(String? name) {
-    for(StatusReport status in StatusReport.values) {
-      if(status.name == name) {
+    for (StatusReport status in StatusReport.values) {
+      if (status.name == name) {
         return status;
       }
     }
@@ -67,7 +67,7 @@ enum PriorityReport implements Comparable<PriorityReport> {
   unset(value: 1, name: 'Non impostata', color: Colors.grey),
 
   /// Low priority level.
-  low(value: 1, name: 'Bassa', color: Colors.yellow),
+  low(value: 2, name: 'Bassa', color: Colors.yellow),
 
   /// Medium priority level.
   medium(value: 3, name: 'Media', color: Colors.orange),
@@ -107,8 +107,8 @@ enum PriorityReport implements Comparable<PriorityReport> {
 
   /// Returns the priority of the report based on the [name].
   static PriorityReport? getPriority(String? name) {
-    for(PriorityReport priority in PriorityReport.values) {
-      if(priority.name == name) {
+    for (PriorityReport priority in PriorityReport.values) {
+      if (priority.name == name) {
         return priority;
       }
     }

@@ -12,18 +12,18 @@ import 'package:latlong2/latlong.dart';
 enum DataPartition {
   /// Analyze data by priority of the reports.
   priority,
+
   /// Analyze data by status of the reports.
   status,
+
   /// Analyze data by category of the reports.
   category
 }
-
 
 /// Data Access Object (DAO) for managing data analysis.
 /// The DAO is used to retrieve data from the database
 /// to be used in the data analysis for the municipality.
 class DataAnalysisManagementDAO {
-
   /// The Firestore instance.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -46,7 +46,7 @@ class DataAnalysisManagementDAO {
   /// or `null` if no data is available.
   Future<List<WeightedLatLng>?> retrieveDataHeatMap({String? city}) async {
     // If the data is already available, return it.
-    if(_data != null){
+    if (_data != null) {
       return _data;
     }
 
@@ -54,16 +54,18 @@ class DataAnalysisManagementDAO {
     final docs = await _retrieveReports(city: city);
 
     // If no data is available, return null.
-    if(docs.isEmpty){
+    if (docs.isEmpty) {
       return null;
     }
     // The data is stored in a list of WeightedLatLng objects.
     _data = docs.map((doc) {
-      GeoPoint point = doc.data()['location'] ??_defaultPoint;
-        return WeightedLatLng(
-        LatLng(point.latitude, point.longitude),
-        PriorityReport.getPriority(doc.data()['priority']?? 'Non impostata')!.value.ceilToDouble());}
-    ).toList();
+      GeoPoint point = doc.data()['location'] ?? _defaultPoint;
+      return WeightedLatLng(
+          LatLng(point.latitude, point.longitude),
+          PriorityReport.getPriority(doc.data()['priority'] ?? 'Non impostata')!
+              .value
+              .ceilToDouble());
+    }).toList();
 
     return _data;
   }
@@ -74,10 +76,15 @@ class DataAnalysisManagementDAO {
   /// - A `Future<LatLng>` containing the coordinates of the city,
   /// or `LatLng(40.773837, 14.7884)` (Fisciano City) if no coordinates are available.
   /// The coordinates are retrieved from the first report in the database.
-  Future<LatLng> retrieveFirstReportLocation({String? city}){
-    return _firestore.collection('reports').doc(city).collection('${city}_reports').get().then((querySnapshot) {
+  Future<LatLng> retrieveFirstReportLocation({String? city}) {
+    return _firestore
+        .collection('reports')
+        .doc(city)
+        .collection('${city}_reports')
+        .get()
+        .then((querySnapshot) {
       final docs = querySnapshot.docs;
-      if(docs.isEmpty){
+      if (docs.isEmpty) {
         return LatLng(_defaultPoint.latitude, _defaultPoint.longitude);
       }
       final point = docs.first.data()['location'] ?? _defaultPoint;
@@ -95,16 +102,15 @@ class DataAnalysisManagementDAO {
     String? city,
     DataPartition? dataPartition,
   }) async {
-
-    if(_docs == null){
+    if (_docs == null) {
       await _retrieveReports(city: city);
     }
 
-    if(_docs!.isEmpty){
+    if (_docs!.isEmpty) {
       return null;
     }
 
-    switch(dataPartition){
+    switch (dataPartition) {
       case DataPartition.status:
         return _analyzeDataBy('status');
       case DataPartition.category:
@@ -114,9 +120,7 @@ class DataAnalysisManagementDAO {
       default:
         return null;
     }
-
   }
-
 
   /* ----------------- Private methods ----------------- */
 
@@ -124,9 +128,14 @@ class DataAnalysisManagementDAO {
   /// - [city]: The name of the city for which to retrieve the reports.
   /// Returns:
   /// - A `Future<QuerySnapshot>` containing all reports for the city.
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _retrieveReports({String? city}) async {
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _retrieveReports(
+      {String? city}) async {
     // Retrieve the data from the database.
-    final querySnapshot = await _firestore.collection('reports').doc(city).collection('${city}_reports').get();
+    final querySnapshot = await _firestore
+        .collection('reports')
+        .doc(city)
+        .collection('${city}_reports')
+        .get();
     final docs = querySnapshot.docs;
     _docs = docs;
     return docs;
@@ -145,5 +154,4 @@ class DataAnalysisManagementDAO {
     }
     return mapData;
   }
-
 }

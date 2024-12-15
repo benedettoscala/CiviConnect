@@ -1,5 +1,6 @@
 import 'package:civiconnect/theme.dart';
 import 'package:flutter/material.dart';
+
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
 import '../widgets/card_widget.dart';
@@ -33,7 +34,8 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
   @override
   void initState() {
     super.initState();
-    _reportController = CitizenReportManagementController(redirectPage: const MyReportsViewGUI());
+    _reportController = CitizenReportManagementController(
+        redirectPage: const MyReportsViewGUI());
     theme = ThemeManager().customTheme;
     _loadInitialData(); // Load initial data
   }
@@ -117,14 +119,14 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         childCount: _userData.length + 1,
-            (context, index) {
+        (context, index) {
           if (index == _userData.length) {
             // Mostra un indicatore di caricamento alla fine della lista
             return (_isLoading)
                 ? const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
                 : const SizedBox(height: 0);
           }
           final report = _userData[index];
@@ -143,24 +145,24 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
               address: report['address'] == null
                   ? {'street': 'N/A', 'number': 'N/A'}
                   : {
-                'street': report['address']['street'] ?? 'N/A',
-                'number': report['address']['number'] ?? 'N/A',
-              },
+                      'street': report['address']['street'] ?? 'N/A',
+                      'number': report['address']['number'] ?? 'N/A',
+                    },
               city: report['city'],
-              photo: report['photo']
-          );
+              photo: report['photo'],
+              category: Category.getCategory(report['category']));
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(
-            report: store,
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          DettagliSegnalazioneCittadino(report: store)));
-            },
-          );
+                  report: store,
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                DettagliSegnalazioneCittadino(report: store)));
+                  },
+                );
         },
       ),
     );

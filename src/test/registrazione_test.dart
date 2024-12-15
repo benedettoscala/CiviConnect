@@ -43,7 +43,7 @@ class FakeUserManagementController extends Fake
       required String city,
       required String cap}) {
     if (email == 'present@gmail.com') {
-      return Future.value(false);
+      throw Exception('Email già utilizzata');
     } else {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const Placeholder()));
@@ -128,7 +128,7 @@ void main() {
       city: 'Fisciano',
       via: 'Via Roma',
       civico: '23',
-      expected: 'Invalid email or password',
+      expected: 'Email già utilizzata',
       isValid: false);
 
   _testField(

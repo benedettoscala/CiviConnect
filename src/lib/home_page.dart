@@ -55,16 +55,15 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
   final List<Widget> _pages = <Widget>[
     const MyReportsViewGUI(),
     const ReportsViewCitizenGUI(),
-    const UserProfile(),
+    UserProfile(),
     DataAnalysisGUI(),
     const ReportsViewMunicipalityGUI(),
-    const UserProfile(),
+    UserProfile(),
   ];
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -80,12 +79,13 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (_userInfo is Admin) {
-      return const AdminHomePage();
+      return AdminHomePage();
     }
 
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _pages[_userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
+      body: _pages[
+          _userInfo is Municipality ? _selectedIndex + 3 : _selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: _userInfo is Citizen
             ? const [

@@ -258,7 +258,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-
                       /// Filter Button
                       Stack(
                         clipBehavior: Clip.none,
@@ -359,6 +358,8 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
                     'number': report['address']['number'] ?? 'N/A',
                   },
             city: report['city'],
+            photo: report['photo'],
+            category: Category.getCategory(report['category']),
           );
           return (_errorText != '')
               ? Text(_errorText)
@@ -469,12 +470,14 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
   /// This method fetches the reports based on the selected filters and updates the state with the new data.
   /// If an error occurs during the filtering process, the error message is displayed.
   Future<void> _filterData(
-      {required String city,
+      {String? city,
       List<StatusReport>? status,
       List<PriorityReport>? priority,
       List<Category>? category,
       String? keyWords,
       DateTimeRange? dateRange,
+      bool?
+          isCityEnabled, // Not used in this method but required for the method signature
       bool? popNav = false}) async {
     _numberOfFilters = 0;
     _numberOfFilters += status?.length ?? 0;
@@ -493,17 +496,17 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
       _reportController.citizen.then((value) async {
         _citizen = value;
 
-          if (await _checkValidity(city)) {
-            _citySelected = city;
-          } else {
-            _citySelected = _citizen!.city;
-            showMessage(context, isError: true, message: 'Città non valida');
-            return null;
-          }
+        if (await _checkValidity(city ?? '')) {
+          _citySelected = city;
+        } else {
+          _citySelected = _citizen!.city;
+          showMessage(context, isError: true, message: 'Città non valida');
+          return null;
+        }
 
         _reportController
             .filterReportsBy(
-                city: city,
+                city: city ?? '',
                 status: status,
                 priority: priority,
                 category: category,
@@ -523,7 +526,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
           }
         });
       });
-
     } catch (e) {
       _errorText = 'Errore durante il caricamento filtrato: $e';
     } finally {
@@ -562,7 +564,6 @@ class _ReportsListCitizenState extends State<ReportsViewCitizenGUI> {
 
     return allMunicipalities;
   }
-
 
   /// Checks if the city is valid.
   /// This method checks if the city is valid by comparing it to a list of valid cities.
