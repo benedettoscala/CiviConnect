@@ -54,7 +54,7 @@ class MunicipalityReportManagementController {
   ///
   /// ### Parameters:
   /// - `redirectPage`: The page to redirect to after loading the municipality data.
-  MunicipalityReportManagementController({reportDAO, userDAO, this.redirectPage, context})
+  MunicipalityReportManagementController({reportDAO, userManagementDAO, this.redirectPage, context})
       : _context = context, _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(), _userManagementDAO = userManagementDAO ?? UserManagementDAO() {
     _loadMunicipality();
   }

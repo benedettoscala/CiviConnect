@@ -123,7 +123,7 @@ void _testState(
         body: Builder(builder: (context) {
           final controller = MunicipalityReportManagementController.forTest(
             reportDAO: mockReportDAO,
-            userDAO: mockUserDAO,
+            userManagementDAO: mockUserDAO,
             context: context,
             municipality: municipality,
           );
