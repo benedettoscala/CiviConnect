@@ -28,8 +28,6 @@ import 'package:flutter_test/flutter_test.dart';
 /// TC_3.0_19: CIVICO have letters or special characters: Registration fails
 /// TC_3.0_20: Success registration: Registration is Accepted
 ///
-/// dart run build_runner build
-///
 
 class FakeUserManagementController extends Fake
     implements UserManagementController {
@@ -342,7 +340,7 @@ void main() {
 /// Pump Registrazione Widget and Test Environment
 /// This method is used to pump the Registration Widget and test the environment
 Future<void> _pumpWidgetAndTestEnv({required WidgetTester tester}) async {
-  //Build our app and trigger a frame.
+  // Build our app and trigger a frame.
   final localController = FakeUserManagementController();
   await tester.pumpWidget(
       MaterialApp(home: RegistrazioneUtenteGui(controller: localController)));
@@ -351,8 +349,7 @@ Future<void> _pumpWidgetAndTestEnv({required WidgetTester tester}) async {
   await _checkIsRegistrationPage(tester);
 }
 
-/// Checks for Registration Page Elements: Registration Button, Email Field, Password Field.
-///
+/// Checks for Registration Page elements.
 /// Async test method
 Future<void> _checkIsRegistrationPage(WidgetTester tester) async {
   // Verify that the Registration button is still present
@@ -364,6 +361,7 @@ Future<void> _checkIsRegistrationPage(WidgetTester tester) async {
   // Verify that the password field is still present
   expect(find.text('Password'), findsOneWidget,
       reason: 'The password field is (still) present');
+  // Ignore the other element (unnecessary).
 }
 
 void _testField(
@@ -384,8 +382,7 @@ void _testField(
     // Load Registration Widget and Test Environment
     await _pumpWidgetAndTestEnv(tester: tester);
 
-    // Insert text in the email field
-    // Tested input is injected here
+    // Insert text in field
     await tester.enterText(find.byKey(const Key('emailField')), email);
     await tester.enterText(find.byKey(const Key('passwordField')), password);
     await tester.enterText(find.byKey(const Key('nameField')), name);
@@ -394,43 +391,19 @@ void _testField(
     await tester.enterText(find.byKey(const Key('capField')), cap);
     await tester.enterText(find.byKey(const Key('viaField')), via);
     await tester.enterText(find.byKey(const Key('civicoField')), civico);
-    // Tap the Registration button and trigger a frame.
 
+    // Scroll to the button
     await tester.dragUntilVisible(
-      find.byKey(const Key('registerButton')), // what you want to find
-      find.byType(SingleChildScrollView), // widget you want to scroll
-      const Offset(0, 50), // delta to move
+      find.byKey(const Key('registerButton')),
+      find.byType(SingleChildScrollView),
+      const Offset(0, 50),
     );
+    // Tap the button
     await tester.tap(find.text('Registrati'));
     await tester.pump();
-/*
-    final emailState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('emailField')))
-        .errorText;
-    final passwordState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('passwordField')))
-        .errorText;
-    final nameState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('nameField')))
-        .errorText;
-    final surnameState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('surnameField')))
-        .errorText;
-    final cityState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('cityField')))
-        .errorText;
-    final capState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('capField')))
-        .errorText;
-    final viaState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('viaField')))
-        .errorText;
-    final civicoState = tester
-        .state<FormBuilderFieldState>(find.byKey(Key('civicoField')))
-        .errorText;
-*/
+
     if (isValid) {
-      /// all work fine. nice job
+      // all work fine. nice job
       await tester.pumpAndSettle();
       expect(find.text('Registrati'), findsNothing);
     } else {
