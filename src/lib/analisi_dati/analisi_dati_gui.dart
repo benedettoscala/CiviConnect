@@ -225,13 +225,14 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
   Widget _buildHeatMap() {
     return ExpansionTile(
       title: const Text(
-          'HeatMap',
-          style: TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-          ),
+        'HeatMap',
+        style: TextStyle(
+          fontSize: 19,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      subtitle: const Text('Visualizza la distribuzione delle segnalazioni sul territorio.'),
+      subtitle: const Text(
+          'Visualizza la distribuzione delle segnalazioni sul territorio.'),
       trailing: const Icon(Icons.add_chart),
       collapsedIconColor: Colors.black,
       backgroundColor: Colors.white,
@@ -244,33 +245,34 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
               height: MediaQuery.of(context).size.height * 0.5,
               child: (_cityCoordinates != null)
                   ? FlutterMap(
-                options: MapOptions(
-                  onMapReady: () => _waitForLoading(ready: true),
-                  initialCenter: _cityCoordinates!,
-                  initialZoom: 13.0,
-                ),
-                children: [
-                  (_isMapReady)
-                      ? TileLayer(
-                    errorTileCallback: (tile, error, stack) =>
-                        _errorMap(error),
-                    urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    tileProvider: CancellableNetworkTileProvider(),
-                  )
-                      : _buildErrorMap(),
-                  if (_dataHeatMap != null && _dataHeatMap!.isNotEmpty)
-                    HeatMapLayer(
-                      heatMapDataSource:
-                      InMemoryHeatMapDataSource(data: _dataHeatMap!),
-                      heatMapOptions: HeatMapOptions(
-                          gradient: HeatMapOptions.defaultGradient,
-                          radius: 50,
-                          layerOpacity: 0.8,
-                          minOpacity: 0.1),
-                    ),
-                ],
-              ) : _buildErrorMap(),
+                      options: MapOptions(
+                        onMapReady: () => _waitForLoading(ready: true),
+                        initialCenter: _cityCoordinates!,
+                        initialZoom: 13.0,
+                      ),
+                      children: [
+                        (_isMapReady)
+                            ? TileLayer(
+                                errorTileCallback: (tile, error, stack) =>
+                                    _errorMap(error),
+                                urlTemplate:
+                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                tileProvider: CancellableNetworkTileProvider(),
+                              )
+                            : _buildErrorMap(),
+                        if (_dataHeatMap != null && _dataHeatMap!.isNotEmpty)
+                          HeatMapLayer(
+                            heatMapDataSource:
+                                InMemoryHeatMapDataSource(data: _dataHeatMap!),
+                            heatMapOptions: HeatMapOptions(
+                                gradient: HeatMapOptions.defaultGradient,
+                                radius: 50,
+                                layerOpacity: 0.8,
+                                minOpacity: 0.1),
+                          ),
+                      ],
+                    )
+                  : _buildErrorMap(),
             ),
           ],
         ),
@@ -290,11 +292,11 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
   ExpansionTile _buildPieChart() {
     return ExpansionTile(
         title: const Text(
-            'Grafici',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-            ),
+          'Grafici',
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: const Text('Visualizza i grafici e le statistiche'),
         trailing: (_isExpandedPC)
@@ -339,7 +341,8 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
             ],
           ),
           const SizedBox(height: 20),
-          Text('Grafico a Torta', style: Theme.of(context).textTheme.titleSmall),
+          Text('Grafico a Torta',
+              style: Theme.of(context).textTheme.titleSmall),
           (_pieData != null && _pieData!.isNotEmpty)
               ? PieChart(
                   key: _pieChartKey,
@@ -377,10 +380,11 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                 2: FlexColumnWidth(1),
               },
               children: [
-                 const TableRow(
+                const TableRow(
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 3.0),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 3.0),
                       child: Text(
                         'Valori',
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -406,7 +410,8 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
                   TableRow(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 3.0),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 3.0),
                         child: Text(entry.key),
                       ),
                       Padding(
@@ -423,8 +428,7 @@ class _DataAnalysisState extends State<DataAnalysisGUI> {
               ],
             ),
           const SizedBox(height: 15),
-        ]
-    );
+        ]);
   }
 }
 

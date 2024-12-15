@@ -88,7 +88,7 @@ class UserManagementDAO {
           .doc(uid)
           .set({...additionalData});
     } catch (e) {
-      throw Exception('Error creating user: $e');
+      throw Exception('Email gia in uso');
     }
     return true;
   }
@@ -285,7 +285,8 @@ class UserManagementDAO {
   ///
   /// Returns:
   /// - The capitalized string.
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1).toLowerCase();
+  String capitalize(String s) =>
+      s[0].toUpperCase() + s.substring(1).toLowerCase();
 
   /// Updates the authenticated user's data in Firestore.
   ///

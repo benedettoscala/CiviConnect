@@ -27,8 +27,14 @@ import '../utils/snackbar_riscontro.dart';
 /// The page uses the `_isMunicipalityExisting` to store whether the municipality is already present in the database.
 /// The page uses the `_showAdminPasswordAndMunicipalityEmailDialog` function to show a dialog for entering the Admin password and municipality email.
 class AdminHomePage extends StatefulWidget {
+  /// The controller for the Admin Home Page.
+  final AdminManagementController controller;
+
   /// Creates an Admin Home Page widget.
-  const AdminHomePage({super.key});
+  AdminHomePage({super.key, AdminManagementController? controller})
+      : controller = (controller == null)
+      ? AdminManagementController()
+      : controller;
 
   @override
   AdminHomePageState createState() => AdminHomePageState();
@@ -38,18 +44,17 @@ class AdminHomePage extends StatefulWidget {
 /// This state manages the state of the Admin Home Page widget.
 /// The state uses the `AdminManagementController` to handle the business logic.
 class AdminHomePageState extends State<AdminHomePage> {
-  final AdminManagementController _controller = AdminManagementController();
+  late final AdminManagementController _controller;
   // Controller fo searched field
   TextEditingController? _textEditingControllerAutocomplete;
   List<Map<String, String>> _allMunicipalities = [];
   Map<String, String>? _selectedMunicipality;
-  String? _generatedEmail;
-  String? _generatedPassword;
   bool _isMunicipalityExisting = false;
 
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller;
     _loadMunicipalities();
   }
 
@@ -173,13 +178,8 @@ class AdminHomePageState extends State<AdminHomePage> {
   /// Generate credentials for the selected municipality.
   void _generateCredentials(String adminPassword, String comuneEmail) async {
     try {
-      Map<String, String> credentials = await _controller.generateCredentials(
+      await _controller.generateCredentials(
           _selectedMunicipality!, adminPassword, comuneEmail);
-
-      setState(() {
-        _generatedEmail = credentials['email'];
-        _generatedPassword = credentials['password'];
-      });
 
       _textEditingControllerAutocomplete!.clear();
 
@@ -228,8 +228,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                               _allMunicipalities, textEditingValue.text);
                         }
                       },
-                      displayStringForOption: (comune) =>
-                          comune['Comune']!,
+                      displayStringForOption: (comune) => comune['Comune']!,
                       fieldViewBuilder: (
                         context,
                         textEditingController,
@@ -342,15 +341,6 @@ class AdminHomePageState extends State<AdminHomePage> {
                                   },
                                   child: const Text('Genera Credenziali'),
                                 ),
-                        ],
-                      ),
-                    // TODO: Remoove this after email sent is handled
-                    if (_generatedEmail != null && _generatedPassword != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Email: $_generatedEmail'),
-                          Text('Password: $_generatedPassword'),
                         ],
                       ),
                   ],
