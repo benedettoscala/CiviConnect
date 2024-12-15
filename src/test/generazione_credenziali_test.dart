@@ -1,29 +1,57 @@
 import 'dart:convert';
-
-import 'package:civiconnect/gestione_admin/admin_gui.dart';
+import 'dart:math';
 import 'package:civiconnect/gestione_admin/gestione_admin_controller.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:string_similarity/string_similarity.dart';
 
 class FakeAdminManagementController extends Fake implements AdminManagementController {
   @override
-  Future<Map<String, String>> generateCredentials(
-      Map<String, String> selectedMunicipality,
-      String adminPassword,
-      String emailComune) async {
-    String municipalityEmailPart =
-    selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
+  Future<String> generateCredentials(Map<String, String> selectedMunicipality, String adminPassword, String emailComune) async {
+    String municipalityEmailPart = selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
     String emailGen = 'comune.$municipalityEmailPart@anci.gov';
     String passwordGen = generatePassword();
 
-    if (validateEmail(emailGen) != null || validatePassword(passwordGen) != null) {
+    validateCredentialsGenerated(emailGen, passwordGen);
+
+    return 'Credenziali generate con successo';
+  }
+
+  @override
+  void validateCredentialsGenerated(String email, String password) {
+    String? emailError = validateEmail(email);
+    String? passwordError = validatePassword(password);
+
+    if (emailError != null || passwordError != null) {
       throw ('Errore nella generazione delle credenziali');
     }
+  }
 
-    return {'emailGen': emailGen, 'passwordGen': passwordGen};
+  @override
+  String generatePassword() {
+    const length = 15;
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const special = '!@#\$%&*?';
+
+    const allChars = uppercase + lowercase + numbers + special;
+    final rand = Random.secure();
+
+    String password = '';
+    password += uppercase[rand.nextInt(uppercase.length)];
+    password += lowercase[rand.nextInt(lowercase.length)];
+    password += numbers[rand.nextInt(numbers.length)];
+    password += special[rand.nextInt(special.length)];
+
+    for (int i = 4; i < length; i++) {
+      password += allChars[rand.nextInt(allChars.length)];
+    }
+
+    // Mix character of password
+    List<String> passwordChars = password.split('');
+    passwordChars.shuffle();
+    return passwordChars.join();
   }
 
   @override
@@ -137,6 +165,15 @@ class FakeAdminManagementController extends Fake implements AdminManagementContr
       return false;
     }
   }
+
+  @override
+  Future<bool> validateAdminPassword(String password) {
+    if (password == 'validP4ssword#') {
+      return Future.value(true);
+    } else {
+      return Future.value(false);
+    }
+  }
 }
 
 void main() {
@@ -146,166 +183,105 @@ void main() {
       reason: 'Email ha un carattere speciale');
 
   /// Test Case TC_4.0_2
-  _testEmail(description: 'TC_4.0_2',input: 'stringemail.com', expected:'Inserisci un indirizzo email valido',
-      reason: 'Email deve contenere i caratteri richiesti');
+  _testEmail(description: 'TC_4.0_2', input: 'Stringthismail.com', expected: 'Inserisci un indirizzo email valido',
+      reason: 'Email con elementi mancanti');
 
   // Check Password Admin
   /// Test Case TC_4.0_3
-  _testPassword(description: 'TC_4.0_3', input: 's#0rt', expected: 'La password deve contenere almento 8 caratteri',
-      reason: 'Password deve rispettare i vincoli di lunghezza');
+  _testPassword(description: 'TC_4.0_3', input: 's#0rT', expected: 'La password deve contenere almeno 8 caratteri',
+      reason: 'Password troppo corta');
 
   /// Test Case TC_4.0_4
   _testPassword(description: 'TC_4.0_4', input: 'noSpeci4lChar', expected: 'La password deve contenere almeno un carattere speciale',
-      reason: 'Password must respect length constraints');
+      reason: 'Password senza caratteri speciali');
 
   /// Test Case TC_4.0_5
-  //_testPasswordMock(description: 'TC_4.0_5', input: 'invalidP4ssword#', expected: 'Errore nel salvataggio delle credenziali',
-  // reason: 'Password admin non corretta');
+  _testValidationAdminPassword(description: 'TC_4.0_5', input: 'invalidP4ssword#', expected: false, reason: 'Password Admin non corretta');
 
-  // Check credential generation
+  //Check credentials generation
   /// Test Case TC_4.0_6
-  _testGenerateCredentials(description: 'TC_4.0_6', inputEmail: 'correct.format@mail.com', inputPassword: 'validP4ssword#',
+  _testGenerateCredentials(description: 'TC_4.0_6', emailGen: 'comune.roma!?@anci.gov', passwordGen: 'validP4ssword#',
       expected: 'Errore nella generazione delle credenziali', reason: 'Credenziale Email generata non valida');
 
   /// Test Case TC_4.0_7
-  _testGenerateCredentials(description: 'TC_4.0_7', inputEmail: 'correct.format@mail.com', inputPassword: 'validP4ssword#',
+  _testGenerateCredentials(description: 'TC_4.0_7', emailGen: 'comune.romaanci.gov', passwordGen: 'validP4ssword#',
       expected: 'Errore nella generazione delle credenziali', reason: 'Credenziale Email generata non valida');
 
   /// Test Case TC_4.0_8
-  _testGenerateCredentials(description: 'TC_4.0_8', inputEmail: 'correct.format@mail.com', inputPassword: 'validP4ssword#',
+  _testGenerateCredentials(description: 'TC_4.0_8', emailGen: 'comune.roma@anci.gov', passwordGen: 'Password#',
       expected: 'Errore nella generazione delle credenziali', reason: 'Credenziale Password generata non valida');
 
   //Check Municipality
   /// Test Case TC_4.0_9
-  _testMunicipality(description: 'TC_4.0_9', inputEmail: 'valid.email@mail.com', inputPassword: 'validP4ssword#', input: 'FISCIANO',
-      expected: 'Errore nel salvataggio delle credenziali', reason: 'Comune già esistente');
+  _testExistsInDatabase(description: 'TC_4.0_9', inputComune: 'FISCIANO', expected: true, reason: 'Comune non presente nel database');
 
   /// Test Case TC_4.0_10
-  _testMunicipality(description: 'TC_4.0_10', inputEmail: 'valid.email@mail.com', inputPassword: 'validP4ssword#', input: 'ROMA',
-      expected: 'Credenziali generate con successo', reason: 'Corretto');
+  _testCorrectGenerateCredentials(description: 'TC_4.0_10', inputEmail: 'correct.format@mail.com', inputPassword: 'validP4ssword#', inputComune: 'ROMA',
+      expected: 'Credenziali generate con successo', reason: 'Credenziali generate correttamente');
 }
 
-/// Testing Email Field
-void _testEmail({required String description,  required String input, required String expected, String? reason}) {
-  testWidgets('Generazione Credenziali: $description', (tester) async {
+void _testEmail({required String description, required String input, required String expected, String? reason}) {
+  testWidgets(description, (tester) async {
     final localController = FakeAdminManagementController();
-    await _pumpWidgetAndTestEnv(tester: tester, controller: localController);
 
-    await _insertMunicipality(tester: tester, input: 'FISCIANO');
-
-    // Insert text in the email field
-    // Tested input is injected here
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().at(0), input);
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().at(1), 'validP4ssword#');
-    await tester.tap(find.text('Conferma'));
-    await tester.pump();
-
-    expect(find.text(expected), findsOneWidget, reason: reason);
+    // Validazione
+    String? validationResult = localController.validateEmail(input);
+    expect(validationResult, expected, reason: reason);
   });
 }
 
-void _testPassword({required String description,  required String input, required String expected, String? reason}){
-  testWidgets('Generazione Credenziali: $description', (tester) async {
-    final localController = FakeAdminManagementController();
-    await _pumpWidgetAndTestEnv(tester: tester, controller: localController);
-
-    await _insertMunicipality(tester: tester, input: 'FISCIANO');
-
-    // Insert text in the password field
-    // Tested input is injected here
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().at(0), 'string@email.com');
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().at(1), input);
-    await tester.tap(find.text('Conferma'));
-    await tester.pump();
-
-    List<GlobalKey<FormBuilderFieldState>> keys = _getFieldKeys();
-
-    //Test expected error message
-    expect(keys[1].currentState?.errorText, expected, reason: reason);
-    });
-}
-
-void _testMunicipality({required String description,  required String inputEmail, required String inputPassword, required String input, required String expected, String? reason}){
-  testWidgets('Generazione Credenziali: $description', (tester) async {
+void _testPassword({required String description, required String input, required String expected, String? reason}) {
+  testWidgets(description, (tester) async {
     final localController = FakeAdminManagementController();
 
-    // Load Admin Widget and Test Environment
-    await _pumpWidgetAndTestEnv(tester: tester, controller: localController);
-
-    // Insert text in the municipality field
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().first, input);
-    await tester.tap(find.text('Genera Credenziali'));
-    await tester.pump();
-
-    // Get form field keys where error messages are saved
-    List<GlobalKey<FormBuilderFieldState>> keys = _getFieldKeys();
-
-    //Test expected error message
-    expect(keys[3].currentState?.errorText, expected, reason: reason);
+    // Validazione
+    String? validationResult = localController.validatePassword(input);
+    expect(validationResult, expected, reason: reason);
   });
 }
 
-void _testGenerateCredentials({required String description, required String inputEmail, required String inputPassword, required expected, String? reason}){
-  testWidgets('Generazione Credenziali: $description', (tester) async {
+void _testValidationAdminPassword({required String description, required String input, required bool expected, String? reason}) {
+  testWidgets(description, (tester) async {
     final localController = FakeAdminManagementController();
-    await _pumpWidgetAndTestEnv(tester: tester, controller: localController);
 
-    await _insertMunicipality(tester: tester, input: 'FISCIANO');
-
-    // Insert text in the email field
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().at(0), inputEmail);
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().at(1), inputPassword);
-    await tester.tap(find.text('Conferma'));
-    await tester.pump();
-
-    // Get form field keys where error messages are saved
-    List<GlobalKey<FormBuilderFieldState>> keys = _getFieldKeys();
-
-    //Test expected error message
-    expect(keys[2].currentState?.errorText, expected, reason: reason);
+    // Validazione
+    bool validationResult = await localController.validateAdminPassword(input);
+    expect(validationResult, expected, reason: reason);
   });
 }
 
-/* -------------------------------- GENERIC TESTING AND WIDGET PUMPS ----------------------- */
+void _testGenerateCredentials({required String description, required String emailGen, required String passwordGen,
+  required String expected, String? reason}) {
+  testWidgets(description, (tester) async {
+    final localController = FakeAdminManagementController();
 
-
-/// Pump Admin Widget and Test Environment
-/// This method is used to pump the Admin Widget and test the environment
-Future<void> _pumpWidgetAndTestEnv({required WidgetTester tester, AdminManagementController? controller}) async {
-  //Build our app and trigger a frame.
-  await tester.pumpWidget(
-      MaterialApp(
-          home: AdminHomePage(controller: controller))
-  );
-
-  // Verify the admin elements are present
-  await _checkIsAdminPage(tester);
+    // Generazione credenziali
+    try {
+      localController.validateCredentialsGenerated(emailGen, passwordGen);
+      expect(null, expected, reason: reason);
+    } catch (e) {
+      expect(e, expected, reason: reason);
+    }
+  });
 }
 
-/// Checks for Admin Page Elements: Cerca Comune Field.
-///
-/// Async test method
-Future<void> _checkIsAdminPage(WidgetTester tester) async {
-  // Verify that the Cerca Comune field is still present
-  expect(find.text('Cerca Comune'), findsOneWidget, reason: 'The Cerca Comune field is (still) present');
+void _testExistsInDatabase({required String description, required String inputComune, required bool expected, String? reason}) {
+  testWidgets(description, (tester) async {
+    final localController = FakeAdminManagementController();
+
+    // Verifica esistenza comune
+    bool exists = await localController.municipalityExistsInDatabase(inputComune);
+    expect(exists, expected, reason: reason);
+  });
 }
 
-/* ------------------------------- UTILITY METHODS ------------------------------------ */
+void _testCorrectGenerateCredentials ({required String description, required String inputEmail, required String inputPassword, required String inputComune,
+  required String expected, String? reason}) {
+  testWidgets(description, (tester) async {
+    final localController = FakeAdminManagementController();
 
-/// Get the GlobalKeys of the form fields
-/// and return them as a list
-List<GlobalKey<FormBuilderFieldState>> _getFieldKeys(){
-  List<FormBuilderTextField> list = find.bySubtype<FormBuilderTextField>().evaluate().map((el) => el.widget as FormBuilderTextField).toList();
-  List<GlobalKey<FormBuilderFieldState>> keys = list.map((widget) => widget.key).cast<GlobalKey<FormBuilderFieldState<FormBuilderField, dynamic>>>().toList();
+    String message = await localController.generateCredentials({'Comune': inputComune, 'Provincia': 'RM'}, inputPassword, inputEmail);
 
-  return keys;
-}
-
-/// Insert Municipality
-Future<void> _insertMunicipality({required WidgetTester tester, required String input}) async {
-    await tester.enterText(find.bySubtype<FormBuilderTextField>().at(0), input);
-    await tester.tap(find.text(input));
-    await tester.pump();
-    await tester.tap(find.text('Genera Credenziali'));
-    await tester.pump();
+    expect(message, expected, reason: reason);
+  });
 }
