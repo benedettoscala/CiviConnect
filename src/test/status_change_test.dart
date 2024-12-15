@@ -15,10 +15,12 @@ import 'package:mockito/mockito.dart';
 /// Test Case for Modifica Stato Segnalazione
 ///
 ///
-/// TC_7.0.1 invalid StatusReport Expected: changeStatus Fails
-/// TC_7.0.2 StatusReport Scartata Expected: changeStatus Fails
-/// TC_7.0.3 StatusReport current After new Expected: changeStatus Fails
-/// TC_7.0.4 StatusReport current Before new and valid Expected: changeStatus is Accepted
+/// TC_7.0_1 invalid StatusReport Expected: changeStatus Fails
+/// TC_7.0_2 Transitions from 'completed' or 'rejected' are not allowed Expected: changeStatus Fails
+/// TC_7.0_3 transition from state not 'In Verifica' to 'scartata' to  Expected: changeStatus Fails
+/// TC_7.0_4 TC_7.0.4 transition to previus state Expected: changeStatus Fails
+/// TC_7.0_5 transition non respecting correct order Expected: changeStatus Fails
+/// TC_7.0_6 The current status in the StatusReport precedes the new status, adhering to the correct order Expected: changeStatus is Accepted
 /// dart run build_runner build
 ///
 
@@ -61,45 +63,45 @@ class FakeReportDAO extends Fake implements MunicipalityReportManagementDAO {
 }
 
 void main() {
-  /// TC_7.0.1 invalid StatusReport Expected: changeStatus Fails
+  /// TC_7.0_1 invalid StatusReport Expected: changeStatus Fails
   // enum not valid is tested by enum itself
 
-  /// TC_7.0.2 Transitions from 'completed' or 'rejected' are not allowed
+  /// TC_7.0_2 Transitions from 'completed' or 'rejected' are not allowed Expected: changeStatus Fails
   _testState(
       description:
-          'TC_7.0.2 StatusReport from Scartata to other Expected: changeStatus Fails',
+          'TC_7.0_2 StatusReport from Rifiutata to other Expected: changeStatus Fails',
       currentStatus: StatusReport.rejected,
       newStatus: StatusReport.inProgress,
       expectedStatus: StatusReport.rejected);
 
-  /// TC_7.0.3 transition from state not 'in attesa' to 'scartata' to  Expected: changeStatus Fails
+  /// TC_7.0_3 transition from state not 'in attesa' to 'scartata' to  Expected: changeStatus Fails
   _testState(
       description:
-          'TC_7.0.3 StatusReport from not in Attesa to Scartata Expected: changeStatus Fails',
+          'TC_7.0_3 StatusReport from not in Attesa to Scartata Expected: changeStatus Fails',
       currentStatus: StatusReport.inProgress,
       newStatus: StatusReport.rejected,
       expectedStatus: StatusReport.inProgress);
 
-  /// TC_7.0.4 transition to previus state Expected: changeStatus Fails
+  /// TC_7.0_4 transition to previus state Expected: changeStatus Fails
   _testState(
       description:
-          'TC_7.0.4 StatusReport previous state Expected: changeStatus Fails',
+          'TC_7.0_4 StatusReport previous state Expected: changeStatus Fails',
       currentStatus: StatusReport.completed,
       newStatus: StatusReport.inProgress,
       expectedStatus: StatusReport.completed);
 
-  /// TC_7.0.5 transition non respecting correct order Expected: changeStatus is Fails
+  /// TC_7.0_5 transition non respecting correct order Expected: changeStatus Fails
   _testState(
       description:
-          'TC_7.0.4 StatusReport not respecting order Expected: changeStatus is Fails',
+          'TC_7.0_5 StatusReport not respecting order Expected: changeStatus Fails',
       currentStatus: StatusReport.accepted,
       newStatus: StatusReport.completed,
       expectedStatus: StatusReport.accepted);
 
-  /// TC_7.0.6 The current status in the StatusReport precedes the new status, adhering to the correct order Expected: changeStatus is Accepted
+  /// TC_7.0_6 The current status in the StatusReport precedes the new status, adhering to the correct order Expected: changeStatus is Accepted
   _testState(
       description:
-          'TC_7.0.3 StatusReport correct order new Expected: changeStatus Fails',
+          'TC_7.0_6 StatusReport correct order new Expected: changeStatus is Accepted',
       currentStatus: StatusReport.inProgress,
       newStatus: StatusReport.completed,
       expectedStatus: StatusReport.completed);
