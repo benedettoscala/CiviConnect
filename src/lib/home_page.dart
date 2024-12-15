@@ -58,10 +58,10 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = <Widget>[
     const MyReportsViewGUI(),
     const ReportsViewCitizenGUI(),
-    const UserProfile(),
+    UserProfile(),
     DataAnalysisGUI(),
     const ReportsViewMunicipalityGUI(),
-    const UserProfile(),
+    UserProfile(),
   ];
 
   void _onItemTapped(int index) {
