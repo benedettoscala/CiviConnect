@@ -20,7 +20,7 @@ class UserProfile extends StatefulWidget {
   /// - [key]: The key for the widget.
   /// - [redirectLogOutPage]: The page to navigate to after a successful logout if not provided a new one is created from FirstPage.
     UserProfile({UserManagementController? controller, super.key, Widget? redirectLogOutPage})
-    : userController = controller ?? UserManagementController(), redirectLogOutPage = redirectLogOutPage ??  const FirstPage();
+    : userController = controller ?? UserManagementController(), redirectLogOutPage = redirectLogOutPage ??  const FirstPage(isLogout: true);
 
   @override
   State<UserProfile> createState() => _UserProfileState(userController);
