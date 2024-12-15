@@ -21,7 +21,7 @@ class DettagliSegnalazioneComune extends StatefulWidget {
 List<StatusReport> _filteredStatusValues(StatusReport currentStatus) {
   switch (currentStatus) {
     case StatusReport.underReview:
-      return [StatusReport.accepted, StatusReport.inProgress, StatusReport.rejected];
+      return [StatusReport.accepted, StatusReport.rejected];
     case StatusReport.accepted:
       return [StatusReport.inProgress];
     case StatusReport.inProgress:

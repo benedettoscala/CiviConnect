@@ -135,19 +135,28 @@ class MunicipalityReportManagementController {
   /// Throws:
   /// - An exception if the status change is not valid.
   void isValidStatusChange(StatusReport currentStatus, StatusReport newStatus) {
-    final currentStatusIndex = StatusReport.values.indexOf(currentStatus);
-    final newStatusIndex = StatusReport.values.indexOf(newStatus);
+    // Get the indices of the current and new status
+    final currentStatusIndex = currentStatus.index;
+    final newStatusIndex = newStatus.index;
 
-    if (currentStatusIndex == StatusReport.rejected.index) {
-      throw ('Transizione da stato Scartata non consentita.');
+    // Rule 1: Transitions from 'completed' or 'rejected' are not allowed
+    if (currentStatus == StatusReport.completed || currentStatus == StatusReport.rejected) {
+      throw ('Transizione da stato ${currentStatus.name} non consentita.');
     }
 
+    // Rule 2: 'rejected' can only be accessed from 'underReview'
+    if (newStatus == StatusReport.rejected && currentStatus != StatusReport.underReview) {
+      throw ('La transizione a "rejected" è consentita solo dallo stato "underReview".');
+    }
+
+    // Rule 3: Ensure the new status follows the correct order
+    if (newStatusIndex != currentStatusIndex + 1 && newStatus != StatusReport.rejected) {
+      throw ('Transizione non valida. Lo stato successivo consentito è ${StatusReport.values[currentStatusIndex + 1].name}.');
+    }
+
+    // Rule 4: Check if newStatus is within the valid range
     if (newStatusIndex < StatusReport.underReview.index || newStatusIndex > StatusReport.rejected.index) {
-      throw ('Stato non valido');
-    }
-
-    if (newStatusIndex < currentStatusIndex) {
-      throw ('Transizione verso stato precedente non consentita.');
+      throw ('Stato non valido: ${newStatus.name}');
     }
   }
 
