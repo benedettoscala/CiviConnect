@@ -61,8 +61,8 @@ void main() {
         home: Scaffold(
           body: Builder(builder: (context) {
             final controller = MunicipalityReportManagementController.forTest(
-              reportDao: mockReportDAO,
-              userManagementDao: mockUserDAO,
+              reportDAO: mockReportDAO,
+              userManagementDAO: mockUserDAO,
               context: context,
               municipality: m,
             );
@@ -97,8 +97,8 @@ void main() {
         home: Scaffold(
           body: Builder(builder: (context) {
             final controller = MunicipalityReportManagementController.forTest(
-              reportDao: mockReportDAO,
-              userManagementDao: mockUserDAO,
+              reportDAO: mockReportDAO,
+              userManagementDAO: mockUserDAO,
               context: context,
               municipality: m,
             );

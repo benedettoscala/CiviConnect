@@ -21,25 +21,25 @@ class DettagliSegnalazioneComune extends StatefulWidget {
 List<StatusReport> _filteredStatusValues(StatusReport currentStatus) {
   switch (currentStatus) {
     case StatusReport.underReview:
-      return StatusReport.values.sublist(0);
+      return [StatusReport.accepted, StatusReport.rejected];
     case StatusReport.accepted:
-      return StatusReport.values.sublist(1);
+      return [StatusReport.inProgress];
     case StatusReport.inProgress:
-      return StatusReport.values.sublist(2);
+      return [StatusReport.completed];
     case StatusReport.completed:
-      return StatusReport.values.sublist(3);
     case StatusReport.rejected:
-      return StatusReport.values.sublist(4);
+      return [];
   }
 }
 
 class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
-  void _saveReportState() {
+  void _saveReportState(StatusReport oldStatus) {
     // Implement the logic to save the current state of the report
     MunicipalityReportManagementController(context: context).editReportStatus(
       city: widget._report.city!,
       reportId: widget._report.reportId!,
       newStatus: widget._report.status!,
+      currentStatus: oldStatus,
     );
   }
 
@@ -114,6 +114,8 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
     showDialog(
       context: context,
       builder: (context) {
+        // Save the current state of the report
+        final oldStatusLocal = objectTarget.status as StatusReport;
         T? selectedValue = objectTarget.status as T;
         return StatefulBuilder(
           builder: (context, setState) {
@@ -132,7 +134,6 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
                                 selectedValue = value;
                               });
                               onValueSelected(value);
-                              //Navigator.of(context).pop();
                             }
                           : null,
                     );
@@ -147,11 +148,13 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
                   child: const Text('Annulla'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    // Implement the logic for the confirm action
-                    _saveReportState();
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: clickableValues.isNotEmpty
+                      ? () {
+                          // Implement the logic for the confirm action
+                          _saveReportState(oldStatusLocal);
+                          Navigator.of(context).pop();
+                        }
+                      : null,
                   child: const Text('Aggiorna'),
                 ),
               ],
