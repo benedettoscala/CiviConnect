@@ -55,7 +55,7 @@ class MunicipalityReportManagementController {
   /// ### Parameters:
   /// - `redirectPage`: The page to redirect to after loading the municipality data.
   MunicipalityReportManagementController({reportDAO, userDAO, this.redirectPage, context})
-      : _context = context, _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(), _userManagementDAO = userDAO ?? UserManagementDAO() {
+      : _context = context, _reportDAO = reportDAO ?? MunicipalityReportManagementDAO(), _userManagementDAO = userManagementDAO ?? UserManagementDAO() {
     _loadMunicipality();
   }
 
@@ -71,11 +71,11 @@ class MunicipalityReportManagementController {
   /// - `context`: The build context for showing messages.
   MunicipalityReportManagementController.forTest({
     reportDAO,
-    userDAO,
+    userManagementDAO,
     municipality,
     this.redirectPage, context,
   })  : _reportDAO = reportDAO,
-        _context = context, _userManagementDAO = userDAO, _municipality = municipality ;
+        _context = context, _userManagementDAO = userManagementDAO, _municipality = municipality ;
 
   /// Edits the status of a specific report.
   ///
@@ -188,13 +188,23 @@ class MunicipalityReportManagementController {
     required PriorityReport newPriority,
   }) async {
     try {
-      await _reportDAO.editReportPriority(
-          city: city, reportId: reportId, newPriority: newPriority);
-      if (_context != null) {
-        showMessage(
-          _context,
-          message: 'Priorità segnalazione cambiata',
-        );
+      if (newPriority == PriorityReport.high || newPriority == PriorityReport.low || newPriority == PriorityReport.medium) {
+        await _reportDAO.editReportPriority(city: city, reportId: reportId, newPriority: newPriority);
+        if (_context != null) {
+          showMessage(
+            _context,
+            message: 'Priorità segnalazione cambiata',
+          );
+        }
+      }
+      else{
+        if (_context != null) {
+          showMessage(
+            _context,
+            message: 'Errore durante l\'aggiornamento della priorità',
+            isError: true,
+          );
+        }
       }
     } catch (e) {
       if (_context != null) {

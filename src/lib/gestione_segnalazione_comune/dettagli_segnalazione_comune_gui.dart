@@ -59,20 +59,22 @@ class _DettagliSegnalazioneState extends State<DettagliSegnalazioneComune> {
           clickableValues: _filteredStatusValues(widget._report.status!),
         ),
         onPriorityButton: () => onChangeValue(
-          title: 'Cambia Priorità',
-          objectType: PriorityReport.values.where((value) => value != PriorityReport.unset).toList(),
-          objectTarget: widget._report,
-          onValueSelected: (value) {
-            //implement showMessage if it works
-            MunicipalityReportManagementController().editReportPriority(
-                city: widget._report.city!,
-                reportId: widget._report.reportId!,
-                newPriority: value);
-            setState(() {
-              widget._report.priority = value;
-            });
-          },
-        ));
+              title: 'Cambia Priorità',
+              objectType: PriorityReport.values
+                  .where((value) => value != PriorityReport.unset)
+                  .toList(),
+              objectTarget: widget._report,
+              onValueSelected: (value) {
+                //implement showMessage if it works
+                MunicipalityReportManagementController().editReportPriority(
+                    city: widget._report.city!,
+                    reportId: widget._report.reportId!,
+                    newPriority: value);
+                setState(() {
+                  widget._report.priority = value;
+                });
+              },
+            ));
   }
 
   // Need only for priority

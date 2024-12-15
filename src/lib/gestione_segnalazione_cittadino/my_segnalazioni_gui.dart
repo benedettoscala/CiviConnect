@@ -1,5 +1,6 @@
 import 'package:civiconnect/theme.dart';
 import 'package:flutter/material.dart';
+
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
 import '../widgets/card_widget.dart';
@@ -148,7 +149,8 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
                       'number': report['address']['number'] ?? 'N/A',
                     },
               city: report['city'],
-              photo: report['photo']);
+              photo: report['photo'],
+              category: Category.getCategory(report['category']));
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(

@@ -133,16 +133,26 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
   }
 
   Widget _statusPriority(context) {
-    return Row(
+    return Wrap(
+      alignment: WrapAlignment.start,
       children: [
-        widget._onPriorityButton == null
-            ? _priorityCard(context)
-            : InkWell(
-                onTap: widget._onPriorityButton, child: _priorityCard(context)),
-        widget._onStateButton == null
-            ? _statusCard(context)
-            : InkWell(
-                onTap: widget._onStateButton, child: _statusCard(context)),
+        const SizedBox(width: double.infinity),
+        IntrinsicWidth(
+          child: widget._onPriorityButton == null
+              ? _priorityCard(context)
+              : InkWell(
+                  onTap: widget._onPriorityButton,
+                  child: _priorityCard(context)),
+        ),
+        IntrinsicWidth(
+          child: widget._onStateButton == null
+              ? _statusCard(context)
+              : InkWell(
+                  onTap: widget._onStateButton, child: _statusCard(context)),
+        ),
+        IntrinsicWidth(
+          child: _categoryCard(context),
+        ),
       ],
     );
   }
@@ -168,6 +178,21 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _categoryCard(context) {
+    String category =
+        widget._report.category != null ? widget._report.category!.name : 'N/A';
+    return Card(
+      elevation: 0.5,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          category,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ),
     );
@@ -212,26 +237,23 @@ class _SingleDetailsReportState extends State<SingleDetailsReport> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(width: double.infinity),
           Text(
             '${widget._report.city!}, ${widget._report.address!.values.toList().join(', ')}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                  'Segnalato il: ${dateTime.day}/${dateTime.month}/${dateTime.year}',
-                  style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(width: 50),
-              Text(
-                  endDate != null
-                      ? 'Completato il: ${endDate.day}/${endDate.month}/${endDate.year}'
-                      : 'Ancora non completato',
-                  style: Theme.of(context).textTheme.bodySmall),
-            ],
-          )
+          Text(
+              'Segnalato il: ${dateTime.day}/${dateTime.month}/${dateTime.year}',
+              style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(width: 50),
+          Text(
+              endDate != null
+                  ? 'Completato il: ${endDate.day}/${endDate.month}/${endDate.year}'
+                  : 'Ancora non completato',
+              style: Theme.of(context).textTheme.bodySmall)
         ],
       ),
     );
