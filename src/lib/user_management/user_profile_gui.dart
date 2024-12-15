@@ -94,51 +94,56 @@ class _UserProfileState extends State<UserProfile> {
                 style: theme.textTheme.titleMedium,
               ),
             )
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 0),
-                    _buildProfileHeader(theme, _user, userData),
-                    const SizedBox(height: 30),
-                    if (userInfo is Citizen) ..._buildCitizenData(),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Dati Account',
-                      style: theme.textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildAccountData(_user, theme),
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            await userController.logOut();
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      widget.redirectLogOutPage),
-                              (route) => false,
-                            );
-                          } catch (e) {
-                            showMessage(context,
-                                isError: true,
-                                message: 'Errore durante il logout');
-                          }
-                        },
-                        child: const Text('Logout'),
+          : Card(
+              margin: const EdgeInsets.fromLTRB(10, 17, 10, 10),
+              color: Colors.white,
+              elevation: 5.0,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 0),
+                      _buildProfileHeader(theme, _user, userData),
+                      const SizedBox(height: 30),
+                      if (userInfo is Citizen) ..._buildCitizenData(),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Dati Account',
+                        style: theme.textTheme.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      _buildAccountData(_user, theme),
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              await userController.logOut();
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                    widget.redirectLogOutPage),
+                                    (route) => false,
+                              );
+                            } catch (e) {
+                              showMessage(context,
+                                  isError: true,
+                                  message: 'Errore durante il logout');
+                            }
+                          },
+                          child: const Text('Logout'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
+          )
     );
   }
 
@@ -311,7 +316,7 @@ class _UserProfileState extends State<UserProfile> {
       initialValue: show.toString(),
       style: textStyle.copyWith(fontSize: 16),
       decoration: const InputDecoration(
-        border: InputBorder.none, // Rimuove il bordo
+        border: UnderlineInputBorder(),
         isDense: true,
         contentPadding: EdgeInsets.zero, // Rimuove il padding
       ),
@@ -402,7 +407,7 @@ class _UserProfileState extends State<UserProfile> {
           ),
           const SizedBox(height: 5),
           Text(
-            "Bentornato, ${userData['firstName'] ?? 'User'}!",
+            "Bentornato, ${userData['firstName'] ?? userData['municipalityName'] ?? 'User'}!",
             style: theme.textTheme.titleLarge,
           ),
         ],
@@ -420,7 +425,7 @@ class _UserProfileState extends State<UserProfile> {
                       fontWeight: FontWeight.bold, fontSize: 13)),
             ),
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Text(value, style: theme.textTheme.titleMedium),
             ),
           ],
