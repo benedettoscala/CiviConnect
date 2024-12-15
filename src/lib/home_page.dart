@@ -169,16 +169,6 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary)),
                 const Expanded(child: UnconstrainedBox()),
-                IconButton(
-                  alignment: Alignment.topLeft,
-                  icon: Icon(
-                    Icons.accessible_forward_sharp,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  onPressed: () {
-                    // TODO: Implement filter selection method
-                  },
-                ),
               ],
             ),
           ],
