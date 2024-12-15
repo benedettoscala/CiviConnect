@@ -306,25 +306,27 @@ class _ReportsListMunicipalityState extends State<ReportsViewMunicipalityGUI> {
           }
           final report = _userData[index];
           Report store = Report(
-              reportId: report['reportId'],
-              title: report['title'],
-              uid: report['uid'],
-              authorFirstName: '${report['authorFirstName']}',
-              authorLastName: '${report['authorLastName']}',
-              description: report['description'],
-              status: StatusReport.getStatus(report['status']) ??
-                  StatusReport.rejected,
-              priority: PriorityReport.getPriority(report['priority']) ??
-                  PriorityReport.unset,
-              reportDate: report['reportDate'],
-              address: report['address'] == null
-                  ? {'street': 'N/A', 'number': 'N/A'}
-                  : {
-                      'street': report['address']['street'] ?? 'N/A',
-                      'number': report['address']['number'] ?? 'N/A',
-                    },
-              city: report['city'],
-              photo: report['photo']);
+            reportId: report['reportId'],
+            title: report['title'],
+            uid: report['uid'],
+            authorFirstName: '${report['authorFirstName']}',
+            authorLastName: '${report['authorLastName']}',
+            description: report['description'],
+            status: StatusReport.getStatus(report['status']) ??
+                StatusReport.rejected,
+            priority: PriorityReport.getPriority(report['priority']) ??
+                PriorityReport.unset,
+            reportDate: report['reportDate'],
+            address: report['address'] == null
+                ? {'street': 'N/A', 'number': 'N/A'}
+                : {
+                    'street': report['address']['street'] ?? 'N/A',
+                    'number': report['address']['number'] ?? 'N/A',
+                  },
+            city: report['city'],
+            photo: report['photo'],
+            category: Category.getCategory(report['category']),
+          );
           return (_errorText != '')
               ? Text(_errorText)
               : CardWidget(

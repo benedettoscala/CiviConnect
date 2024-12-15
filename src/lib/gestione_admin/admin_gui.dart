@@ -32,9 +32,8 @@ class AdminHomePage extends StatefulWidget {
 
   /// Creates an Admin Home Page widget.
   AdminHomePage({super.key, AdminManagementController? controller})
-      : controller = (controller == null)
-      ? AdminManagementController()
-      : controller;
+      : controller =
+            (controller == null) ? AdminManagementController() : controller;
 
   @override
   AdminHomePageState createState() => AdminHomePageState();
