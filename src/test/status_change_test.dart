@@ -96,7 +96,6 @@ void main() {
       newStatus: StatusReport.completed,
       expectedStatus: StatusReport.accepted);
 
-
   /// TC_7.0.6 The current status in the StatusReport precedes the new status, adhering to the correct order Expected: changeStatus is Accepted
   _testState(
       description:
