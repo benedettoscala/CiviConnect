@@ -40,26 +40,42 @@ import 'gestione_segnalazione_comune_dao.dart';
 class MunicipalityReportManagementController {
   /// The page to navigate to after certain actions, such as adding a report.
   final Widget? redirectPage;
-
   /// An instance of `MunicipalityReportManagementDAO` to handle data operations.
-  final MunicipalityReportManagementDAO _reportDAO =
-      MunicipalityReportManagementDAO();
-  final UserManagementDAO _userManagementDAO = UserManagementDAO();
+  final MunicipalityReportManagementDAO _reportDAO;
+  final UserManagementDAO _userManagementDAO ;
   final BuildContext? _context;
   Municipality? _municipality;
-  final Completer<Municipality> _municipalityCompleter =
-      Completer<Municipality>();
+  final Completer<Municipality> _municipalityCompleter = Completer<Municipality>();
 
-  /// Constructs a `CitizenReportManagementController`.
+
+  /// Constructs a `MunicipalityReportManagementController`.
   ///
   /// This constructor initializes the controller and loads the municipality data.
   ///
   /// ### Parameters:
   /// - `redirectPage`: The page to redirect to after loading the municipality data.
-  MunicipalityReportManagementController({this.redirectPage, context})
-      : _context = context {
+  MunicipalityReportManagementController({reportDao, userManagementDao, this.redirectPage, context})
+      : _context = context, _reportDAO = reportDao ?? MunicipalityReportManagementDAO(), _userManagementDAO = userManagementDao ?? UserManagementDAO() {
     _loadMunicipality();
   }
+
+  /// Constructs a `MunicipalityReportManagementController` for testing purposes.
+  ///
+  /// This constructor initializes the controller with mock data for testing.
+  ///
+  /// ### Parameters:
+  /// - `rdao`: The mock DAO for report management.
+  /// - `udao`: The mock DAO for user management.
+  /// - `m`: The mock municipality data.
+  /// - `redirectPage`: The page to redirect to after loading the municipality data.
+  /// - `context`: The build context for showing messages.
+  MunicipalityReportManagementController.forTest({
+    reportDao,
+    userManagementDao,
+    municipality,
+    this.redirectPage, context,
+  })  : _reportDAO = reportDao,
+        _context = context, _userManagementDAO = userManagementDao, _municipality = municipality ;
 
   /// Edits the status of a specific report.
   ///
@@ -136,13 +152,23 @@ class MunicipalityReportManagementController {
     required PriorityReport newPriority,
   }) async {
     try {
-      await _reportDAO.editReportPriority(
-          city: city, reportId: reportId, newPriority: newPriority);
-      if (_context != null) {
-        showMessage(
-          _context,
-          message: 'Priorità segnalazione cambiata',
-        );
+      if (newPriority == PriorityReport.high || newPriority == PriorityReport.low || newPriority == PriorityReport.medium) {
+        await _reportDAO.editReportPriority(city: city, reportId: reportId, newPriority: newPriority);
+        if (_context != null) {
+          showMessage(
+            _context,
+            message: 'Priorità segnalazione cambiata',
+          );
+        }
+      }
+      else{
+        if (_context != null) {
+          showMessage(
+            _context,
+            message: 'Errore durante l\'aggiornamento della priorità',
+            isError: true,
+          );
+        }
       }
     } catch (e) {
       if (_context != null) {
