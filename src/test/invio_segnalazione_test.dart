@@ -348,7 +348,7 @@ void _testValidation({required String description,
       await tester.pumpAndSettle();
 
       // Tap the send button and trigger a frame.
-      await tester.tap(find.text('Invia Segnalazione'));
+      await tester.tap(find.text('Invia Segnalazione'), warnIfMissed: false);
       await tester.pump();
 
       // Get the state of the description field
@@ -362,7 +362,7 @@ void _testValidation({required String description,
     // Insert text in the photo field
     //await tester.enterText(find.byKey(const Key('Foto')), input);
     // Tap the send button and trigger a frame.
-    await tester.tap(find.text('Invia Segnalazione'));
+    await tester.tap(find.text('Invia Segnalazione'), warnIfMissed: false);
     await tester.pump();
   });
 }
