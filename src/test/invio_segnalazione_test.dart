@@ -11,6 +11,7 @@ import 'package:mockito/mockito.dart';
 
 import 'invio_segnalazione_test.mocks.dart';
 
+/// A fake controller for the Insert Report Widget
 class FakeInserimentoSegnalazioneController extends Fake
     implements CitizenReportManagementController {
   final bool validCoordinates;
@@ -37,7 +38,7 @@ class FakeInserimentoSegnalazioneController extends Fake
     }
   }
 
-  FakeInserimentoSegnalazioneController({this.validCoordinates = false});
+  FakeInserimentoSegnalazioneController({this.validCoordinates = true});
 
   @override
   bool containsBadWords(String text, List<String> badWords) {
@@ -136,6 +137,7 @@ void main() {
       isValid: true);
 }
 
+/// Test the description field
 void _testDescription({required String description,
   required String input,
   required String expected,
@@ -178,6 +180,7 @@ void _testDescription({required String description,
   });
 }
 
+/// Test the title field
 void _testTitle({required String description,
   required String input,
   required String expected,
@@ -213,7 +216,7 @@ void _testTitle({required String description,
   });
 }
 
-/// Test the validation of the report
+/// Test the validation of the report Address (Country)
 void _testIndirizzo({required String description,
   required String input,
   required String expected,
@@ -221,7 +224,7 @@ void _testIndirizzo({required String description,
   testWidgets('Report Title: $description', (tester) async {
     // Load Insert Report Widget and Test Environment
     await _pumpWidgetAndTestEnv(
-        tester: tester, controller: FakeInserimentoSegnalazioneController());
+        tester: tester, controller: FakeInserimentoSegnalazioneController(validCoordinates: false));
 
     // Check if the description field is present
     expect(find.byKey(const Key('Indirizzo')), findsOneWidget,
@@ -255,6 +258,7 @@ void _testIndirizzo({required String description,
   });
 }
 
+/// Test the Photo Extension of the report
 void _testPhoto({required String description,
   required String input,
   required String expected,
@@ -341,6 +345,8 @@ void _testValidation({required String description,
         const Offset(0, 500), // delta to move
       );
 
+      await tester.pumpAndSettle();
+
       // Tap the send button and trigger a frame.
       await tester.tap(find.text('Invia Segnalazione'));
       await tester.pump();
@@ -365,6 +371,7 @@ void _testValidation({required String description,
 
 /* -------------------------------- GENERIC TESTING AND WIDGET PUMPS ----------------------- */
 
+/// Load the Insert Report Widget and the Test Environment
 Future<void> _pumpWidgetAndTestEnv({required WidgetTester tester,
   CitizenReportManagementController? controller}) async {
   // Load Insert Report Widget
