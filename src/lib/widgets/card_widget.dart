@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../model/report_model.dart';
 import '../utils/report_status_priority.dart';
@@ -10,7 +12,7 @@ import '../utils/report_status_priority.dart';
 class CardWidget extends StatelessWidget {
   /// Creates a custom card widget.
   ///
-  /// The [name], [description], [status], [priority], and [imageUrl] parameters are required.
+  /// The [report] parameter is required and contains the report data.
   /// The [onTap] is optional.
   const CardWidget({
     required report,
@@ -86,29 +88,17 @@ class CardWidget extends StatelessWidget {
                       Expanded(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            _report.photo ?? '',
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) {
-                                return child;
-                              }
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(
-                              Icons.image,
-                              color: Colors.grey,
-                              size: 100,
+                          child: CachedNetworkImage(
+                            imageUrl: _report.photo ?? '',
+                            placeholder: (context, url) => const SizedBox(
+                              height: 50,
+                              width: 50,
+                              child: CircularProgressIndicator(),
                             ),
+                            errorWidget: (context, url, error) =>
+                                const HugeIcon(
+                                    icon: HugeIcons.strokeRoundedDelete02,
+                                    color: Colors.red),
                           ),
                         ),
                       ),
