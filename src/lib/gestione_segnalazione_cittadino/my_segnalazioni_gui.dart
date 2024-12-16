@@ -161,7 +161,9 @@ class _MyReportsListState extends State<MyReportsViewGUI> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                DettagliSegnalazioneCittadino(report: store)));
+                                DettagliSegnalazioneCittadino(report: store),
+                        ),
+                    );
                   },
                 );
         },

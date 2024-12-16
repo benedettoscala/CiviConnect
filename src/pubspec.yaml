@@ -63,6 +63,7 @@ dependencies:
   image_picker: ^1.1.2
   hive_flutter: ^1.1.0
   hive: ^2.2.3
+  cached_network_image: ^3.4.1
 flutter_icons:
   image_path: "assets/images/logo_image.png"
   android: true
