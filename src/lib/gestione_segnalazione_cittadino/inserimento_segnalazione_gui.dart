@@ -19,11 +19,14 @@ class InserimentoSegnalazioneGUI extends StatefulWidget {
   /// Controller for managing citizen reports if not provided a new default instance is created.
   final CitizenReportManagementController controller;
 
+  /// Image picker for selecting images if not provided a new default instance is created.
+  final ImagePicker imagePicker;
+
   /// Creates an instance of InserimentoSegnalazioneGUI.
   InserimentoSegnalazioneGUI(
-      {super.key, CitizenReportManagementController? controller})
+      {super.key, CitizenReportManagementController? controller, ImagePicker? imagePicker})
       : controller = controller ??
-            CitizenReportManagementController(redirectPage: const HomePage());
+            CitizenReportManagementController(redirectPage: const HomePage()), imagePicker = imagePicker ?? ImagePicker();
 
   @override
   State<InserimentoSegnalazioneGUI> createState() =>
@@ -37,6 +40,7 @@ class _InserimentoSegnalazioneGUIState
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
   late final CitizenReportManagementController _controller;
+  late final ImagePicker _imagePicker;
 
   late Category _categoria;
   String? _descrizione;
@@ -58,11 +62,13 @@ class _InserimentoSegnalazioneGUIState
   final _photoSubmitKey = const Key('FotoSubmit');
   final _submitKey = const Key('Invia');
   final _list = const Key('InserimentoSegnalazione');
+  bool _isInItaly = true;
 
   @override
   void initState() {
     super.initState();
     _controller = widget.controller;
+    _imagePicker = widget.imagePicker;
     _indirizzoController.text = 'Caricamento Posizione...';
     _cittaController.text = 'Caricamento Città...';
     _fetchLocation();
@@ -70,9 +76,13 @@ class _InserimentoSegnalazioneGUIState
   }
 
   Future<void> _fetchLocation() async {
-    _location = (await getCoordinates(context))!;
-    _indirizzoLista = await getLocation(_location);
+    _location = (await _controller.getCoordinates(context))!;
+    _indirizzoLista = await _controller.getLocation(_location);
+    if(_indirizzoLista!.elementAt(3) == 'Italy' || _indirizzoLista!.elementAt(3) == 'Italia'){
+      showMessage(context, isError: true, message: 'Non sei in Italia');
+    }
     setState(() {
+      _isInItaly = false;
       _indirizzoController.text =
           '${_indirizzoLista!.elementAt(1)} ${_indirizzoLista!.elementAt(2)}'; //strada civico
       _cittaController.text = _indirizzoLista!.elementAt(0);
@@ -409,7 +419,7 @@ class _InserimentoSegnalazioneGUIState
   }
 
   void _onSubmit() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _isInItaly) {
       _formKey.currentState!.save();
       if (_selectedImage != null) {
         setState(() => _isLoading = true);
@@ -431,12 +441,18 @@ class _InserimentoSegnalazioneGUIState
               backgroundColor: Colors.red),
         );
       }
+    } else if(!_isInItaly){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Non sei in Italia'),
+            backgroundColor: Colors.red),
+      );
     }
   }
 
   Future<bool> sendData() async {
     bool result = false;
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _isInItaly) {
       _formKey.currentState!.save();
 
       result = await _controller.addReport(
@@ -460,7 +476,7 @@ class _InserimentoSegnalazioneGUIState
       return null;
     }
     if (_controller.containsBadWords(value, _badWords!)) {
-      return 'La descrizione contiene parole non consentite';
+      return 'Il campo contiene parole non consentite';
     }
     return null;
   }
@@ -468,7 +484,7 @@ class _InserimentoSegnalazioneGUIState
   Future<void> _pickImageFromCamera() async {
     try {
       final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.camera);
+          await _imagePicker.pickImage(source: ImageSource.camera);
       if (pickedFile != null && pickedFile.path.toLowerCase().endsWith('.jpg')) {
         setState(() {
           _selectedImage = File(pickedFile.path);
