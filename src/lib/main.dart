@@ -16,6 +16,7 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   //Firebase Initialization example code
+
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     await Firebase.initializeApp(
@@ -48,6 +49,7 @@ class FirstPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeManager().customTheme,
       home: _FirstPage(isLogout: isLogout),
       supportedLocales: const [
