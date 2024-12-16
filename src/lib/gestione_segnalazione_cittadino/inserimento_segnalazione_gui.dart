@@ -1,21 +1,32 @@
 import 'dart:io';
 
 import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_permessi_failed.dart';
+
+//import 'package:civiconnect/widgets/input_textfield_decoration.dart';
+import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:civiconnect/home_page.dart';
 import 'package:civiconnect/model/report_model.dart';
+import 'package:civiconnect/utils/snackbar_riscontro.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-//import 'package:civiconnect/widgets/input_textfield_decoration.dart';
-import 'package:civiconnect/gestione_segnalazione_cittadino/gestione_segnalazione_cittadino_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../theme.dart';
 
 /// A widget that provides a GUI for inserting a citizen report.
 class InserimentoSegnalazioneGUI extends StatefulWidget {
+  /// Controller for managing citizen reports if not provided a new default instance is created.
+  final CitizenReportManagementController controller;
+
+  /// Image picker for selecting images if not provided a new default instance is created.
+  final ImagePicker imagePicker;
+
   /// Creates an instance of InserimentoSegnalazioneGUI.
-  const InserimentoSegnalazioneGUI({super.key});
+  InserimentoSegnalazioneGUI(
+      {super.key, CitizenReportManagementController? controller, ImagePicker? imagePicker})
+      : controller = controller ??
+            CitizenReportManagementController(redirectPage: const HomePage()), imagePicker = imagePicker ?? ImagePicker();
 
   @override
   State<InserimentoSegnalazioneGUI> createState() =>
@@ -28,8 +39,8 @@ class _InserimentoSegnalazioneGUIState
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _indirizzoController = TextEditingController();
   final TextEditingController _cittaController = TextEditingController();
-  final CitizenReportManagementController _controller =
-      CitizenReportManagementController(redirectPage: const HomePage());
+  late final CitizenReportManagementController _controller;
+  late final ImagePicker _imagePicker;
 
   late Category _categoria;
   String? _descrizione;
@@ -42,9 +53,22 @@ class _InserimentoSegnalazioneGUIState
   List<String>? _badWords;
   late bool _isLoading = false;
 
+  final _titoloKey = const Key('Titolo');
+  final _categoriaKey = const Key('Categoria');
+  final _cittaKey = const Key('Città');
+  final _indirizzoKey = const Key('Indirizzo');
+  final _descrizioneKey = const Key('Descrizione');
+  final _photoKey = const Key('Foto');
+  final _photoSubmitKey = const Key('FotoSubmit');
+  final _submitKey = const Key('Invia');
+  final _list = const Key('InserimentoSegnalazione');
+  bool _isInItaly = true;
+
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller;
+    _imagePicker = widget.imagePicker;
     _indirizzoController.text = 'Caricamento Posizione...';
     _cittaController.text = 'Caricamento Città...';
     _fetchLocation();
@@ -52,9 +76,14 @@ class _InserimentoSegnalazioneGUIState
   }
 
   Future<void> _fetchLocation() async {
-    _location = (await getCoordinates(context))!;
-    _indirizzoLista = await getLocation(_location);
+    _location = (await _controller.getCoordinates(context))!;
+    _indirizzoLista = await _controller.getLocation(_location);
     setState(() {
+      if (_indirizzoLista!.elementAt(3) != 'Italy' &&
+          _indirizzoLista!.elementAt(3) != 'Italia') {
+        showMessage(context, isError: true, message: 'Non sei in Italia');
+        _isInItaly = false;
+      }
       _indirizzoController.text =
           '${_indirizzoLista!.elementAt(1)} ${_indirizzoLista!.elementAt(2)}'; //strada civico
       _cittaController.text = _indirizzoLista!.elementAt(0);
@@ -84,28 +113,31 @@ class _InserimentoSegnalazioneGUIState
             padding: const EdgeInsets.all(16.0),
             child: Form(
               key: _formKey,
-              child: ListView(
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 20),
-                  _buildTitleField(),
-                  const SizedBox(height: 16),
-                  _buildCategoryField(),
-                  const SizedBox(height: 20),
-                  _buildCityField(),
-                  const SizedBox(height: 20),
-                  _buildAddressField(),
-                  const SizedBox(height: 16),
-                  _buildDescriptionField(),
-                  const SizedBox(height: 20),
-                  _buildImageCard(),
-                  const SizedBox(height: 20),
-                  _buildSelectPhotoButton(),
-                  const SizedBox(height: 20),
-                  _buildSubmitButton(),
-                  const SizedBox(height: 20),
-                  _buildFooter(),
-                ],
+              child: SingleChildScrollView(
+                key: _list,
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 20),
+                    _buildTitleField(),
+                    const SizedBox(height: 16),
+                    _buildCategoryField(),
+                    const SizedBox(height: 20),
+                    _buildCityField(),
+                    const SizedBox(height: 20),
+                    _buildAddressField(),
+                    const SizedBox(height: 16),
+                    _buildDescriptionField(),
+                    const SizedBox(height: 20),
+                    _buildImageCard(),
+                    const SizedBox(height: 20),
+                    _buildSelectPhotoButton(),
+                    const SizedBox(height: 20),
+                    _buildSubmitButton(),
+                    const SizedBox(height: 20),
+                    _buildFooter(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -128,6 +160,7 @@ class _InserimentoSegnalazioneGUIState
         const Text('Titolo', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+          key: _titoloKey,
           //decoration: TextFieldInputDecoration(context, labelText: 'Titolo'),
           validator: FormBuilderValidators.compose(
             [
@@ -161,6 +194,7 @@ class _InserimentoSegnalazioneGUIState
 
   Widget _buildCategoryField() {
     return Column(
+      key: _categoriaKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Categoria', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -178,7 +212,21 @@ class _InserimentoSegnalazioneGUIState
               _categoria = value!;
             }),
           },
-          validator: FormBuilderValidators.required(),
+          validator: FormBuilderValidators.compose(
+            [
+              FormBuilderValidators.required(
+                  errorText: 'Il campo è obbligatorio'),
+              (value) {
+                if (value != Category.waste &&
+                    value != Category.maintenance &&
+                    value != Category.roadDamage &&
+                    value != Category.lighting) {
+                  return 'Categoria non valida';
+                }
+                return null;
+              },
+            ],
+          ),
         ),
       ],
     );
@@ -191,6 +239,7 @@ class _InserimentoSegnalazioneGUIState
         const Text('Città', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+            key: _cittaKey,
             controller: _cittaController,
             //decoration: TextFieldInputDecoration(context, labelText: 'Città'),
             validator: FormBuilderValidators.required(),
@@ -211,9 +260,12 @@ class _InserimentoSegnalazioneGUIState
         const Text('Indirizzo', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+          key: _indirizzoKey,
           controller: _indirizzoController,
           //decoration: TextFieldInputDecoration(context, labelText: 'Indirizzo'),
-          validator: FormBuilderValidators.required(),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+          ]),
           enabled: false,
           onSaved: (value) => {
             setState(() {
@@ -224,7 +276,8 @@ class _InserimentoSegnalazioneGUIState
                     .join(' '),
                 'number': value.split(' ').last
               };
-            })
+            }
+            ),
           },
         )
       ],
@@ -239,6 +292,7 @@ class _InserimentoSegnalazioneGUIState
             style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextFormField(
+          key: _descrizioneKey,
           //decoration:TextFieldInputDecoration(context, labelText: 'Descrizione'),
           maxLines: 3,
           validator: FormBuilderValidators.compose(
@@ -275,6 +329,7 @@ class _InserimentoSegnalazioneGUIState
       elevation: 4,
       child: _selectedImage != null
           ? Image.file(
+              key: _photoKey,
               _selectedImage!,
               width: 450, // Set the desired width
               height: 325, // Set the desired height
@@ -296,6 +351,7 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildSelectPhotoButton() {
     return Center(
       child: ElevatedButton.icon(
+        key: _photoSubmitKey,
         onPressed: _pickImageFromCamera,
         icon: const Icon(Icons.camera_alt, color: Colors.white),
         label: const Text('Scatta Foto',
@@ -312,6 +368,7 @@ class _InserimentoSegnalazioneGUIState
   Widget _buildSubmitButton() {
     return Center(
         child: ElevatedButton.icon(
+      key: _submitKey,
       onPressed: _isLoading ? null : _onSubmit,
       icon: const Icon(Icons.send, color: Colors.white),
       label: const Text('Invia Segnalazione',
@@ -363,7 +420,7 @@ class _InserimentoSegnalazioneGUIState
   }
 
   void _onSubmit() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _isInItaly) {
       _formKey.currentState!.save();
       if (_selectedImage != null) {
         setState(() => _isLoading = true);
@@ -385,12 +442,18 @@ class _InserimentoSegnalazioneGUIState
               backgroundColor: Colors.red),
         );
       }
+    } else if(!_isInItaly){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Non sei in Italia'),
+            backgroundColor: Colors.red),
+      );
     }
   }
 
   Future<bool> sendData() async {
     bool result = false;
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _isInItaly) {
       _formKey.currentState!.save();
 
       result = await _controller.addReport(
@@ -399,7 +462,8 @@ class _InserimentoSegnalazioneGUIState
         titolo: _titolo!,
         descrizione: _descrizione!,
         categoria: _categoria,
-        location: _location, // Replace with actual location data
+        location: _location,
+        // Replace with actual location data
         indirizzo: _indirizzo,
         photo: _selectedImage,
       );
@@ -413,7 +477,7 @@ class _InserimentoSegnalazioneGUIState
       return null;
     }
     if (_controller.containsBadWords(value, _badWords!)) {
-      return 'La descrizione contiene parole non consentite';
+      return 'Il campo contiene parole non consentite';
     }
     return null;
   }
@@ -421,11 +485,13 @@ class _InserimentoSegnalazioneGUIState
   Future<void> _pickImageFromCamera() async {
     try {
       final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
+          await _imagePicker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null && pickedFile.path.toLowerCase().endsWith('.jpg')) {
         setState(() {
           _selectedImage = File(pickedFile.path);
         });
+      } else {
+        showMessage(context, isError: true, message: 'Estensione immagine non valida');
       }
     } catch (e) {
       Navigator.of(context).pushReplacement(

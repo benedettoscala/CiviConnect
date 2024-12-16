@@ -57,12 +57,12 @@ class CitizenReportManagementController {
   /// \return A `Future` that resolves to `true` if the report is successfully added, otherwise `false`.
   Future<bool> addReport(BuildContext context,
       {required String citta,
-      required String titolo,
-      required String descrizione,
-      required Category categoria,
-      required GeoPoint location,
-      Map<String, String>? indirizzo,
-      File? photo}) async {
+        required String titolo,
+        required String descrizione,
+        required Category categoria,
+        required GeoPoint location,
+        Map<String, String>? indirizzo,
+        File? photo}) async {
     final report = Report(
       uid: _firebaseAuth.currentUser!.uid,
       city: citta,
@@ -84,7 +84,7 @@ class CitizenReportManagementController {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => redirectPage),
-        (route) => false,
+            (route) => false,
       );
     }
     return result;
@@ -97,7 +97,9 @@ class CitizenReportManagementController {
 
     final storageRef = FirebaseStorage.instance
         .ref()
-        .child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+        .child('images/${DateTime
+        .now()
+        .millisecondsSinceEpoch}.jpg');
     final uploadTask = storageRef.putFile(image);
     final snapshot = await uploadTask.whenComplete(() => {});
     final downloadUrl = await snapshot.ref.getDownloadURL();
@@ -169,7 +171,8 @@ class CitizenReportManagementController {
         'https://raw.githubusercontent.com/napolux/paroleitaliane/master/paroleitaliane/lista_badwords.txt';
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      final words = response.body.split('\n')..map((e) => e.trim()).toList();
+      final words = response.body.split('\n')
+        ..map((e) => e.trim()).toList();
 
       var box = Hive.box('settings');
       await box.put('bad_words', words);
@@ -267,89 +270,93 @@ class CitizenReportManagementController {
             : 'roma');
     return snapshot;
   }
-}
 
-/// Requests location permissions from the user.
-///
-/// This function checks if the location service is enabled and if the necessary
-/// permissions are granted. If the service is not enabled or the permissions are
-/// denied, it redirects the user to the `LocationPermissionPage`.
-///
-/// \param context The build context.
-/// \return A `Future` that resolves to a `loc.Location` object if the permissions
-///         are granted and the service is enabled, otherwise `null`.
-Future<loc.Location> requestLocationPermissions(BuildContext context) async {
-  loc.Location location = loc.Location();
 
-  bool serviceEnabled = await location.serviceEnabled();
-  if (!serviceEnabled) {
-    serviceEnabled = await location.requestService();
+  /// Requests location permissions from the user.
+  ///
+  /// This function checks if the location service is enabled and if the necessary
+  /// permissions are granted. If the service is not enabled or the permissions are
+  /// denied, it redirects the user to the `LocationPermissionPage`.
+  ///
+  /// \param context The build context.
+  /// \return A `Future` that resolves to a `loc.Location` object if the permissions
+  ///         are granted and the service is enabled, otherwise `null`.
+  Future<loc.Location> requestLocationPermissions(BuildContext context) async {
+    loc.Location location = loc.Location();
+
+    bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
-      _redirectToPermissionPage(context);
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        _redirectToPermissionPage(context);
+      }
     }
-  }
 
-  loc.PermissionStatus permissionGranted = await location.hasPermission();
-  if (permissionGranted == loc.PermissionStatus.denied) {
-    permissionGranted = await location.requestPermission();
+    loc.PermissionStatus permissionGranted = await location.hasPermission();
     if (permissionGranted == loc.PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted == loc.PermissionStatus.denied) {
+        _redirectToPermissionPage(context);
+      }
+    }
+
+    if (permissionGranted == loc.PermissionStatus.deniedForever) {
       _redirectToPermissionPage(context);
     }
+    return location;
   }
 
-  if (permissionGranted == loc.PermissionStatus.deniedForever) {
-    _redirectToPermissionPage(context);
+  /// Retrieves the current coordinates of the user.
+  ///
+  /// This function requests location permissions from the user and then
+  /// fetches the current location data. It returns a `GeoPoint` object
+  /// containing the latitude and longitude of the user's location.
+  ///
+  /// \param context The build context.
+  /// \return A `Future` that resolves to a `GeoPoint` object if the location
+  ///         is successfully retrieved, otherwise `null`.
+  Future<GeoPoint?> getCoordinates(BuildContext context) async {
+    loc.Location location = await requestLocationPermissions(context);
+    loc.LocationData locationData = await location.getLocation();
+    return GeoPoint(locationData.latitude!, locationData.longitude!);
   }
-  return location;
-}
 
-/// Retrieves the current coordinates of the user.
-///
-/// This function requests location permissions from the user and then
-/// fetches the current location data. It returns a `GeoPoint` object
-/// containing the latitude and longitude of the user's location.
-///
-/// \param context The build context.
-/// \return A `Future` that resolves to a `GeoPoint` object if the location
-///         is successfully retrieved, otherwise `null`.
-Future<GeoPoint?> getCoordinates(BuildContext context) async {
-  loc.Location location = await requestLocationPermissions(context);
-  loc.LocationData locationData = await location.getLocation();
-  return GeoPoint(locationData.latitude!, locationData.longitude!);
-}
+  /// Retrieves the location details based on the provided [GeoPoint].
+  ///
+  /// This method fetches the locality, street, and name from the coordinates
+  /// of the given [GeoPoint] using the geocoding package.
+  ///
+  /// \param location The geographical location as a [GeoPoint].
+  /// \return A `Future` that resolves to a list of strings containing the locality,
+  ///         street, and name of the location.
+  Future<List<String>> getLocation(GeoPoint? location) async {
+    final locationData = location;
 
-/// Retrieves the location details based on the provided [GeoPoint].
-///
-/// This method fetches the locality, street, and name from the coordinates
-/// of the given [GeoPoint] using the geocoding package.
-///
-/// \param location The geographical location as a [GeoPoint].
-/// \return A `Future` that resolves to a list of strings containing the locality,
-///         street, and name of the location.
-Future<List<String>> getLocation(GeoPoint? location) async {
-  final locationData = location;
-
-  //setting posizione
-  List<Placemark> placemarks = await placemarkFromCoordinates(
-      locationData!.latitude, locationData.longitude);
-  return [
-    placemarks[0].locality ?? 'Località non disponibile',
-    placemarks[0].street ?? 'Strada non disponibile',
-    placemarks[0].name ?? 'Nome non disponibile'
-  ];
-}
+    //setting posizione
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+        locationData!.latitude, locationData.longitude);
+    return [
+      placemarks[0].locality ?? 'Località non disponibile', //0
+      placemarks[0].street ?? 'Strada non disponibile', //1
+      placemarks[0].name ?? 'Nome non disponibile', //2
+      placemarks[0].country ?? 'Paese non disponibile', //3
+    ];
+  }
 
 // Redirects the user to the LocationPermissionPage.
 // This function navigates to the LocationPermissionPage, which prompts the user to enable location services or grant location permissions.
-void _redirectToPermissionPage(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const PermissionPage(
-        redirectPage: HomePage(),
-        error: 'Localizzazione disabilitata',
-        icon: Icons.location_off,
+  void _redirectToPermissionPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+        const PermissionPage(
+          redirectPage: HomePage(),
+          error: 'Localizzazione disabilitata',
+          icon: Icons.location_off,
+        ),
       ),
-    ),
-  );
+    );
+  }
+
 }
