@@ -15,6 +15,12 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
+  static const _APIKEY_ANDROID = String.fromEnvironment('APIKEY_ANDROID');
+  static const _APIKEY_WEB = String.fromEnvironment('APIKEY_WEB');
+  static const _APIKEY_WIN = String.fromEnvironment('APIKEY_WIN');
+  static const _APIKEY_IOS = String.fromEnvironment('APIKEY_IOS');
+  static const _APIKEY_MAC = String.fromEnvironment('APIKEY_MAC');
+
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -41,7 +47,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAgcJ3fneU3c1o5-yvm10JM9llib7Deahs',
+    apiKey: _APIKEY_WEB,
     appId: '1:966074492991:web:820e4c8c1676877782f08a',
     messagingSenderId: '966074492991',
     projectId: 'civiconnect-13aeb',
@@ -50,7 +56,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBc4Kb5kYGc1gL6QORfcMhah2aYls4w9rk',
+    apiKey: _APIKEY_ANDROID,
     appId: '1:966074492991:android:fa8089007b0cdefe82f08a',
     messagingSenderId: '966074492991',
     projectId: 'civiconnect-13aeb',
@@ -58,7 +64,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDdeKwG_QDUuM_xln_VYGh8IWkv_o-Cy6I',
+    apiKey: _APIKEY_IOS,
     appId: '1:966074492991:ios:650fb586f21a535382f08a',
     messagingSenderId: '966074492991',
     projectId: 'civiconnect-13aeb',
@@ -67,7 +73,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDdeKwG_QDUuM_xln_VYGh8IWkv_o-Cy6I',
+    apiKey: _APIKEY_MAC,
     appId: '1:966074492991:ios:650fb586f21a535382f08a',
     messagingSenderId: '966074492991',
     projectId: 'civiconnect-13aeb',
@@ -76,12 +82,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAgcJ3fneU3c1o5-yvm10JM9llib7Deahs',
+    apiKey: _APIKEY_WIN,
     appId: '1:966074492991:web:6abb24f369951ab482f08a',
     messagingSenderId: '966074492991',
     projectId: 'civiconnect-13aeb',
     authDomain: 'civiconnect-13aeb.firebaseapp.com',
     storageBucket: 'civiconnect-13aeb.firebasestorage.app',
   );
-
 }

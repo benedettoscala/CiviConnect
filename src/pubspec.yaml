@@ -28,25 +28,59 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  string_similarity: ^2.0.0
   flutter:
     sdk: flutter
 
+  cloud_functions: ^5.2.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+  permission_handler: ^10.2.0
   cupertino_icons: ^1.0.8
   firebase_core: ^3.8.0
   firebase_ui_auth: ^1.16.0
   firebase_auth: any
-
+  firebase_storage: ^12.0.0
   flutter_form_builder: ^9.5.0
   form_builder_validators: ^11.0.0
   flutter_svg: ^2.0.15
   hugeicons: ^0.0.7
+  cloud_firestore: ^5.5.0
+  flutter_localizations:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.3
+  geolocator: ^13.0.2
+  geocoding: ^2.0.0
+  location: ^5.0.0
+  flutter_map: 6.2.1 # Per utilizzare OpenStreetMap
+  flutter_map_heatmap: any
+  http: ^1.2.2
+  latlong2: 0.9.1 # Per gestire le coordinate geografiche
+  flutter_map_cancellable_tile_provider: ^2.0.0
+  pie_chart: ^5.4.0
+  image_picker: ^1.1.2
+  hive_flutter: ^1.1.0
+  hive: ^2.2.3
+flutter_icons:
+  image_path: "assets/images/logo_image.png"
+  android: true
+  min_sdk_android: 31
+  remove_alpha_ios: true
+  adaptive_icon_foreground: "assets/images/logo_image.png"
+
+flutter_native_splash:
+  image: "assets/images/logo_image.png"
+  android: true
+  android_gravity: center
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mockito: ^5.0.17
+  build_runner: ^2.1.8
+  hive_ce_generator: any
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -67,9 +101,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+     - assets/images/
+     - assets/images/logo_blu.svg
+     - assets/images/logo_white.svg
+     - assets/images/profile/
+     - assets/files/comuni-localita-cap-italia.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

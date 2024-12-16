@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 /// Each status has a [name] to display as a string and a [value] used for sorting or comparisons.
 enum StatusReport implements Comparable<StatusReport> {
   /// The report is waiting for admin approval.
-  underReview(name: 'In verifica', value: 0),
+  underReview(name: 'In Verifica', value: 0),
 
   /// The report has been approved by an admin.
   accepted(name: 'Accettata', value: 1),
 
   /// The report is being worked on to resolve the issue.
-  inProgress(name: 'In lavorazione', value: 2),
+  inProgress(name: 'In Lavorazione', value: 2),
 
   /// The report has been completed.
   completed(name: 'Completata', value: 3),
@@ -39,10 +39,23 @@ enum StatusReport implements Comparable<StatusReport> {
   /// Returns the human-readable name of the status.
   ///
   /// This can be used for display purposes.
-  String name() => _name;
+  String get name => _name;
 
   @override
   int compareTo(StatusReport other) => value - other.value;
+
+  @override
+  String toString() => _name;
+
+  /// Returns the status of the report based on the [name].
+  static StatusReport? getStatus(String? name) {
+    for (StatusReport status in StatusReport.values) {
+      if (status.name == name) {
+        return status;
+      }
+    }
+    return null;
+  }
 }
 
 /// Represents the priority of a report.
@@ -50,14 +63,17 @@ enum StatusReport implements Comparable<StatusReport> {
 /// This enum categorizes the priority levels of a report. Each priority level
 /// has a [name], [value], and a [color] associated with it for visual representation.
 enum PriorityReport implements Comparable<PriorityReport> {
+  /// Unset priority level.
+  unset(value: 1, name: 'Non impostata', color: Colors.grey),
+
   /// Low priority level.
-  low(value: 0, name: 'Bassa', color: Colors.yellow),
+  low(value: 2, name: 'Bassa', color: Colors.yellow),
 
   /// Medium priority level.
-  medium(value: 1, name: 'Media', color: Colors.orange),
+  medium(value: 3, name: 'Media', color: Colors.orange),
 
   /// High priority level.
-  high(value: 2, name: 'Alta', color: Colors.red);
+  high(value: 4, name: 'Alta', color: Colors.red);
 
   /// A numerical value representing the priority.
   final int _value;
@@ -89,6 +105,19 @@ enum PriorityReport implements Comparable<PriorityReport> {
   /// This can be used for display purposes.
   String get name => _name;
 
+  /// Returns the priority of the report based on the [name].
+  static PriorityReport? getPriority(String? name) {
+    for (PriorityReport priority in PriorityReport.values) {
+      if (priority.name == name) {
+        return priority;
+      }
+    }
+    return null;
+  }
+
   @override
   int compareTo(PriorityReport other) => _value - other.value;
+
+  @override
+  String toString() => _name;
 }
