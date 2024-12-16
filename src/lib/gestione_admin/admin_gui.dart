@@ -177,13 +177,13 @@ class AdminHomePageState extends State<AdminHomePage> {
   /// Generate credentials for the selected municipality.
   void _generateCredentials(String adminPassword, String comuneEmail) async {
     try {
-      await _controller.generateCredentials(
+      String message = await _controller.generateCredentials(
           _selectedMunicipality!, adminPassword, comuneEmail);
 
       _textEditingControllerAutocomplete!.clear();
 
       // Show a snackbar with the success message
-      showMessage(context, message: 'Credenziali generate con successo');
+      showMessage(context, message: message);
     } catch (e) {
       // Show a snackbar with the error message
       showMessage(context, isError: true, message: '$e');

@@ -135,28 +135,47 @@ class AdminManagementController {
   /// - [selectedMunicipality]: The selected municipality data.
   /// - [adminPassword]: The password for the admin user.
   /// - [emailComune]: The email address for the municipality.
-  /// Throws an exception if an error occurs during the process.
+  /// Returns:
+  /// - A `Future<String>` indicating the result of the operation.
   /// Throws:
   /// - An exception if an error occurs during the process.
   /// - An exception if the admin password is incorrect.
   /// - An exception if the authenticated user is not found.
   /// - An exception if the municipality data cannot be saved to Firestore.
-  Future<void> generateCredentials(Map<String, String> selectedMunicipality,
+  Future<String> generateCredentials(Map<String, String> selectedMunicipality,
       String adminPassword, String emailComune) async {
     String municipalityEmailPart =
         selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
     String emailGen = 'comune.$municipalityEmailPart@anci.gov';
     String passwordGen = generatePassword();
 
-    if (validateEmail(emailGen) != null ||
-        validatePassword(passwordGen) != null) {
-      throw ('Errore nella generazione delle credenziali');
-    }
+    // Validate the generated credentials
+    validateCredentialsGenerated(emailGen, passwordGen);
 
     // Save municipality credentials to database
     await _daoAdmin.createAccountAndSendCredentials(emailGen, passwordGen,
         emailComune, selectedMunicipality, adminPassword);
+
+    return 'Credenziali generate con successo';
   }
+
+  /// Validate the credentials.
+  /// This method validates the email and password.
+  /// Throws an exception if either the email or password is invalid.
+  /// Parameters:
+  /// - [email]: The email to validate.
+  /// - [password]: The password to validate.
+  /// Throws:
+  /// - An exception if the email or password is invalid.
+  void validateCredentialsGenerated(String email, String password) {
+    String? emailError = validateEmail(email);
+    String? passwordError = validatePassword(password);
+
+    if (emailError != null || passwordError != null) {
+      throw ('Errore nella generazione delle credenziali');
+    }
+  }
+
 
   /// Generate a random password for the municipality.
   /// The password is 15 characters long and contains uppercase, lowercase, numbers, and special characters.
