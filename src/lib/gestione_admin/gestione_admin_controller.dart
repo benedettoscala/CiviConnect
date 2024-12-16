@@ -117,52 +117,71 @@ class AdminManagementController {
 
   /// Checks if the municipality exists in the database.
   /// The municipality name is used to check if it exists in the database.
+  /// Returns a boolean indicating whether the municipality exists in the database.
+  /// Parameters:
+  /// - [comune]: The name of the municipality to check.
+  /// Returns:
+  /// - A `Future<bool>` indicating whether the municipality exists in the database.
+  /// Throws:
+  /// - An exception if an error occurs during the process.
   Future<bool> municipalityExistsInDatabase(String comune) async {
     return await _daoAdmin.municipalityExistsInDatabase(comune);
   }
 
-  /// Generates credentials for the selected municipality.
-  /// The method generates an email and password for the municipality.
-  /// The email is in the format `comune.<comune>@anci.gov`.
-  /// The password is a randomly generated string with 15 characters.
-  /// The credentials are saved to the database.
-  /// The method returns the generated email and password.
+  /// Generate credentials for the municipality.
+  /// The method generates credentials for the municipality and sends them via email.
+  /// The method creates a new user in Firebase Authentication and saves the municipality data to Firestore.
   /// Parameters:
-  /// - [selectedMunicipality]: The selected municipality to generate credentials for.
-  /// - [adminPassword]: The password of the admin user.
-  /// - [emailComune]: The email of the municipality.
+  /// - [selectedMunicipality]: The selected municipality data.
+  /// - [adminPassword]: The password for the admin user.
+  /// - [emailComune]: The email address for the municipality.
   /// Returns:
-  /// - A `Future<Map<String, String>>` containing the generated email and password.
+  /// - A `Future<String>` indicating the result of the operation.
   /// Throws:
   /// - An exception if an error occurs during the process.
-  /// - An exception if the email is invalid.
-  /// - An exception if the password is invalid.
-  /// - An exception if the credentials cannot be saved to the database.
   /// - An exception if the admin password is incorrect.
-  Future<Map<String, String>> generateCredentials(
-      Map<String, String> selectedMunicipality,
-      String adminPassword,
-      String emailComune) async {
+  /// - An exception if the authenticated user is not found.
+  /// - An exception if the municipality data cannot be saved to Firestore.
+  Future<String> generateCredentials(Map<String, String> selectedMunicipality,
+      String adminPassword, String emailComune) async {
     String municipalityEmailPart =
         selectedMunicipality['Comune']!.toLowerCase().replaceAll(' ', '');
     String emailGen = 'comune.$municipalityEmailPart@anci.gov';
     String passwordGen = generatePassword();
 
-    if (validateEmail(emailGen) != null || validatePassword(passwordGen) != null) {
+    // Validate the generated credentials
+    validateCredentialsGenerated(emailGen, passwordGen);
+
+    // Save municipality credentials to database
+    await _daoAdmin.createAccountAndSendCredentials(emailGen, passwordGen,
+        emailComune, selectedMunicipality, adminPassword);
+
+    return 'Credenziali generate con successo';
+  }
+
+  /// Validate the credentials.
+  /// This method validates the email and password.
+  /// Throws an exception if either the email or password is invalid.
+  /// Parameters:
+  /// - [email]: The email to validate.
+  /// - [password]: The password to validate.
+  /// Throws:
+  /// - An exception if the email or password is invalid.
+  void validateCredentialsGenerated(String email, String password) {
+    String? emailError = validateEmail(email);
+    String? passwordError = validatePassword(password);
+
+    if (emailError != null || passwordError != null) {
       throw ('Errore nella generazione delle credenziali');
     }
-
-    // Save credentials to the database
-    await _daoAdmin.saveCredentialsToDatabase(emailGen, emailComune,
-        passwordGen, adminPassword, selectedMunicipality);
-
-    return {'email': emailGen, 'password': passwordGen};
   }
+
 
   /// Generate a random password for the municipality.
   /// The password is 15 characters long and contains uppercase, lowercase, numbers, and special characters.
   /// The password is shuffled for added security.
   /// Returns the generated password.
+  /// Throws an exception if an error occurs during the process.
   String generatePassword() {
     const length = 15;
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

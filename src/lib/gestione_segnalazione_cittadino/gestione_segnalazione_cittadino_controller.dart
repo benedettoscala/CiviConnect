@@ -240,12 +240,13 @@ class CitizenReportManagementController {
   /// - A [Future] that resolves to a list of maps, where each map contains the report details.
   /// - If no reports are found, it returns an empty list.
   /// - If the user is not valid, it returns `null`.
-  Future<List<Map<String, dynamic>>?> filterReportsBy({required String city,
-    List<StatusReport>? status,
-    List<PriorityReport>? priority,
-    List<Category>? category,
-    DateTimeRange? dateRange,
-    String? keyword}) async {
+  Future<List<Map<String, dynamic>>?> filterReportsBy(
+      {required String city,
+      List<StatusReport>? status,
+      List<PriorityReport>? priority,
+      List<Category>? category,
+      DateTimeRange? dateRange,
+      String? keyword}) async {
     Map<String, List<dynamic>> criteria = {
       if (status != null) 'status': status.map((e) => e.name).toList(),
       if (priority != null) 'priority': priority.map((e) => e.name).toList(),
