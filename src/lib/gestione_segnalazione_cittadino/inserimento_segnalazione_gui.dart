@@ -78,11 +78,12 @@ class _InserimentoSegnalazioneGUIState
   Future<void> _fetchLocation() async {
     _location = (await _controller.getCoordinates(context))!;
     _indirizzoLista = await _controller.getLocation(_location);
-    if(_indirizzoLista!.elementAt(3) == 'Italy' || _indirizzoLista!.elementAt(3) == 'Italia'){
-      showMessage(context, isError: true, message: 'Non sei in Italia');
-    }
     setState(() {
-      _isInItaly = false;
+      if (_indirizzoLista!.elementAt(3) != 'Italy' &&
+          _indirizzoLista!.elementAt(3) != 'Italia') {
+        showMessage(context, isError: true, message: 'Non sei in Italia');
+        _isInItaly = false;
+      }
       _indirizzoController.text =
           '${_indirizzoLista!.elementAt(1)} ${_indirizzoLista!.elementAt(2)}'; //strada civico
       _cittaController.text = _indirizzoLista!.elementAt(0);
