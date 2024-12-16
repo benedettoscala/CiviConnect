@@ -4,7 +4,6 @@ import 'package:civiconnect/gestione_segnalazione_cittadino/inserimento_segnalaz
 import 'package:civiconnect/model/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mockito/annotations.dart';
@@ -375,23 +374,4 @@ Future<void> _pumpWidgetAndTestEnv({required WidgetTester tester,
         imagePicker: mockedImagePicker,
       )));
   await tester.pumpAndSettle();
-}
-
-/* ------------------------------- UTILITY METHODS ------------------------------------ */
-
-/// Get the GlobalKeys of the form fields
-/// and return them as a list
-List<GlobalKey<FormBuilderFieldState>> _getFieldKeys() {
-  List<FormBuilderTextField> list = find
-      .bySubtype<FormBuilderTextField>()
-      .evaluate()
-      .map((el) => el.widget as FormBuilderTextField)
-      .toList();
-
-  List<GlobalKey<FormBuilderFieldState>> keys = list
-      .map((widget) => widget.key)
-      .cast<GlobalKey<FormBuilderFieldState<FormBuilderField, dynamic>>>()
-      .toList();
-
-  return keys;
 }
